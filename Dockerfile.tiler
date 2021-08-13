@@ -1,0 +1,15 @@
+FROM --platform=${TARGETPLATFORM:-linux/amd64} tiangolo/uvicorn-gunicorn:python3.8
+
+ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+
+RUN pip install \
+    titiler.core==0.3.* \
+    titiler.mosaic==0.3.* \
+    psycopg2
+
+COPY src/eoapi/tiler /tmp/tiler
+RUN pip install /tmp/tiler
+RUN rm -rf /tmp/tiler
+
+ENV MODULE_NAME eoapi.tiler.app
+ENV VARIABLE_NAME app

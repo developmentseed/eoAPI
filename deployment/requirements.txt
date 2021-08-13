@@ -1,0 +1,12 @@
+# aws cdk
+aws-cdk.core==1.118.0
+aws-cdk.aws_lambda==1.118.0
+aws-cdk.aws_apigatewayv2==1.118.0
+aws-cdk.aws_apigatewayv2_integrations==1.118.0
+aws-cdk.aws_cognito==1.118.0
+aws-cdk.aws_rds==1.118.0
+aws-cdk.aws_ec2==1.118.0
+
+# pydantic settings
+pydantic
+python-dotenv
