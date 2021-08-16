@@ -1,5 +1,7 @@
 """FastAPI application using PGStac."""
 
+from eoapi.stac.config import TilesApiSettings
+from eoapi.stac.extension import TilesExtension
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
 from stac_fastapi.extensions.core import (
@@ -13,6 +15,8 @@ from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
 from stac_fastapi.pgstac.transactions import TransactionsClient
 from stac_fastapi.pgstac.types.search import PgstacSearch
+
+tiles_settings = TilesApiSettings()
 
 settings = Settings()
 
@@ -34,6 +38,12 @@ api = StacApi(
     response_class=ORJSONResponse,
 )
 app = api.app
+
+
+if tiles_settings.titiler_endpoint:
+    # Register to the tiles extension to the api
+    extension = TilesExtension()
+    extension.register(api.app, tiles_settings.titiler_endpoint)
 
 
 @app.on_event("startup")
