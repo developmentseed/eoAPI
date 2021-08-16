@@ -1,7 +1,8 @@
-## eoAPI
+## Earth Observation API
 
-STAC and Tiler API
+Deploy a STAC API and a dynamic mosaic tiler API using AWS CDK.
 
+![](https://user-images.githubusercontent.com/10407788/129632832-fe6f7d80-4d87-463a-b0cc-305423a8489e.png)
 
 ### Deployment
 
@@ -41,3 +42,10 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
     # Deploy in specific region
     $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
+
+
+## STAC + PgSTAC + TiTiler
+
+The dyanic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
+
+![](https://user-images.githubusercontent.com/10407788/129632282-f71e9f45-264c-4882-af28-7062c4e56f25.png)
