@@ -179,37 +179,7 @@ class eoAPIconstruct(core.Stack):
             description="Arn of the SecretsManager instance holding the connection info for Postgres DB",
         )
 
-        eostac_function = aws_lambda.Function(
-            self,
-            f"{id}-stac-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
-            code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath(code_dir),
-                file="deployment/dockerfiles/Dockerfile.stac",
-            ),
-            vpc=vpc,
-            allow_public_subnet=True,
-            handler="handler.handler",
-            memory_size=eostac_settings.memory,
-            timeout=core.Duration.seconds(eostac_settings.timeout),
-            environment=eostac_settings.env or {},
-        )
-        for k, v in db_secrets.items():
-            eostac_function.add_environment(key=k, value=str(v))
-
-        db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
-
-        stac_api = apigw.HttpApi(
-            self,
-            f"{id}-stac-endpoint",
-            default_integration=apigw_integrations.LambdaProxyIntegration(
-                handler=eostac_function
-            ),
-        )
-        core.CfnOutput(self, "STAC-API", value=stac_api.url)
-
-        setup_db.is_required_by(eostac_function)
-
+        # eoapi.tiler
         eotiler_function = aws_lambda.Function(
             self,
             f"{id}-tiler-lambda",
@@ -240,16 +210,50 @@ class eoAPIconstruct(core.Stack):
 
         db.connections.allow_from(eotiler_function, port_range=ec2.Port.tcp(5432))
 
-        stac_api = apigw.HttpApi(
+        tiler_api = apigw.HttpApi(
             self,
             f"{id}-tiler-endpoint",
             default_integration=apigw_integrations.LambdaProxyIntegration(
                 handler=eotiler_function
             ),
         )
-        core.CfnOutput(self, "Tiler-API", value=stac_api.url)
+        core.CfnOutput(self, "eoAPI-tiler", value=tiler_api.url)
 
         setup_db.is_required_by(eotiler_function)
+
+        # eoapi.stac
+        eostac_function = aws_lambda.Function(
+            self,
+            f"{id}-stac-lambda",
+            runtime=aws_lambda.Runtime.PYTHON_3_8,
+            code=aws_lambda.Code.from_docker_build(
+                path=os.path.abspath(code_dir),
+                file="deployment/dockerfiles/Dockerfile.stac",
+            ),
+            vpc=vpc,
+            allow_public_subnet=True,
+            handler="handler.handler",
+            memory_size=eostac_settings.memory,
+            timeout=core.Duration.seconds(eostac_settings.timeout),
+            environment=eostac_settings.env or {},
+        )
+        for k, v in db_secrets.items():
+            eostac_function.add_environment(key=k, value=str(v))
+
+        eotiler_function.add_environment(key="TITILER_ENDPOINT", value=tiler_api.url)
+
+        db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
+
+        stac_api = apigw.HttpApi(
+            self,
+            f"{id}-stac-endpoint",
+            default_integration=apigw_integrations.LambdaProxyIntegration(
+                handler=eostac_function
+            ),
+        )
+        core.CfnOutput(self, "eoAPI-stac", value=stac_api.url)
+
+        setup_db.is_required_by(eostac_function)
 
 
 app = core.App()

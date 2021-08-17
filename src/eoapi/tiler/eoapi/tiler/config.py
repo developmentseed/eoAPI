@@ -11,6 +11,7 @@ class _ApiSettings(pydantic.BaseSettings):
     name: str = "eoAPI-tiler"
     cors_origins: str = "*"
     cachecontrol: str = "public, max-age=3600"
+    debug: bool = False
 
     @pydantic.validator("cors_origins")
     def parse_cors_origin(cls, v):
@@ -55,7 +56,7 @@ class _PostgresSettings(pydantic.BaseSettings):
     postgres_port: str
     postgres_dbname: str
 
-    db_min_conn_size: int = 10
+    db_min_conn_size: int = 1
     db_max_conn_size: int = 10
     db_max_queries: int = 50000
     db_max_inactive_conn_lifetime: float = 300
