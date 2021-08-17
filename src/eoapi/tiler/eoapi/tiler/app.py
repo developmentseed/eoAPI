@@ -12,8 +12,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.factory import MultiBaseTilerFactory
-from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.core.resources.enums import OptionalHeader
+from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 
 logging.getLogger("botocore.credentials").disabled = True
 logging.getLogger("botocore.utils").disabled = True
@@ -46,7 +46,9 @@ mosaic = MosaicTilerFactory(router_prefix="mosaic", optional_headers=optional_he
 app.include_router(mosaic.router, prefix="/mosaic", tags=["PgSTAC Mosaic"])
 
 # Custom STAC titiler endpoint (not added to the openapi docs)
-stac = MultiBaseTilerFactory(reader=MyCustomSTACReader, router_prefix="stac", optional_headers=optional_headers)
+stac = MultiBaseTilerFactory(
+    reader=MyCustomSTACReader, router_prefix="stac", optional_headers=optional_headers
+)
 app.include_router(
     stac.router,
     prefix="/stac",
