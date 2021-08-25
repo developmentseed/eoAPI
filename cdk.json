@@ -1,0 +1,3 @@
+{
+    "app": "python3 deployment/cdk/app.py"
+}

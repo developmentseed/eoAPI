@@ -1,0 +1,10 @@
+FROM --platform=linux/amd64 lambci/lambda:build-python3.8
+
+WORKDIR /tmp
+
+RUN pip install "importlib_resources>=1.1.0;python_version<'3.9'" requests psycopg2-binary pypgstac==0.3.4 -t /asset
+
+COPY deployment/handlers/cfnresponse.py /asset/cfnresponse.py
+COPY deployment/handlers/db_handler.py /asset/handler.py
+
+CMD ["echo", "hello world"]

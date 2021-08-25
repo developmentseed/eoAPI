@@ -1,0 +1,22 @@
+FROM tiangolo/uvicorn-gunicorn:python3.8
+
+ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+
+RUN pip install \
+    git+https://github.com/stac-utils/stac-fastapi.git#subdirectory=stac_fastapi/api \
+    git+https://github.com/stac-utils/stac-fastapi.git#subdirectory=stac_fastapi/types \
+    git+https://github.com/stac-utils/stac-fastapi.git#subdirectory=stac_fastapi/extensions \
+    git+https://github.com/bitner/stac-fastapi.git@cql#subdirectory=stac_fastapi/pgstac
+
+# RUN pip install \
+#     stac-fastapi.api==2.0.* \
+#     stac-fastapi.types==2.0.* \
+#     stac-fastapi.extensions==2.0.* \
+#     stac-fastapi.pgstac==2.0.*
+
+COPY src/eoapi/stac /tmp/stac
+RUN pip install /tmp/stac
+RUN rm -rf /tmp/stac
+
+ENV MODULE_NAME eoapi.stac.app
+ENV VARIABLE_NAME app
