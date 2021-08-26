@@ -1,0 +1,10 @@
+FROM tiangolo/uvicorn-gunicorn:python3.8
+
+RUN pip install psycopg2
+
+COPY src/eoapi/vector /tmp/vector
+RUN pip install /tmp/vector
+RUN rm -rf /tmp/vector
+
+ENV MODULE_NAME eoapi.vector.app
+ENV VARIABLE_NAME app
