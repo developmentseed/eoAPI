@@ -21,6 +21,7 @@ class _ApiSettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
+        env_prefix = "EOAPI_VECTOR"
         env_file = ".env"
 
 

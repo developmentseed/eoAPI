@@ -12,6 +12,8 @@ inst_reqs = [
     "buildpg",
     "asyncpg",
     "stac-pydantic~=2.0",
+    "jinja2>=2.11.2,<3.0.0",
+    "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
 
 extra_reqs = {
@@ -22,7 +24,7 @@ extra_reqs = {
 setup(
     name="eoapi.vector",
     description=u"",
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     packages=find_namespace_packages(exclude=["tests*"]),
     include_package_data=True,
     zip_safe=False,

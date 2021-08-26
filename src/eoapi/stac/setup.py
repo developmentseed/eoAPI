@@ -21,7 +21,7 @@ extra_reqs = {
 setup(
     name="eoapi.stac",
     description=u"",
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     packages=find_namespace_packages(exclude=["tests*"]),
     include_package_data=True,
     zip_safe=False,

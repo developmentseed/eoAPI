@@ -13,13 +13,23 @@ from stac_pydantic.api.extensions.sort import SortExtension
 from eoapi.vector.config import TileSettings
 from fastapi import APIRouter, Depends, Path, Query
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import HTMLResponse, Response
+from starlette.templating import Jinja2Templates
 
 mvt_settings = TileSettings()
 
 TileMatrixSetNames = Enum(  # type: ignore
     "TileMatrixSetNames", [(a, a) for a in sorted(tms.list())]
 )
+
+try:
+    from importlib.resources import files as resources_files  # type: ignore
+except ImportError:
+    # Try backported to PY<39 `importlib_resources`.
+    from importlib_resources import files as resources_files  # type: ignore
+
+
+templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))
 
 
 class TileJSON(BaseModel):
@@ -122,6 +132,60 @@ class MVTilerFactory:
     def _search_mvt(self):
         """register search VectorTiles."""
 
+        @self.router.post(
+            "/register",
+            responses={200: {"description": "Register Search request."}},
+            response_model=TileJSON,
+            response_model_exclude_none=True,
+        )
+        async def register_search(
+            request: Request,
+            body: SearchCreate,
+            tms: TileMatrixSet = Depends(TileMatrixSetParams),
+            minzoom: Optional[int] = Query(
+                None, description="Overwrite default minzoom."
+            ),
+            maxzoom: Optional[int] = Query(
+                None, description="Overwrite default maxzoom."
+            ),
+            bounds: Optional[str] = Query(
+                None, description="Overwrite default bounding box."
+            ),
+        ):
+            """Register Search requests."""
+            pool = request.app.state.pool
+
+            async with pool.acquire() as conn:
+                q, p = render(
+                    """
+                    SELECT * FROM search_query(:req);
+                    """,
+                    req=body.json(exclude_none=True),
+                )
+                searchid = await conn.fetchval(q, *p)
+
+            route_params = {
+                "TileMatrixSetId": tms.identifier,
+                "searchid": searchid,
+                "z": "{z}",
+                "x": "{x}",
+                "y": "{y}",
+            }
+
+            tiles_endpoint = self.url_for(request, "search_tiles", **route_params)
+
+            bbox = (
+                tuple(map(float, bounds.split(","))) if bounds else (-180, -90, 180, 90)
+            )
+
+            return {
+                "bounds": bbox,
+                "minzoom": minzoom if minzoom is not None else tms.minzoom,
+                "maxzoom": maxzoom if maxzoom is not None else tms.maxzoom,
+                "name": searchid,
+                "tiles": [tiles_endpoint],
+            }
+
         @self.router.get(
             "/tiles/{searchid}/{z}/{x}/{y}.pbf",
             responses={200: {"content": {"application/x-protobuf": {}}}},
@@ -191,7 +255,7 @@ class MVTilerFactory:
 
                                 mvtgeom := ST_ASMVTGeom(
                                     ST_Transform(iter_record.geometry, epsg),
-                                    geom.geom,
+                                    geom,
                                     tile_resolution,
                                     tile_buffer
                                 );
@@ -305,56 +369,24 @@ class MVTilerFactory:
                 "tiles": [tiles_endpoint],
             }
 
-        @self.router.post(
-            "/register",
-            responses={200: {"description": "Register Search request."}},
-            response_model=TileJSON,
-            response_model_exclude_none=True,
+        @self.router.get(
+            "/{searchid}/index.html", response_class=HTMLResponse,
         )
-        async def register_search(
-            request: Request,
-            body: SearchCreate,
-            tms: TileMatrixSet = Depends(TileMatrixSetParams),
-            minzoom: Optional[int] = Query(
-                None, description="Overwrite default minzoom."
-            ),
-            maxzoom: Optional[int] = Query(
-                None, description="Overwrite default maxzoom."
-            ),
-            bounds: Optional[str] = Query(
-                None, description="Overwrite default bounding box."
-            ),
+        async def search_page(
+            request: Request, searchid: str = Path(..., description="search id"),
         ):
-            """Register Search requests."""
-            pool = request.app.state.pool
-
-            async with pool.acquire() as conn:
-                q, p = render(
-                    """
-                    SELECT * FROM search_query(:req);
-                    """,
-                    req=body.json(exclude_none=True),
-                )
-                searchid = await conn.fetchval(q, *p)
-
+            """Search viewer."""
             route_params = {
-                "TileMatrixSetId": tms.identifier,
                 "searchid": searchid,
-                "z": "{z}",
-                "x": "{x}",
-                "y": "{y}",
             }
 
-            tiles_endpoint = self.url_for(request, "search_tiles", **route_params)
-
-            bbox = (
-                tuple(map(float, bounds.split(","))) if bounds else (-180, -90, 180, 90)
+            return templates.TemplateResponse(
+                "index.html",
+                {
+                    "request": request,
+                    "tilejson_endpoint": self.url_for(
+                        request, "search_tilejson", **route_params
+                    ),
+                },
+                media_type="text/html",
             )
-
-            return {
-                "bounds": bbox,
-                "minzoom": minzoom if minzoom is not None else tms.minzoom,
-                "maxzoom": maxzoom if maxzoom is not None else tms.maxzoom,
-                "name": searchid,
-                "tiles": [tiles_endpoint],
-            }
