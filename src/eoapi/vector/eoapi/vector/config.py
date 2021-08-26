@@ -8,7 +8,7 @@ import pydantic
 class _ApiSettings(pydantic.BaseSettings):
     """API settings"""
 
-    name: str = "eoAPI-raster"
+    name: str = "eoAPI-vector"
     cors_origins: str = "*"
     cachecontrol: str = "public, max-age=3600"
     debug: bool = False
@@ -22,7 +22,6 @@ class _ApiSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = ".env"
-        env_prefix = "EOAPI_RASTER"
 
 
 @lru_cache()
@@ -53,7 +52,6 @@ class _PostgresSettings(pydantic.BaseSettings):
     postgres_user: str
     postgres_pass: str
     postgres_host_reader: str
-    postgres_host_writer: str
     postgres_port: str
     postgres_dbname: str
 
@@ -71,11 +69,6 @@ class _PostgresSettings(pydantic.BaseSettings):
     def reader_connection_string(self):
         """Create reader psql connection string."""
         return f"postgresql://{self.postgres_user}:{self.postgres_pass}@{self.postgres_host_reader}:{self.postgres_port}/{self.postgres_dbname}"
-
-    @property
-    def writer_connection_string(self):
-        """Create writer psql connection string."""
-        return f"postgresql://{self.postgres_user}:{self.postgres_pass}@{self.postgres_host_writer}:{self.postgres_port}/{self.postgres_dbname}"
 
 
 @lru_cache()
@@ -121,3 +114,23 @@ class _CacheSettings(pydantic.BaseSettings):
 def CacheSettings() -> _CacheSettings:
     """Cache settings."""
     return _CacheSettings()
+
+
+class _TileSettings(pydantic.BaseSettings):
+    """MVT settings"""
+
+    resolution: int = 4096
+    buffer: int = 256
+    max_feature: int = 10000
+
+    class Config:
+        """model config"""
+
+        env_prefix = "MVT_"
+        env_file = ".env"
+
+
+@lru_cache()
+def TileSettings() -> _TileSettings:
+    """Cache settings."""
+    return _TileSettings()

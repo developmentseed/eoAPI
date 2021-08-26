@@ -1,4 +1,4 @@
-"""Setup stac_tiler.stac."""
+"""Setup eoapi.vector."""
 
 from setuptools import find_namespace_packages, setup
 
@@ -7,10 +7,11 @@ with open("README.md") as f:
 
 inst_reqs = [
     "fastapi==0.65.1",
-    "stac-fastapi.api~=2.0",
-    "stac-fastapi.types~=2.0",
-    "stac-fastapi.extensions~=2.0",
-    "stac-fastapi.pgstac~=2.0",
+    "morecantile",
+    "psycopg2-binary",
+    "buildpg",
+    "asyncpg",
+    "stac-pydantic~=2.0",
 ]
 
 extra_reqs = {
@@ -19,7 +20,7 @@ extra_reqs = {
 
 
 setup(
-    name="eoapi.stac",
+    name="eoapi.vector",
     description=u"",
     python_requires=">=3.6",
     packages=find_namespace_packages(exclude=["tests*"]),
