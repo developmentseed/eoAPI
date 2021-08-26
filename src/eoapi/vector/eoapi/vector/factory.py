@@ -180,7 +180,7 @@ class MVTilerFactory:
                             RAISE EXCEPTION 'Search with Query Hash % Not Found', queryhash;
                         END IF;
 
-                        _where := format('%s AND ST_Intersects(geometry, %L::geometry)', search._where, ST_Transform(geom.geom, 4326));
+                        _where := format('%s AND ST_Intersects(geometry, %L::geometry)', search._where, ST_Transform(geom, 4326));
 
                         FOR query IN SELECT * FROM partition_queries(_where, search.orderby) LOOP
                             query := format('%s LIMIT %L', query, remaining_limit);
@@ -222,24 +222,23 @@ class MVTilerFactory:
 
                 query, args = render(
                     """
-                    WITH
-                    bounds AS (
-                        SELECT
-                            ST_Segmentize(
-                                ST_MakeEnvelope(
-                                    :xmin,
-                                    :ymin,
-                                    :xmax,
-                                    :ymax,
-                                    :epsg
-                                ),
-                                :seg_size
-                            ) AS geom
-                    ),
-                    mvtgeom AS (
-                        SELECT * FROM search_items(bounds, :queryhash, :epsg, :limit, :tile_resolution, :tile_buffer);
-                    ),
-                    SELECT ST_AsMVT(mvtgeom.*) FROM mvtgeom
+                    SELECT ST_AsMVT(mvtgeom.*) FROM search_items(
+                        st_segmentize(
+                            st_makeenvelope(
+                                :xmin,
+                                :ymin,
+                                :xmax,
+                                :ymax,
+                                :epsg
+                            ),
+                            :seg_size
+                        ),
+                        :queryhash,
+                        :epsg,
+                        :limit,
+                        :tile_resolution,
+                        :tile_buffer
+                    ) as mvtgeom;
                     """,
                     xmin=bbox.left,
                     ymin=bbox.bottom,
