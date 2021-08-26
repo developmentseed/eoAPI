@@ -83,8 +83,9 @@ $ docker-compose up
  ├──demo/                  - items/collections and notebook
  ├──deployment/            - AWS CDK code
  └──src/eoapi/
+    ├── raster/            - eoAPI raster Application package
     ├── stac/              - eoAPI stac Application package
-    └── raster/            - eoAPI raster Application package
+    └── vector/            - eoAPI vector Application package
 ```
 
 ## Contribution & Development
