@@ -5,16 +5,10 @@ from eoapi.stac.extension import TilesExtension
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
-from stac_fastapi.extensions.core import (
-    FieldsExtension,
-    QueryExtension,
-    SortExtension,
-    TransactionExtension,
-)
+from stac_fastapi.extensions.core import FieldsExtension, QueryExtension, SortExtension
 from stac_fastapi.pgstac.config import Settings
 from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
-from stac_fastapi.pgstac.transactions import TransactionsClient
 from stac_fastapi.pgstac.types.search import PgstacSearch
 from starlette.middleware.cors import CORSMiddleware
 
@@ -26,16 +20,7 @@ settings = Settings()
 api = StacApi(
     app=FastAPI(title=api_settings.name),
     settings=settings,
-    extensions=[
-        TransactionExtension(
-            client=TransactionsClient(),
-            settings=settings,
-            response_class=ORJSONResponse,
-        ),
-        QueryExtension(),
-        SortExtension(),
-        FieldsExtension(),
-    ],
+    extensions=[QueryExtension(), SortExtension(), FieldsExtension()],
     client=CoreCrudClient(),
     search_request_model=PgstacSearch,
     response_class=ORJSONResponse,
