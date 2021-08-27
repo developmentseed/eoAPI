@@ -120,6 +120,7 @@ class MVTilerFactory:
     def register_routes(self):
         """Register Tiler Routes."""
         self._search_mvt()
+        self._mercator_agg_grid()
 
     def url_for(self, request: Request, name: str, **path_params: Any) -> str:
         """Return full url (with prefix) for a specific endpoint."""
@@ -133,28 +134,11 @@ class MVTilerFactory:
         """register search VectorTiles."""
 
         @self.router.post(
-            "/register",
-            responses={200: {"description": "Register Search request."}},
-            response_model=TileJSON,
-            response_model_exclude_none=True,
+            "/register", responses={200: {"description": "Register Search request."}},
         )
-        async def register_search(
-            request: Request,
-            body: SearchCreate,
-            tms: TileMatrixSet = Depends(TileMatrixSetParams),
-            minzoom: Optional[int] = Query(
-                None, description="Overwrite default minzoom."
-            ),
-            maxzoom: Optional[int] = Query(
-                None, description="Overwrite default maxzoom."
-            ),
-            bounds: Optional[str] = Query(
-                None, description="Overwrite default bounding box."
-            ),
-        ):
+        async def register_search(request: Request, body: SearchCreate):
             """Register Search requests."""
             pool = request.app.state.pool
-
             async with pool.acquire() as conn:
                 q, p = render(
                     """
@@ -164,26 +148,9 @@ class MVTilerFactory:
                 )
                 searchid = await conn.fetchval(q, *p)
 
-            route_params = {
-                "TileMatrixSetId": tms.identifier,
-                "searchid": searchid,
-                "z": "{z}",
-                "x": "{x}",
-                "y": "{y}",
-            }
-
-            tiles_endpoint = self.url_for(request, "search_tiles", **route_params)
-
-            bbox = (
-                tuple(map(float, bounds.split(","))) if bounds else (-180, -90, 180, 90)
-            )
-
             return {
-                "bounds": bbox,
-                "minzoom": minzoom if minzoom is not None else tms.minzoom,
-                "maxzoom": maxzoom if maxzoom is not None else tms.maxzoom,
-                "name": searchid,
-                "tiles": [tiles_endpoint],
+                "searchid": searchid,
+                "url": self.url_for(request, "search_tilejson", searchid=searchid),
             }
 
         @self.router.get(
@@ -381,11 +348,200 @@ class MVTilerFactory:
             }
 
             return templates.TemplateResponse(
-                "index.html",
+                "index_vector.html",
                 {
                     "request": request,
                     "tilejson_endpoint": self.url_for(
                         request, "search_tilejson", **route_params
+                    ),
+                },
+                media_type="text/html",
+            )
+
+    def _mercator_agg_grid(self):
+        """register Mercator Aggregation grid endpoints."""
+
+        @self.router.get(
+            "/grid/mercator/{searchid}/{z}/{x}/{y}.pbf",
+            responses={200: {"content": {"application/x-protobuf": {}}}},
+            response_class=Response,
+        )
+        async def mercator_grid_tiles(
+            request: Request,
+            searchid: str = Path(..., description="search id"),
+            z: int = Path(..., ge=0, le=30, description="Mercator tiles's zoom level"),
+            x: int = Path(..., description="Mercator tiles's column"),
+            y: int = Path(..., description="Mercator tiles's row"),
+            depth: int = Query(2),
+        ):
+            """Return vector tile."""
+            pool = request.app.state.pool
+            async with pool.acquire() as conn:
+                transaction = conn.transaction()
+                await transaction.start()
+                await conn.execute(
+                    """
+                    CREATE OR REPLACE FUNCTION find_items(
+                        IN geom geometry,
+                        IN queryhash text,
+                        IN items_limit int DEFAULT 10000,
+                        IN _scanlimit int DEFAULT 10000,
+                        IN _timelimit interval DEFAULT '5 seconds'::interval,
+                        OUT id text
+                    ) RETURNS setof text AS $$
+                    DECLARE
+                        search searches%ROWTYPE;
+                        curs refcursor;
+                        _where text;
+                        query text;
+                        iter_record items%ROWTYPE;
+                        exit_flag boolean := FALSE;
+                        counter int := 1;
+                        scancounter int := 1;
+                        remaining_limit int := _scanlimit;
+                    BEGIN
+                        SELECT * INTO search FROM searches WHERE hash=queryhash;
+
+                        IF NOT FOUND THEN
+                            RAISE EXCEPTION 'Search with Query Hash % Not Found', queryhash;
+                        END IF;
+
+                        _where := format('%s AND ST_Intersects(geometry, %L::geometry)', search._where, ST_Transform(geom, 4326));
+
+                        FOR query IN SELECT * FROM partition_queries(_where, search.orderby) LOOP
+                            query := format('%s LIMIT %L', query, remaining_limit);
+                            curs = create_cursor(query);
+                            LOOP
+                                FETCH curs INTO iter_record;
+                                EXIT WHEN NOT FOUND;
+
+                                id := iter_record.id;
+                                RETURN NEXT;
+
+                                IF counter >= items_limit
+                                    OR scancounter > _scanlimit
+                                    OR ftime() > _timelimit
+                                THEN
+                                    exit_flag := TRUE;
+                                    EXIT;
+                                END IF;
+                                counter := counter + 1;
+                                scancounter := scancounter + 1;
+                            END LOOP;
+                            EXIT WHEN exit_flag;
+                            remaining_limit := _scanlimit - scancounter;
+                        END LOOP;
+                        RETURN;
+                    END;
+                    $$ LANGUAGE PLPGSQL;
+
+                    CREATE OR REPLACE FUNCTION mercgrid(
+                        z integer,
+                        x integer,
+                        y integer,
+                        queryhash text,
+                        depth integer default 2
+                    )
+                    RETURNS bytea AS $$
+                    DECLARE
+                        tile geometry;
+                        result bytea;
+                        sq_width float8;
+                        tile_xmin float8;
+                        tile_ymin float8;
+                        bounds geometry;
+                    BEGIN
+                        -- Find the tile bounds
+                        SELECT ST_TileEnvelope(z, x, y) AS geom INTO bounds;
+
+                        -- Find the bottom corner of the bounds
+                        tile_xmin := ST_XMin(bounds);
+                        tile_ymin := ST_YMin(bounds);
+
+                        -- We want tile divided up into depth*depth squares per tile,
+                        -- so what is the width of a square?
+                        sq_width := (ST_XMax(bounds) - ST_XMin(bounds)) / depth;
+
+                        WITH mvtgeom AS (
+                            SELECT ST_AsMVTGeom(
+                                ST_MakeEnvelope(
+                                    tile_xmin + sq_width * (a-1),
+                                    tile_ymin + sq_width * (b-1),
+                                    tile_xmin + sq_width * a,
+                                    tile_ymin + sq_width * b,
+                                    3857
+                                ),
+                                bounds
+                            ),
+                            (
+                                SELECT COUNT(*) FROM find_items(
+                                    ST_MakeEnvelope(
+                                        tile_xmin + sq_width * (a-1),
+                                        tile_ymin + sq_width * (b-1),
+                                        tile_xmin + sq_width * a,
+                                        tile_ymin + sq_width * b,
+                                        3857
+                                    ),
+                                    queryhash
+                                )
+                            ) AS count
+
+                            -- Drive the square generator with a two-dimensional
+                            -- generate_series setup
+                            FROM generate_series(1, depth) a, generate_series(1, depth) b
+                        )
+                        SELECT ST_AsMVT(mvtgeom.*)
+
+                        -- Put the query result into the result variale.
+                        INTO result FROM mvtgeom;
+
+                        -- Return the answer
+                        RETURN result;
+                    END;
+                    $$
+                    LANGUAGE 'plpgsql'
+                    """
+                )
+
+                query, args = render(
+                    """
+                    SELECT * FROM mercgrid(
+                        :z,
+                        :x,
+                        :y,
+                        :searchid,
+                        :depth
+                    );
+                    """,
+                    z=z,
+                    x=x,
+                    y=y,
+                    depth=depth,
+                    searchid=searchid,
+                )
+                content = await conn.fetchval(query, *args)
+                await transaction.rollback()
+
+            return Response(content, media_type="application/x-protobuf")
+
+        @self.router.get(
+            "/grid/mercator/{searchid}/index.html", response_class=HTMLResponse,
+        )
+        async def grid_page(
+            request: Request, searchid: str = Path(..., description="search id"),
+        ):
+            """Search viewer."""
+            return templates.TemplateResponse(
+                "index_grid_count.html",
+                {
+                    "request": request,
+                    "tiles_endpoint": self.url_for(
+                        request,
+                        "mercator_grid_tiles",
+                        searchid=searchid,
+                        z="{z}",
+                        x="{x}",
+                        y="{y}",
                     ),
                 },
                 media_type="text/html",
