@@ -134,12 +134,22 @@ def handler(event, context):
                 username=user_params["username"],
             )
 
+        conn = psycopg2.connect(
+            dbname=user_params.get("dbname", "postgres"),
+            user=user_params["username"],
+            password=user_params["password"],
+            host=connection_params["host"],
+            port=connection_params["port"],
+        )
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with conn.cursor() as cur:
             print("Register PgSTAC extension...")
             register_pgstac(
                 cursor=cur,
                 db_name=user_params["dbname"],
                 username=user_params["username"],
             )
+
     except Exception as e:
         print(e)
         return cfnresponse.send(event, context, cfnresponse.FAILED, {"message": str(e)})
