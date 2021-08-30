@@ -77,7 +77,7 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
     )
 
 
-def register_pgstac(cursor, db_name: str, username: str) -> None:
+def register_pgstac(cursor) -> None:
     """Register PgSTAC."""
     version = "0.3.4"
     pgstac_sql = str(
@@ -144,11 +144,7 @@ def handler(event, context):
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         with conn.cursor() as cur:
             print("Register PgSTAC extension...")
-            register_pgstac(
-                cursor=cur,
-                db_name=user_params["dbname"],
-                username=user_params["username"],
-            )
+            register_pgstac(cursor=cur)
 
     except Exception as e:
         print(e)
