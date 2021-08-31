@@ -274,7 +274,7 @@ class eoAPIconstruct(core.Stack):
         for k, v in db_secrets.items():
             eostac_function.add_environment(key=k, value=str(v))
 
-        eoraster_function.add_environment(key="TITILER_ENDPOINT", value=raster_api.url)
+        eostac_function.add_environment(key="TITILER_ENDPOINT", value=raster_api.url)
 
         db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
 
