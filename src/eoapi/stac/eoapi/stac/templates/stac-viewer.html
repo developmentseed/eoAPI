@@ -171,7 +171,10 @@
           display: block;
           font-size: 10px;
         }
-
+        .mapboxgl-popup {
+            max-width: 400px !important;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        }
         @media(max-width: 767px) {
           #map {
             left: 300px;
@@ -334,7 +337,6 @@ const zoomtofeature = (id) => {
 }
 
 const query = (body) => {
-  console.log(body)
   return fetch('{{ endpoint }}/search', {
     method: 'POST',
     body: JSON.stringify(body),
@@ -347,6 +349,12 @@ const query = (body) => {
       throw new Error('Network response was not ok.')
     })
     .then((data) => {
+      data.features = data.features.map(e => {
+        e.properties.id = e.id;
+        e.properties.collection = e.collection;
+        return e;
+      })
+
       if (data.context.matched === 0) {
         throw Error("No item found")
       }
@@ -653,10 +661,14 @@ map.on('load', () => {
     map.on('click', 'shapes', (e) => {
       let html = '<table>'
       let feat = e.features[0]
+      console.log(e.features)
       for (const [key, value] of Object.entries(feat.properties)) {
         html += `<tr><td class="align-l">${key}</td><td class="px3 align-r">${value}</td></tr>`
       }
       html += '</table>'
+      html += '<div class="align-center pt6">'
+      html += `<a id='btn-query' class='btn center' title='Viewer' href='{{ endpoint }}/collections/${feat.properties.collection}/items/${feat.properties.id}/viewer' target='_blank'>Viewer</a>`
+      html += '</div>'
       new mapboxgl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(html)

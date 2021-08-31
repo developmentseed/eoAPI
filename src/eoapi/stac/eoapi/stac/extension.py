@@ -19,7 +19,7 @@ router = APIRouter()
 
 
 @attr.s
-class TilesExtension(ApiExtension):
+class TiTilerExtension(ApiExtension):
     """TiTiler extension."""
 
     def register(self, app: FastAPI, titiler_endpoint: str) -> None:
@@ -87,5 +87,45 @@ class TilesExtension(ApiExtension):
             return RedirectResponse(
                 titiler_endpoint + f"/stac/tilejson.json?{urlencode(qs)}"
             )
+
+        @router.get(
+            "/collections/{collectionId}/items/{itemId}/viewer",
+            responses={
+                200: {
+                    "description": "Redirect to TiTiler STAC viewer.",
+                    "content": {"text/html": {}},
+                }
+            },
+        )
+        async def stac_viewer(
+            request: Request,
+            collectionId: str = Path(..., description="Collection ID"),
+            itemId: str = Path(..., description="Item ID"),
+        ):
+            """Get items and redirect to stac tiler."""
+            pool = request.app.state.readpool
+
+            req = PgstacSearch(collections=[collectionId], ids=[itemId], limit=1).json(
+                exclude_none=True
+            )
+            async with pool.acquire() as conn:
+                q, p = render(
+                    """
+                    SELECT * FROM search(:req::text::jsonb);
+                    """,
+                    req=req,
+                )
+                items = await conn.fetchval(q, *p)
+
+            if not items["features"]:
+                raise NotFoundError("No features found")
+
+            item = json.dumps(items["features"][0])
+            itemb64 = b64encode(item.encode())
+
+            qs = [(key, value) for (key, value) in request.query_params._list]
+            qs.append(("url", f"stac://{itemb64.decode()}"))
+
+            return RedirectResponse(titiler_endpoint + f"/stac/viewer?{urlencode(qs)}")
 
         app.include_router(router)

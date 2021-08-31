@@ -1,7 +1,7 @@
 """FastAPI application using PGStac."""
 
 from eoapi.stac.config import ApiSettings, TilesApiSettings
-from eoapi.stac.extension import TilesExtension
+from eoapi.stac.extension import TiTilerExtension
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
@@ -51,8 +51,8 @@ if api_settings.cors_origins:
     )
 
 if tiles_settings.titiler_endpoint:
-    # Register to the tiles extension to the api
-    extension = TilesExtension()
+    # Register to the TiTiler extension to the api
+    extension = TiTilerExtension()
     extension.register(api.app, tiles_settings.titiler_endpoint)
 
 
