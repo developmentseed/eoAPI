@@ -11,6 +11,18 @@ from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
 from stac_fastapi.pgstac.types.search import PgstacSearch
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
+
+try:
+    from importlib.resources import files as resources_files  # type: ignore
+except ImportError:
+    # Try backported to PY<39 `importlib_resources`.
+    from importlib_resources import files as resources_files  # type: ignore
+
+
+templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))
 
 api_settings = ApiSettings()
 tiles_settings = TilesApiSettings()
@@ -42,6 +54,21 @@ if tiles_settings.titiler_endpoint:
     # Register to the tiles extension to the api
     extension = TilesExtension()
     extension.register(api.app, tiles_settings.titiler_endpoint)
+
+
+@app.get("/index.html", response_class=HTMLResponse)
+async def viewer_page(request: Request):
+    """Search viewer."""
+    print(request.url)
+    return templates.TemplateResponse(
+        "stac-viewer.html",
+        {
+            "request": request,
+            "endpoint": str(request.url).replace("/index.html", ""),
+            "mapbox_token": api_settings.mapbox_token,
+        },
+        media_type="text/html",
+    )
 
 
 @app.on_event("startup")

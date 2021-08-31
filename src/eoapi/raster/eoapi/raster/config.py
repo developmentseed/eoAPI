@@ -22,7 +22,7 @@ class _ApiSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = ".env"
-        env_prefix = "EOAPI_RASTER"
+        env_prefix = "EOAPI_RASTER_"
 
 
 @lru_cache()
