@@ -77,6 +77,15 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
     )
 
 
+def register_extensions(cursor) -> None:
+    """Add PostGIS extension."""
+    cursor.execute(
+        sql.SQL(
+            "CREATE EXTENSION IF NOT EXISTS postgis;"
+        )
+    )
+
+
 def register_pgstac(cursor) -> None:
     """Register PgSTAC."""
     version = "0.3.4"
@@ -134,6 +143,9 @@ def handler(event, context):
                 username=user_params["username"],
             )
 
+            print("Registering extensions...")
+            register_extensions(cursor=cur)
+
         conn = psycopg2.connect(
             dbname=user_params.get("dbname", "postgres"),
             user=user_params["username"],
@@ -143,7 +155,7 @@ def handler(event, context):
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         with conn.cursor() as cur:
-            print("Register PgSTAC extension...")
+            print("Register PgSTAC functions...")
             register_pgstac(cursor=cur)
 
     except Exception as e:
