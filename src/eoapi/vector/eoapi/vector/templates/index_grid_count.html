@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title>eoAPI-vector</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css' rel='stylesheet' />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='map'></div>
+
+  <script>
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: { version: 8, sources: {}, layers: [] },
+      center: [0, 0],
+      zoom: 5
+    })
+    map.on('load', () => {
+      map.addSource('mvt', {
+        type: 'vector',
+        tiles: ['{{ tiles_endpoint }}']
+      })
+      map.addLayer({
+        id: 'mvt',
+        source: 'mvt',
+        'source-layer': 'default',
+        type: 'line',
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#3bb2d0',
+          'line-width': 1
+        },
+        filter: ['>', 'count', 0]
+      })
+      map.addLayer({
+        id: 'mvt-poly',
+        source: 'mvt',
+        'source-layer': 'default',
+        type: 'fill',
+        paint: {
+          'fill-color': 'rgba(200, 100, 240, 0.4)',
+          'fill-outline-color': 'rgba(200, 100, 240, 1)'
+        },
+        filter: ['>', 'count', 0]
+      })
+
+      map.on('click', 'mvt-poly', (e) => {
+        let html = '<table><tr><th class="align-l">Number items</th></tr>'
+        html += `<tr><td class="align-l">${e.features[0].properties.count}</td></tr>`
+        html += '</table>'
+        new mapboxgl.Popup()
+          .setLngLat(e.lngLat)
+          .setHTML(html)
+          .addTo(map);
+      });
+    })
+  </script>
+
+</body>
+
+</html>

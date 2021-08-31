@@ -87,7 +87,23 @@ class eoRasterSettings(pydantic.BaseSettings):
         env_prefix = "EOAPI_RASTER_"
 
 
+class eoVectorSettings(pydantic.BaseSettings):
+    """Application settings"""
+
+    env: Dict = {}
+
+    timeout: int = 10
+    memory: int = 256
+
+    class Config:
+        """model config"""
+
+        env_file = "deployment/.env"
+        env_prefix = "EOAPI_VECTOR_"
+
+
 eoapi_settings = eoAPISettings()
 eoraster_settings = eoRasterSettings()
 eostac_settings = eoSTACSettings()
+eovector_settings = eoVectorSettings()
 eodb_settings = eoDBSettings()
