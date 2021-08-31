@@ -77,7 +77,16 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
     )
 
 
-def register_pgstac(cursor, db_name: str, username: str) -> None:
+def register_extensions(cursor) -> None:
+    """Add PostGIS extension."""
+    cursor.execute(
+        sql.SQL(
+            "CREATE EXTENSION IF NOT EXISTS postgis;"
+        )
+    )
+
+
+def register_pgstac(cursor) -> None:
     """Register PgSTAC."""
     version = "0.3.4"
     pgstac_sql = str(
@@ -134,12 +143,21 @@ def handler(event, context):
                 username=user_params["username"],
             )
 
-            print("Register PgSTAC extension...")
-            register_pgstac(
-                cursor=cur,
-                db_name=user_params["dbname"],
-                username=user_params["username"],
-            )
+            print("Registering extensions...")
+            register_extensions(cursor=cur)
+
+        conn = psycopg2.connect(
+            dbname=user_params.get("dbname", "postgres"),
+            user=user_params["username"],
+            password=user_params["password"],
+            host=connection_params["host"],
+            port=connection_params["port"],
+        )
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with conn.cursor() as cur:
+            print("Register PgSTAC functions...")
+            register_pgstac(cursor=cur)
+
     except Exception as e:
         print(e)
         return cfnresponse.send(event, context, cfnresponse.FAILED, {"message": str(e)})
