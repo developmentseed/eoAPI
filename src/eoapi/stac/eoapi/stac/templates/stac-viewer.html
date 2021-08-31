@@ -280,7 +280,7 @@
       </div>
 
       <script>
-var scope = { collections: undefined, features: [], next_token: undefined, limit: 10, query: {}}
+var scope = { collections: undefined, features: [], next_token: undefined, limit: 100, query: {}}
 
 mapboxgl.accessToken = '{{ mapbox_token }}'
 
@@ -406,7 +406,7 @@ const query = (body) => {
           `<div class="list-element" onclick="zoomtofeature('${data.features[i].id}')">` +
               '<div class="col">' +
                   '<div class="item-descr">'+
-                      `<span class="id">${data.features[i].id}</span>` +
+                      `<span class="id">${data.features[i].collection} | ${data.features[i].id}</span>` +
                       `<span class="date"><svg class='icon icon--l inline-block'><use xlink:href='#icon-clock'/></svg> ${data.features[i].properties.datetime || data.features[i].properties.start_datetime}</span>` +
                   '</div>' +
               '</div>' +
