@@ -85,7 +85,7 @@ $ docker-compose up
  └──src/eoapi/
     ├── raster/            - eoAPI raster Application package
     ├── stac/              - eoAPI stac Application package
-    └── vector/            - eoAPI vector Application package
+    └── vector/            - eoAPI vector Application package [EXPERIMENTAL]
 ```
 
 ## Contribution & Development
