@@ -13,13 +13,9 @@ from aws_cdk import aws_lambda
 from aws_cdk import aws_rds as rds
 from aws_cdk import aws_secretsmanager as secretsmanager
 from aws_cdk import core
-from config import (
-    eoapi_settings,
-    eodb_settings,
-    eoraster_settings,
-    eostac_settings,
-    eovector_settings,
-)
+from config import eoapi_settings, eodb_settings, eoraster_settings, eostac_settings
+
+# from config import eovector_settings,
 
 
 class BootstrappedDb(core.Construct):
@@ -227,37 +223,37 @@ class eoAPIconstruct(core.Stack):
 
         setup_db.is_required_by(eoraster_function)
 
-        # eoapi.vector
-        eovector_function = aws_lambda.Function(
-            self,
-            f"{id}-vector-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
-            code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath(code_dir),
-                file="deployment/dockerfiles/Dockerfile.vector",
-            ),
-            vpc=vpc,
-            allow_public_subnet=True,
-            handler="handler.handler",
-            memory_size=eovector_settings.memory,
-            timeout=core.Duration.seconds(eovector_settings.timeout),
-            environment=eovector_settings.env or {},
-        )
-        for k, v in db_secrets.items():
-            eovector_function.add_environment(key=k, value=str(v))
+        # # eoapi.vector
+        # eovector_function = aws_lambda.Function(
+        #     self,
+        #     f"{id}-vector-lambda",
+        #     runtime=aws_lambda.Runtime.PYTHON_3_8,
+        #     code=aws_lambda.Code.from_docker_build(
+        #         path=os.path.abspath(code_dir),
+        #         file="deployment/dockerfiles/Dockerfile.vector",
+        #     ),
+        #     vpc=vpc,
+        #     allow_public_subnet=True,
+        #     handler="handler.handler",
+        #     memory_size=eovector_settings.memory,
+        #     timeout=core.Duration.seconds(eovector_settings.timeout),
+        #     environment=eovector_settings.env or {},
+        # )
+        # for k, v in db_secrets.items():
+        #     eovector_function.add_environment(key=k, value=str(v))
 
-        db.connections.allow_from(eovector_function, port_range=ec2.Port.tcp(5432))
+        # db.connections.allow_from(eovector_function, port_range=ec2.Port.tcp(5432))
 
-        vector_api = apigw.HttpApi(
-            self,
-            f"{id}-vector-endpoint",
-            default_integration=apigw_integrations.LambdaProxyIntegration(
-                handler=eovector_function
-            ),
-        )
-        core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
+        # vector_api = apigw.HttpApi(
+        #     self,
+        #     f"{id}-vector-endpoint",
+        #     default_integration=apigw_integrations.LambdaProxyIntegration(
+        #         handler=eovector_function
+        #     ),
+        # )
+        # core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
 
-        setup_db.is_required_by(eovector_function)
+        # setup_db.is_required_by(eovector_function)
 
         # eoapi.stac
         eostac_function = aws_lambda.Function(
