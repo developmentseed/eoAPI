@@ -12,6 +12,7 @@ class _ApiSettings(pydantic.BaseSettings):
     name: str = "eoAPI-stac"
     cors_origins: str = "*"
     cachecontrol: str = "public, max-age=3600"
+    mapbox_token: str = ""
     debug: bool = False
 
     @pydantic.validator("cors_origins")
@@ -23,7 +24,7 @@ class _ApiSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = ".env"
-        env_prefix = "EOAPI_STAC"
+        env_prefix = "EOAPI_STAC_"
 
 
 @lru_cache()

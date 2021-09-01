@@ -10,19 +10,35 @@ from cogeo_mosaic.backends import BaseBackend
 from morecantile import TileMatrixSet
 from pydantic import BaseModel, root_validator, validator
 from rio_tiler.constants import MAX_THREADS
+from rio_tiler.models import Info
 from stac_pydantic.api.extensions.query import Operator
 from stac_pydantic.api.extensions.sort import SortExtension
 
 from eoapi.raster.mosaic import PGSTACBackend
+from eoapi.raster.reader import MyCustomSTACReader
 from fastapi import Depends, Path, Query
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import HTMLResponse, Response
+from starlette.templating import Jinja2Templates
 from titiler.core.dependencies import AssetsBidxExprParams, DefaultDependency
-from titiler.core.factory import BaseTilerFactory, img_endpoint_params
+from titiler.core.factory import (
+    BaseTilerFactory,
+    MultiBaseTilerFactory,
+    img_endpoint_params,
+)
 from titiler.core.models.mapbox import TileJSON
 from titiler.core.resources.enums import ImageType, OptionalHeader
 from titiler.core.utils import Timer
 from titiler.mosaic.resources.enums import PixelSelectionMethod
+
+try:
+    from importlib.resources import files as resources_files  # type: ignore
+except ImportError:
+    # Try backported to PY<39 `importlib_resources`.
+    from importlib_resources import files as resources_files  # type: ignore
+
+
+templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))
 
 
 class MosaicCreate(BaseModel):
@@ -402,3 +418,52 @@ class MosaicTilerFactory(BaseTilerFactory):
                 **self.backend_options,
             ) as src_dst:
                 return src_dst.assets_for_tile(x, y, z)
+
+
+@dataclass
+class STACTilerFactory(MultiBaseTilerFactory):
+    """Custom STAC endpoints factory."""
+
+    reader: BaseBackend = MyCustomSTACReader
+
+    def register_routes(self) -> None:
+        """This Method register routes to the router."""
+        super().register_routes()
+        self._viewer_routes()
+
+    def info(self):
+        """Register /info endpoint."""
+
+        @self.router.get(
+            "/info",
+            response_model=Dict[str, Info],
+            response_model_exclude={"minzoom", "maxzoom", "center"},
+            response_model_exclude_none=True,
+            responses={
+                200: {
+                    "description": "Return dataset's basic info or the list of available assets."
+                }
+            },
+        )
+        def info(src_path=Depends(self.path_dependency)):
+            """Return dataset's basic info or the list of available assets."""
+            with self.reader(src_path, **self.reader_options) as src_dst:
+                return src_dst.info(assets=src_dst.assets)
+
+    def _viewer_routes(self):
+        """Register viewer route."""
+
+        @self.router.get("/viewer", response_class=HTMLResponse)
+        def stac_demo(
+            request: Request, url: str = Depends(self.path_dependency),
+        ):
+            """STAC Viewer."""
+            return templates.TemplateResponse(
+                name="stac-viewer.html",
+                context={
+                    "request": request,
+                    "endpoint": request.url.path.replace("/viewer", ""),
+                    "stac_url": url,
+                },
+                media_type="text/html",
+            )

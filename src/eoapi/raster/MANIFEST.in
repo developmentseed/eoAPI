@@ -1,0 +1,4 @@
+include eoapi/raster/templates/*.html
+
+recursive-exclude tests *
+
