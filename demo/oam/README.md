@@ -68,35 +68,10 @@ Note: You may want to remove really old imagery (e.g the one from 1949) to avoid
 
 3. create oam_collection.json
 ```json
-{
-  "id": "openaerialmap",
-  "title": "OpenAerialMap",
-  "description": "OpenAerialMap Dataset",
-  "stac_version": "1.0.0",
-  "license": "public-domain",
-  "links": [],
-  "extent": {
-    "spatial": {
-      "bbox": [
-        [
-          -180,
-          -90,
-          180,
-          90
-        ]
-      ]
-    },
-    "temporal": {
-      "interval": [
-        [
-          "1944-12-31T13:00:00.000Z",
-          "null"
-        ]
-      ]
-    }
-  }
-}
+{"id": "openaerialmap", "title": "OpenAerialMap", "description": "OpenAerialMap Dataset", "stac_version": "1.0.0", "license": "public-domain", "links": [], "extent": {"spatial": {"bbox": [[-180, -90, 180, 90]]}, "temporal": {"interval": [["1944-12-31T13:00:00.000Z", "null"]]}}}
 ```
+
+Note: the json must be in form of NewLine delimited (one item/collection per line).
 
 4. upload collection and items to the RDS postgres instance (using pypgstac)
 
