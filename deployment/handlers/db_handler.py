@@ -79,11 +79,7 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
 
 def register_extensions(cursor) -> None:
     """Add PostGIS extension."""
-    cursor.execute(
-        sql.SQL(
-            "CREATE EXTENSION IF NOT EXISTS postgis;"
-        )
-    )
+    cursor.execute(sql.SQL("CREATE EXTENSION IF NOT EXISTS postgis;"))
 
 
 def register_pgstac(cursor) -> None:

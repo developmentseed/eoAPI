@@ -6,10 +6,7 @@ with open("README.md") as f:
     long_description = f.read()
 
 inst_reqs = [
-    "titiler.core~=0.3",
-    "titiler.mosaic~=0.3",
-    "psycopg2-binary",
-    "stac-pydantic~=2.0",
+    "titiler.pgstac==0.1.0a0",
     "jinja2>=2.11.2,<3.0.0",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
