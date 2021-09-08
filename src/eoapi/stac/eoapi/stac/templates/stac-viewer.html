@@ -291,7 +291,32 @@ let style
 if (mapboxgl.accessToken !== '') {
   style = 'mapbox://styles/mapbox/dark-v9'
 } else {
-  style = { version: 8, sources: {}, layers: [] }
+  style = {
+    version: 8,
+    sources: {
+      'toner-lite': {
+        type: 'raster',
+        tiles: [
+          'http://stamen-tiles-a.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+          'http://stamen-tiles-b.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+          'http://stamen-tiles-c.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+          'http://stamen-tiles-d.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        attribution:
+          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+      }
+    },
+    layers: [
+      {
+        'id': 'basemap',
+        'type': 'raster',
+        'source': 'toner-lite',
+        'minzoom': 0,
+        'maxzoom': 20
+      }
+    ]
+  }
 }
 
 var map = new mapboxgl.Map({
