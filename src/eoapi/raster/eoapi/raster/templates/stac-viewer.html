@@ -295,34 +295,51 @@
         </div>
 
         <script>
-    var scope = {
-        assets: undefined,
-        info: undefined,
-    }
+var scope = { assets: undefined, info: undefined }
 
-    mapboxgl.accessToken = ''
+mapboxgl.accessToken = ''
 
-    const dtype_ranges = {
-      'int8': [-128, 127],
-      'uint8': [0, 255],
-      'uint16': [0, 65535],
-      'int16': [-32768, 32767],
-      'uint32': [0, 4294967295],
-      'int32': [-2147483648, 2147483647],
-      'float32': [-3.4028235e+38, 3.4028235e+38],
-      'float64': [-1.7976931348623157e+308, 1.7976931348623157e+308]
-    }
-
-let style
-if (mapboxgl.accessToken !== '') {
-    style = 'mapbox://styles/mapbox/{{ mapbox_style }}-v9'
-} else {
-    style = { version: 8, sources: {}, layers: [] }
+const dtype_ranges = {
+    'int8': [-128, 127],
+    'uint8': [0, 255],
+    'uint16': [0, 65535],
+    'int16': [-32768, 32767],
+    'uint32': [0, 4294967295],
+    'int32': [-2147483648, 2147483647],
+    'float32': [-3.4028235e+38, 3.4028235e+38],
+    'float64': [-1.7976931348623157e+308, 1.7976931348623157e+308]
 }
+
+mapboxgl.accessToken = ''
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: style,
+    style: {
+      version: 8,
+      sources: {
+        'toner-lite': {
+          type: 'raster',
+          tiles: [
+            'http://stamen-tiles-a.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+            'http://stamen-tiles-b.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+            'http://stamen-tiles-c.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+            'http://stamen-tiles-d.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256,
+          attribution:
+            'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+        }
+      },
+      layers: [
+        {
+          'id': 'basemap',
+          'type': 'raster',
+          'source': 'toner-lite',
+          'minzoom': 0,
+          'maxzoom': 20
+        }
+      ]
+    },
     center: [0, 0],
     zoom: 1
 })
