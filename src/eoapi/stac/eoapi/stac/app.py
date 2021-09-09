@@ -59,14 +59,9 @@ if tiles_settings.titiler_endpoint:
 @app.get("/index.html", response_class=HTMLResponse)
 async def viewer_page(request: Request):
     """Search viewer."""
-    print(request.url)
     return templates.TemplateResponse(
         "stac-viewer.html",
-        {
-            "request": request,
-            "endpoint": str(request.url).replace("/index.html", ""),
-            "mapbox_token": api_settings.mapbox_token,
-        },
+        {"request": request, "endpoint": str(request.url).replace("/index.html", "")},
         media_type="text/html",
     )
 
