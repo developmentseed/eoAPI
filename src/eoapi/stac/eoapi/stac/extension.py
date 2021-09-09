@@ -49,6 +49,21 @@ class TiTilerExtension(ApiExtension):
             maxzoom: Optional[int] = Query(
                 None, description="Overwrite default maxzoom."
             ),
+            assets: Optional[str] = Query(  # noqa
+                None, description="comma (',') delimited asset names.",
+            ),
+            expression: Optional[str] = Query(  # noqa
+                None,
+                description="rio-tiler's band math expression between assets (e.g asset1/asset2)",
+            ),
+            bidx: Optional[str] = Query(  # noqa
+                None,
+                description="comma (',') delimited band indexes to apply to each asset",
+            ),
+            asset_expression: Optional[str] = Query(  # noqa
+                None,
+                description="rio-tiler's band math expression (e.g b1/b2) to apply to each asset",
+            ),
         ):
             """Get items and redirect to stac tiler."""
             pool = request.app.state.readpool
