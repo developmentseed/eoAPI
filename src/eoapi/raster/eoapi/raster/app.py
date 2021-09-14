@@ -3,13 +3,12 @@
 import logging
 from typing import Dict
 
-from starlette_cramjam.middleware import CompressionMiddleware
-
 from eoapi.raster.config import ApiSettings
 from eoapi.raster.factory import STACTilerFactory
 from eoapi.raster.version import __version__ as eoapi_raster_version
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from starlette_cramjam.middleware import CompressionMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.resources.enums import OptionalHeader
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES

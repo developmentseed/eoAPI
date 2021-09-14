@@ -1,7 +1,5 @@
 """FastAPI application using PGStac."""
 
-from starlette_cramjam.middleware import CompressionMiddleware
-
 from eoapi.stac.config import ApiSettings, TilesApiSettings
 from eoapi.stac.extension import TiTilerExtension
 from fastapi import FastAPI
@@ -16,6 +14,8 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
+
+# from starlette_cramjam.middleware import CompressionMiddleware
 
 try:
     from importlib.resources import files as resources_files  # type: ignore
@@ -41,7 +41,8 @@ api = StacApi(
 )
 app = api.app
 
-app.add_middleware(CompressionMiddleware)
+# see https://github.com/stac-utils/stac-fastapi/issues/265
+# app.add_middleware(CompressionMiddleware)
 
 # Set all CORS enabled origins
 if api_settings.cors_origins:

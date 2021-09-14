@@ -1,9 +1,16 @@
 FROM --platform=linux/amd64 lambci/lambda:build-python3.8
 
+# Install PostgreSQL libs in order to install psycopg2
+RUN yum install -y postgresql postgresql-devel
+
 WORKDIR /tmp
 
 COPY src/eoapi/raster /tmp/raster
 RUN pip install mangum /tmp/raster -t /asset --no-binary pydantic
+# remove psycopg2 files
+RUN rm -rf /asset/psycopg2*
+# Replace psycopg2 with the `binary` version
+RUN pip install psycopg2-binary -t /asset
 RUN rm -rf /tmp/raster
 
 # # Reduce package size and remove useless files
