@@ -1,5 +1,7 @@
 """FastAPI application using PGStac."""
 
+from starlette_cramjam.middleware import CompressionMiddleware
+
 from eoapi.stac.config import ApiSettings, TilesApiSettings
 from eoapi.stac.extension import TiTilerExtension
 from fastapi import FastAPI
@@ -39,6 +41,7 @@ api = StacApi(
 )
 app = api.app
 
+app.add_middleware(CompressionMiddleware)
 
 # Set all CORS enabled origins
 if api_settings.cors_origins:

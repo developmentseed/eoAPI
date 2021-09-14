@@ -3,6 +3,8 @@
 import logging
 from typing import Dict
 
+from starlette_cramjam.middleware import CompressionMiddleware
+
 from eoapi.raster.config import ApiSettings
 from eoapi.raster.factory import STACTilerFactory
 from eoapi.raster.version import __version__ as eoapi_raster_version
@@ -24,6 +26,17 @@ app = FastAPI(title=settings.name, version=eoapi_raster_version)
 
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 add_exception_handlers(app, MOSAIC_STATUS_CODES)
+
+app.add_middleware(
+    CompressionMiddleware,
+    exclude_mediatype={
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/jp2",
+        "image/webp",
+    },
+)
 
 # Set all CORS enabled origins
 if settings.cors_origins:

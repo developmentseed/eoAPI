@@ -8,6 +8,7 @@ with open("README.md") as f:
 inst_reqs = [
     "titiler.pgstac==0.1.0a0",
     "jinja2>=2.11.2,<3.0.0",
+    "starlette-cramjam>=0.1.0.a0,<0.2",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
 
