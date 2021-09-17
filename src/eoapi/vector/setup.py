@@ -6,12 +6,13 @@ with open("README.md") as f:
     long_description = f.read()
 
 inst_reqs = [
-    "fastapi==0.65.1",
-    "morecantile",
+    "fastapi>=0.65,<0.68",
+    "morecantile>=3.0.0a0,<4.0",
     "psycopg2-binary",
     "buildpg",
     "asyncpg",
     "stac-pydantic~=2.0",
+    "geojson-pydantic>=0.3.1,<0.4",
     "jinja2>=2.11.2,<3.0.0",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]

@@ -2,15 +2,13 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from buildpg import render
 from morecantile import Tile, TileMatrixSet, tms
-from pydantic import BaseModel, Field, root_validator, validator
-from stac_pydantic.api.extensions.query import Operator
-from stac_pydantic.api.extensions.sort import SortExtension
 
 from eoapi.vector.config import TileSettings
+from eoapi.vector.models import SearchQuery, TileJSON
 from fastapi import APIRouter, Depends, Path, Query
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, Response
@@ -30,65 +28,6 @@ except ImportError:
 
 
 templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))
-
-
-class TileJSON(BaseModel):
-    """
-    TileJSON model.
-
-    Based on https://github.com/mapbox/tilejson-spec/tree/master/2.2.0
-
-    """
-
-    tilejson: str = "2.2.0"
-    name: Optional[str]
-    description: Optional[str]
-    version: str = "1.0.0"
-    attribution: Optional[str]
-    template: Optional[str]
-    legend: Optional[str]
-    scheme: str = "xyz"
-    tiles: List[str]
-    grids: List[str] = []
-    data: List[str] = []
-    minzoom: int = Field(0, ge=0, le=30)
-    maxzoom: int = Field(22, ge=0, le=30)
-    bounds: List[float] = [-180, -90, 180, 90]
-    center: Optional[Tuple[float, float, int]]
-
-    @root_validator
-    def compute_center(cls, values):
-        """Compute center if it does not exist."""
-        bounds = values["bounds"]
-        if not values.get("center"):
-            values["center"] = (
-                (bounds[0] + bounds[2]) / 2,
-                (bounds[1] + bounds[3]) / 2,
-                values["minzoom"],
-            )
-        return values
-
-
-class SearchCreate(BaseModel):
-    """Search model.
-
-    Simplified version of the `search` model
-    """
-
-    datetime: Optional[str]
-    collections: Optional[List[str]] = None
-    query: Optional[Dict[str, Dict[Operator, Any]]]
-    sortby: Optional[List[SortExtension]]
-
-    @root_validator(pre=True)
-    def validate_query_fields(cls, values: Dict) -> Dict:
-        """Pgstac does not require the base validator for query fields."""
-        return values
-
-    @validator("datetime")
-    def validate_datetime(cls, v: str) -> str:
-        """Pgstac does not require the base validator for datetime."""
-        return v
 
 
 def TileMatrixSetParams(
@@ -136,7 +75,7 @@ class MVTilerFactory:
         @self.router.post(
             "/register", responses={200: {"description": "Register Search request."}},
         )
-        async def register_search(request: Request, body: SearchCreate):
+        async def register_search(request: Request, body: SearchQuery):
             """Register Search requests."""
             pool = request.app.state.pool
             async with pool.acquire() as conn:

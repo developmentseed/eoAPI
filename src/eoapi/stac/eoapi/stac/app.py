@@ -33,6 +33,8 @@ settings = Settings()
 
 api = StacApi(
     app=FastAPI(title=api_settings.name),
+    title=api_settings.name,
+    description=api_settings.name,
     settings=settings,
     extensions=[QueryExtension(), SortExtension(), FieldsExtension()],
     client=CoreCrudClient(),
