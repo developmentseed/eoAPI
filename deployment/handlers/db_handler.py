@@ -139,9 +139,6 @@ def handler(event, context):
                 username=user_params["username"],
             )
 
-            print("Registering extensions...")
-            register_extensions(cursor=cur)
-        
         # Install extensions on the user DB with
         # superuser permissions, since they will
         # otherwise fail to install when run as
