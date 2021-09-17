@@ -141,6 +141,23 @@ def handler(event, context):
 
             print("Registering extensions...")
             register_extensions(cursor=cur)
+        
+        # Install extensions on the user DB with
+        # superuser permissions, since they will
+        # otherwise fail to install when run as
+        # the non-superuser within the pgstac
+        # migrations.
+        conn = psycopg2.connect(
+            dbname=user_params.get("dbname", "postgres"),
+            user=connection_params["username"],
+            password=connection_params["password"],
+            host=connection_params["host"],
+            port=connection_params["port"],
+        )
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with conn.cursor() as cur:
+            print("Registering extensions on pgstac db...")
+            register_extensions(cursor=cur)
 
         conn = psycopg2.connect(
             dbname=user_params.get("dbname", "postgres"),
