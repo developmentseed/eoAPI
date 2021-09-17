@@ -145,7 +145,7 @@ def handler(event, context):
         # the non-superuser within the pgstac
         # migrations.
         conn = psycopg2.connect(
-            dbname=user_params.get("dbname", "postgres"),
+            dbname=user_params["dbname"],
             user=connection_params["username"],
             password=connection_params["password"],
             host=connection_params["host"],
