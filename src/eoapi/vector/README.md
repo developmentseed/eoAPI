@@ -1,1 +1,3 @@
-## eoapi.raster
+## eoapi.vector
+
+THIS MODULE IS EXPERIMENTAL

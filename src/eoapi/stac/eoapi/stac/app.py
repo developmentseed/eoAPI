@@ -2,6 +2,7 @@
 
 from eoapi.stac.config import ApiSettings, TilesApiSettings
 from eoapi.stac.extension import TiTilerExtension
+from eoapi.stac.models import PgstacSearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
@@ -9,13 +10,11 @@ from stac_fastapi.extensions.core import FieldsExtension, QueryExtension, SortEx
 from stac_fastapi.pgstac.config import Settings
 from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
-from stac_fastapi.pgstac.types.search import PgstacSearch
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-
-# from starlette_cramjam.middleware import CompressionMiddleware
+from starlette_cramjam.middleware import CompressionMiddleware
 
 try:
     from importlib.resources import files as resources_files  # type: ignore
@@ -30,7 +29,6 @@ api_settings = ApiSettings()
 tiles_settings = TilesApiSettings()
 settings = Settings()
 
-
 api = StacApi(
     app=FastAPI(title=api_settings.name),
     title=api_settings.name,
@@ -38,13 +36,12 @@ api = StacApi(
     settings=settings,
     extensions=[QueryExtension(), SortExtension(), FieldsExtension()],
     client=CoreCrudClient(),
+    # https://github.com/stac-utils/stac-fastapi/blob/master/stac_fastapi/api/stac_fastapi/api/app.py#L78-L83
     search_request_model=PgstacSearch,
     response_class=ORJSONResponse,
+    middlewares=[CompressionMiddleware],
 )
 app = api.app
-
-# see https://github.com/stac-utils/stac-fastapi/issues/265
-# app.add_middleware(CompressionMiddleware)
 
 # Set all CORS enabled origins
 if api_settings.cors_origins:

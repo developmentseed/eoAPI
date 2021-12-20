@@ -8,9 +8,9 @@ from urllib.parse import urlencode
 import attr
 from buildpg import render
 
+from eoapi.stac.models import PgstacSearch
 from fastapi import APIRouter, FastAPI, Path, Query
 from fastapi.responses import RedirectResponse
-from stac_fastapi.pgstac.types.search import PgstacSearch
 from stac_fastapi.types.errors import NotFoundError
 from stac_fastapi.types.extension import ApiExtension
 from starlette.requests import Request
@@ -32,7 +32,9 @@ class TiTilerExtension(ApiExtension):
         """
         router = APIRouter()
 
-        @router.get("/collections/{collectionId}/items/{itemId}/tilejson.json",)
+        @router.get(
+            "/collections/{collectionId}/items/{itemId}/tilejson.json",
+        )
         async def tilejson(
             request: Request,
             collectionId: str = Path(..., description="Collection ID"),
@@ -50,7 +52,8 @@ class TiTilerExtension(ApiExtension):
                 None, description="Overwrite default maxzoom."
             ),
             assets: Optional[str] = Query(  # noqa
-                None, description="comma (',') delimited asset names.",
+                None,
+                description="comma (',') delimited asset names.",
             ),
             expression: Optional[str] = Query(  # noqa
                 None,
@@ -68,9 +71,19 @@ class TiTilerExtension(ApiExtension):
             """Get items and redirect to stac tiler."""
             pool = request.app.state.readpool
 
-            req = PgstacSearch(collections=[collectionId], ids=[itemId], limit=1).json(
-                exclude_none=True
-            )
+            req = PgstacSearch(
+                filter={
+                    "op": "and",
+                    "args": [
+                        {
+                            "op": "in",
+                            "args": [{"property": "collection"}, [collectionId]],
+                        },
+                        {"op": "eq", "args": [{"property": "id"}, [itemId]]},
+                    ],
+                },
+            ).json(exclude_none=True, by_alias=True)
+
             async with pool.acquire() as conn:
                 q, p = render(
                     """
@@ -120,9 +133,19 @@ class TiTilerExtension(ApiExtension):
             """Get items and redirect to stac tiler."""
             pool = request.app.state.readpool
 
-            req = PgstacSearch(collections=[collectionId], ids=[itemId], limit=1).json(
-                exclude_none=True
-            )
+            req = PgstacSearch(
+                filter={
+                    "op": "and",
+                    "args": [
+                        {
+                            "op": "in",
+                            "args": [{"property": "collection"}, [collectionId]],
+                        },
+                        {"op": "eq", "args": [{"property": "id"}, itemId]},
+                    ],
+                },
+            ).json(exclude_none=True, by_alias=True)
+
             async with pool.acquire() as conn:
                 q, p = render(
                     """

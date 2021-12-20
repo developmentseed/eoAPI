@@ -8,19 +8,23 @@ from base64 import b64decode
 
 import attr
 import pystac
-from rio_tiler.io import STACReader
+from rio_tiler.io import stac
 
 
 @attr.s
-class MyCustomSTACReader(STACReader):
-    """Custom STACReader."""
+class STACReader(stac.STACReader):
+    """Custom STACReader.
+
+    This reader allows input to be in form of `stac://{base64 encoded STAC items}
+
+    """
 
     def __attrs_post_init__(self):
         """Decode data: urls."""
-        if self.filepath and self.filepath.startswith("stac://"):
+        if self.input and self.input.startswith("stac://"):
             self.item = pystac.Item.from_dict(
-                json.loads(b64decode(self.filepath.replace("stac://", "")))
+                json.loads(b64decode(self.input.replace("stac://", "")))
             )
-            self.filepath = None
+            self.input = None
 
         super().__attrs_post_init__()

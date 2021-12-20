@@ -1,11 +1,13 @@
-FROM tiangolo/uvicorn-gunicorn:python3.8
+ARG PYTHON_VERSION=3.9
+
+FROM tiangolo/uvicorn-gunicorn:python${PYTHON_VERSION}
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 RUN pip install \
-    titiler.core==0.3.* \
-    titiler.mosaic==0.3.* \
-    psycopg2
+    titiler.core==0.4.* \
+    titiler.mosaic==0.4.* \
+    psycopg[binary,pool]
 
 COPY src/eoapi/raster /tmp/raster
 RUN pip install /tmp/raster

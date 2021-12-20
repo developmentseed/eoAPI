@@ -20,6 +20,54 @@
 
 ---
 
+# The Earth Observation API
+
+`EOapi` is a combination of 4 elements: a `PgSTAC` database, a `STAC API`, a Dynamic Raster Tile server (`TiTiler`) and a Dynamic Mapbox Vector Tiles server (`TiMVT`). The project's goal is to enable a full, but easy to deploy, Earth Observation API for Metadata search (STAC), Raster and Vector services.
+
+## STAC
+
+A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), adding a `TiTilerExtension` and a simple `Search Viewer`.
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/10407788/146790933-e439893c-ef2e-4d78-a372-f2f18694836c.png"/>
+  <p align="center">STAC Search viewer</p>
+</p>
+
+
+## Raster
+
+The dyanic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/10407788/129632282-f71e9f45-264c-4882-af28-7062c4e56f25.png"/>
+  <p align="center">TiTiler-PgSTAC workflow</p>
+</p>
+
+## Vector (Experimental)
+
+Mapbox Vector Tile server for STAC queries.
+
+## Local
+
+You can launch the APIs locally using docker. This will start 3 services: database, eoapi.stac, eoapi.raster
+```
+$ git clone https://github.com/developmentseed/eoAPI.git
+$ cd eoAPI
+$ docker-compose build
+$ docker-compose up stac raster
+```
+
+## Project structure
+
+```
+ ├──demo/                  - items/collections and notebook
+ ├──deployment/            - AWS CDK code
+ └──src/eoapi/
+    ├── raster/            - eoAPI raster Application package
+    ├── stac/              - eoAPI stac Application package
+    └── vector/            - eoAPI vector Application package [EXPERIMENTAL]
+```
+
 
 ### Deployment
 
@@ -59,34 +107,6 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
     # Deploy in specific region
     $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
-
-
-## STAC + PgSTAC + TiTiler
-
-The dyanic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
-
-![](https://user-images.githubusercontent.com/10407788/129632282-f71e9f45-264c-4882-af28-7062c4e56f25.png)
-
-## Local
-
-You can launch the APIs locally using docker. This will start 3 services: database, eoapi.stac, eoapi.raster
-```
-$ git clone https://github.com/developmentseed/eoAPI.git
-$ cd eoAPI
-$ docker-compose build
-$ docker-compose up
-```
-
-## Project structure
-
-```
- ├──demo/                  - items/collections and notebook
- ├──deployment/            - AWS CDK code
- └──src/eoapi/
-    ├── raster/            - eoAPI raster Application package
-    ├── stac/              - eoAPI stac Application package
-    └── vector/            - eoAPI vector Application package [EXPERIMENTAL]
-```
 
 ## Contribution & Development
 

@@ -44,15 +44,14 @@ class _PostgresSettings(pydantic.BaseSettings):
     Attributes:
         postgres_user: postgres username.
         postgres_pass: postgres password.
-        postgres_host_reader: hostname for the reader connection.
-        postgres_host_writer: hostname for the writer connection.
+        postgres_host: hostname for the connection.
         postgres_port: database port.
         postgres_dbname: database name.
     """
 
     postgres_user: str
     postgres_pass: str
-    postgres_host_reader: str
+    postgres_host: str
     postgres_port: str
     postgres_dbname: str
 
@@ -69,7 +68,7 @@ class _PostgresSettings(pydantic.BaseSettings):
     @property
     def reader_connection_string(self):
         """Create reader psql connection string."""
-        return f"postgresql://{self.postgres_user}:{self.postgres_pass}@{self.postgres_host_reader}:{self.postgres_port}/{self.postgres_dbname}"
+        return f"postgresql://{self.postgres_user}:{self.postgres_pass}@{self.postgres_host}:{self.postgres_port}/{self.postgres_dbname}"
 
 
 @lru_cache()

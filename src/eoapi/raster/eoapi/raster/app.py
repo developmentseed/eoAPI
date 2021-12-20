@@ -4,7 +4,8 @@ import logging
 from typing import Dict
 
 from eoapi.raster.config import ApiSettings
-from eoapi.raster.factory import STACTilerFactory
+from eoapi.raster.factory import MultiBaseTilerFactory
+from eoapi.raster.reader import STACReader
 from eoapi.raster.version import __version__ as eoapi_raster_version
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -57,7 +58,11 @@ mosaic = MosaicTilerFactory(router_prefix="mosaic", optional_headers=optional_he
 app.include_router(mosaic.router, prefix="/mosaic", tags=["PgSTAC Mosaic"])
 
 # Custom STAC titiler endpoint (not added to the openapi docs)
-stac = STACTilerFactory(router_prefix="stac", optional_headers=optional_headers)
+stac = MultiBaseTilerFactory(
+    reader=STACReader,
+    router_prefix="stac",
+    optional_headers=optional_headers,
+)
 app.include_router(
     stac.router,
     prefix="/stac",
