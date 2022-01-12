@@ -3,13 +3,17 @@
 1. Create list of items (using rio-stac)
 
 ```bash
-$ aws s3 ls s3://dataforgood-fb-data/hrsl-cogs/hrsl_general/v1.5/ \
-    | grep -E ".tif$" \
-    | awk '{print "s3://dataforgood-fb-data/hrsl-cogs/hrsl_general/v1.5/"$NF}' \
-    | while read line; do rio stac $line -c "facebook-population-density" -p version=v1.5 -d"2016-01-01" --without-raster --without-proj --asset-mediatype COG -n cog; done \
+$ aws s3 cp s3://dataforgood-fb-data/hrsl-cogs/hrsl_general/hrsl_general-latest.vrt - \ # pipe contents of latest .vrt file into STDIN
+    | grep -Eo ">v(\d|.)*\/cog_globallat\S*\.tif" # grep and extract characters corresponding to the filekey in S3
+    | sed 's/^>//'  # remove first char (>) from extracted string
+    | awk '{print "s3://dataforgood-fb-data/hrsl-cogs/hrsl_general/"$NF}' \ # substitute back in S3 URI
+    | while read line; \
+      do \
+        rio stac $line -c "facebook-population-density" -p version=v1.5 -d"2016-01-01" --without-raster --without-proj --asset-mediatype COG -n cog; \
+      done \
     > facebook_items.json
 ```
-Note: we need to do some manual editing here. Some files are duplicated (version 1.5.1 and 1.5.2) and we need to keep only one. We also recommand to use simpler item ID than the basename.
+Note: We also recommend to use simpler item ID than the basename.
 
 2. Create collection.json
 ```json
