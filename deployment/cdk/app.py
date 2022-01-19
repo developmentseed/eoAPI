@@ -43,7 +43,8 @@ class BootstrappedDb(core.Construct):
             handler="handler.handler",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath("./"), file="deployment/dockerfiles/Dockerfile.db",
+                path=os.path.abspath("./"),
+                file="deployment/dockerfiles/Dockerfile.db",
             ),
             timeout=core.Duration.minutes(2),
             vpc=db.vpc,

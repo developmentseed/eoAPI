@@ -18,7 +18,9 @@ except ImportError:
 def get_secret(secret_name):
     """Get Secrets from secret manager."""
     print(f"Fetching {secret_name}")
-    client = boto3.client(service_name="secretsmanager",)
+    client = boto3.client(
+        service_name="secretsmanager",
+    )
     response = client.get_secret_value(SecretId=secret_name)
     return json.loads(response["SecretString"])
 
@@ -55,7 +57,9 @@ def create_user(cursor, username: str, password: str) -> None:
             "  END IF; "
             "END "
             "$$; "
-        ).format(username=sql.Identifier(username),),
+        ).format(
+            username=sql.Identifier(username),
+        ),
         {"user": username, "pass": password},
     )
 
@@ -72,7 +76,8 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
             "ALTER DEFAULT PRIVILEGES IN SCHEMA public "
             "GRANT ALL PRIVILEGES ON SEQUENCES TO {username};"
         ).format(
-            db_name=sql.Identifier(db_name), username=sql.Identifier(username),
+            db_name=sql.Identifier(db_name),
+            username=sql.Identifier(username),
         )
     )
 
@@ -122,7 +127,8 @@ def handler(event, context):
         with conn.cursor() as cur:
             print("Creating database...")
             create_db(
-                cursor=cur, db_name=user_params["dbname"],
+                cursor=cur,
+                db_name=user_params["dbname"],
             )
 
             print("Creating user...")

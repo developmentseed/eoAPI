@@ -4,11 +4,12 @@ FROM tiangolo/uvicorn-gunicorn:python${PYTHON_VERSION}
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
+# Speed up dev cycle by pre-installing stac-fastapi
 RUN pip install \
-    stac-fastapi.api==2.2.* \
-    stac-fastapi.types==2.2.* \
-    stac-fastapi.extensions==2.2.* \
-    stac-fastapi.pgstac==2.2.*
+    stac-fastapi.api==2.3.* \
+    stac-fastapi.types==2.3.* \
+    stac-fastapi.extensions==2.3.* \
+    stac-fastapi.pgstac==2.3.*
 
 COPY src/eoapi/stac /tmp/stac
 RUN pip install /tmp/stac

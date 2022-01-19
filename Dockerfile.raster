@@ -4,6 +4,7 @@ FROM tiangolo/uvicorn-gunicorn:python${PYTHON_VERSION}
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
+# Speed up dev cycle by pre-installing titiler
 RUN pip install \
     titiler.core==0.4.* \
     titiler.mosaic==0.4.* \

@@ -1,12 +1,13 @@
 """FastAPI application using PGStac."""
 
 from eoapi.stac.config import ApiSettings, TilesApiSettings
+from eoapi.stac.config import extensions as PgStacExtensions
+from eoapi.stac.config import get_request_model as GETModel
+from eoapi.stac.config import post_request_model as POSTModel
 from eoapi.stac.extension import TiTilerExtension
-from eoapi.stac.models import PgstacSearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
-from stac_fastapi.extensions.core import FieldsExtension, QueryExtension, SortExtension
 from stac_fastapi.pgstac.config import Settings
 from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
@@ -29,15 +30,16 @@ api_settings = ApiSettings()
 tiles_settings = TilesApiSettings()
 settings = Settings()
 
+
 api = StacApi(
     app=FastAPI(title=api_settings.name),
     title=api_settings.name,
     description=api_settings.name,
     settings=settings,
-    extensions=[QueryExtension(), SortExtension(), FieldsExtension()],
-    client=CoreCrudClient(),
-    # https://github.com/stac-utils/stac-fastapi/blob/master/stac_fastapi/api/stac_fastapi/api/app.py#L78-L83
-    search_request_model=PgstacSearch,
+    extensions=PgStacExtensions,
+    client=CoreCrudClient(post_request_model=POSTModel),
+    search_get_request_model=GETModel,
+    search_post_request_model=POSTModel,
     response_class=ORJSONResponse,
     middlewares=[CompressionMiddleware],
 )

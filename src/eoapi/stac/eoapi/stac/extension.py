@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 import attr
 from buildpg import render
 
-from eoapi.stac.models import PgstacSearch
+from eoapi.stac.config import post_request_model as POSTModel
 from fastapi import APIRouter, FastAPI, Path, Query
 from fastapi.responses import RedirectResponse
 from stac_fastapi.types.errors import NotFoundError
@@ -71,7 +71,7 @@ class TiTilerExtension(ApiExtension):
             """Get items and redirect to stac tiler."""
             pool = request.app.state.readpool
 
-            req = PgstacSearch(
+            req = POSTModel(
                 filter={
                     "op": "and",
                     "args": [
@@ -133,7 +133,7 @@ class TiTilerExtension(ApiExtension):
             """Get items and redirect to stac tiler."""
             pool = request.app.state.readpool
 
-            req = PgstacSearch(
+            req = POSTModel(
                 filter={
                     "op": "and",
                     "args": [
