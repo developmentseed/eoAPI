@@ -28,7 +28,7 @@ jobs:
         run: pre-commit run --all-files
 
       - name: Launch services
-        run: docker-compose up stac raster -d
+        run: docker-compose up -d stac raster
 
       - name: Ingest Stac Items/Collection
         run: |
