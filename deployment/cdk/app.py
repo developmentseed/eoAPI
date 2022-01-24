@@ -31,6 +31,7 @@ class BootstrappedDb(core.Construct):
         db: rds.DatabaseInstance,
         new_dbname: str,
         new_username: str,
+        pgstac_version: str,
         secrets_prefix: str,
     ) -> None:
         """Update RDS database."""
@@ -43,9 +44,12 @@ class BootstrappedDb(core.Construct):
             handler="handler.handler",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath("./"), file="deployment/dockerfiles/Dockerfile.db",
+                path=os.path.abspath("./"),
+                file="deployment/dockerfiles/Dockerfile.db",
+                build_args={"PGSTAC_VERSION": pgstac_version},
+                platform="linux/amd64",
             ),
-            timeout=core.Duration.minutes(2),
+            timeout=core.Duration.minutes(5),
             vpc=db.vpc,
             allow_public_subnet=True,
         )
@@ -77,6 +81,7 @@ class BootstrappedDb(core.Construct):
             id="BootstrappedDbResource",
             service_token=handler.function_arn,
             properties={
+                "pgstac_version": pgstac_version,
                 "conn_secret_arn": db.secret.secret_arn,
                 "new_user_secret_arn": self.secret.secret_arn,
             },
@@ -152,6 +157,7 @@ class eoAPIconstruct(core.Stack):
             db=db,
             new_dbname=eodb_settings.dbname,
             new_username=eodb_settings.user,
+            pgstac_version=eodb_settings.pgstac_version,
             secrets_prefix=os.path.join(stage, name),
         )
 
@@ -189,6 +195,7 @@ class eoAPIconstruct(core.Stack):
             code=aws_lambda.Code.from_docker_build(
                 path=os.path.abspath(code_dir),
                 file="deployment/dockerfiles/Dockerfile.raster",
+                platform="linux/amd64",
             ),
             vpc=vpc,
             allow_public_subnet=True,
@@ -231,6 +238,7 @@ class eoAPIconstruct(core.Stack):
         #     code=aws_lambda.Code.from_docker_build(
         #         path=os.path.abspath(code_dir),
         #         file="deployment/dockerfiles/Dockerfile.vector",
+        #         platform="linux/amd64",
         #     ),
         #     vpc=vpc,
         #     allow_public_subnet=True,
@@ -263,6 +271,7 @@ class eoAPIconstruct(core.Stack):
             code=aws_lambda.Code.from_docker_build(
                 path=os.path.abspath(code_dir),
                 file="deployment/dockerfiles/Dockerfile.stac",
+                platform="linux/amd64",
             ),
             vpc=vpc,
             allow_public_subnet=True,

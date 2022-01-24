@@ -1,21 +1,21 @@
 """FastAPI application using PGStac."""
 
 from eoapi.stac.config import ApiSettings, TilesApiSettings
+from eoapi.stac.config import extensions as PgStacExtensions
+from eoapi.stac.config import get_request_model as GETModel
+from eoapi.stac.config import post_request_model as POSTModel
 from eoapi.stac.extension import TiTilerExtension
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
-from stac_fastapi.extensions.core import FieldsExtension, QueryExtension, SortExtension
 from stac_fastapi.pgstac.config import Settings
 from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
-from stac_fastapi.pgstac.types.search import PgstacSearch
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-
-# from starlette_cramjam.middleware import CompressionMiddleware
+from starlette_cramjam.middleware import CompressionMiddleware
 
 try:
     from importlib.resources import files as resources_files  # type: ignore
@@ -36,15 +36,14 @@ api = StacApi(
     title=api_settings.name,
     description=api_settings.name,
     settings=settings,
-    extensions=[QueryExtension(), SortExtension(), FieldsExtension()],
-    client=CoreCrudClient(),
-    search_request_model=PgstacSearch,
+    extensions=PgStacExtensions,
+    client=CoreCrudClient(post_request_model=POSTModel),
+    search_get_request_model=GETModel,
+    search_post_request_model=POSTModel,
     response_class=ORJSONResponse,
+    middlewares=[CompressionMiddleware],
 )
 app = api.app
-
-# see https://github.com/stac-utils/stac-fastapi/issues/265
-# app.add_middleware(CompressionMiddleware)
 
 # Set all CORS enabled origins
 if api_settings.cors_origins:

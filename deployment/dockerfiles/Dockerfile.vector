@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 lambci/lambda:build-python3.8
+FROM lambci/lambda:build-python3.8
 
 WORKDIR /tmp
 

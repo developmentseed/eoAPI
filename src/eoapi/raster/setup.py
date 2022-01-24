@@ -6,14 +6,17 @@ with open("README.md") as f:
     long_description = f.read()
 
 inst_reqs = [
-    "psycopg2-binary",
-    "titiler.pgstac==0.1.0a1",
+    "titiler.pgstac==0.1.0a3",
     "jinja2>=2.11.2,<3.0.0",
     "starlette-cramjam>=0.1.0,<0.2",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
 
 extra_reqs = {
+    # https://www.psycopg.org/psycopg3/docs/api/pq.html#pq-module-implementations
+    "psycopg": ["psycopg[pool]"],  # pure python implementation
+    "psycopg-c": ["psycopg[c,pool]"],  # C implementation of the libpq wrapper
+    "psycopg-binary": ["psycopg[binary,pool]"],  # pre-compiled C implementation
     "test": ["pytest", "pytest-cov", "pytest-asyncio", "requests"],
 }
 

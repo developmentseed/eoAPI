@@ -5,6 +5,17 @@ from typing import Optional
 
 import pydantic
 
+from stac_fastapi.api.models import create_get_request_model, create_post_request_model
+from stac_fastapi.extensions.core import (
+    ContextExtension,
+    FieldsExtension,
+    FilterExtension,
+    QueryExtension,
+    SortExtension,
+    TokenPaginationExtension,
+)
+from stac_fastapi.pgstac.types.search import PgstacSearch
+
 
 class _ApiSettings(pydantic.BaseSettings):
     """API settings"""
@@ -58,3 +69,15 @@ def TilesApiSettings() -> _TilesApiSettings:
 
     """
     return _TilesApiSettings()
+
+
+extensions = [
+    FilterExtension(),
+    QueryExtension(),
+    SortExtension(),
+    FieldsExtension(),
+    TokenPaginationExtension(),
+    ContextExtension(),
+]
+post_request_model = create_post_request_model(extensions, base_model=PgstacSearch)
+get_request_model = create_get_request_model(extensions)

@@ -73,17 +73,23 @@ class MVTilerFactory:
         """register search VectorTiles."""
 
         @self.router.post(
-            "/register", responses={200: {"description": "Register Search request."}},
+            "/register",
+            responses={200: {"description": "Register Search request."}},
         )
         async def register_search(request: Request, body: SearchQuery):
             """Register Search requests."""
+            search = body.json(
+                exclude_none=True,
+                by_alias=True,
+            )
+
             pool = request.app.state.pool
             async with pool.acquire() as conn:
                 q, p = render(
                     """
                     SELECT * FROM search_query(:req);
                     """,
-                    req=body.json(exclude_none=True),
+                    req=search,
                 )
                 searchid = await conn.fetchval(q, *p)
 
@@ -276,10 +282,12 @@ class MVTilerFactory:
             }
 
         @self.router.get(
-            "/{searchid}/index.html", response_class=HTMLResponse,
+            "/{searchid}/index.html",
+            response_class=HTMLResponse,
         )
         async def search_page(
-            request: Request, searchid: str = Path(..., description="search id"),
+            request: Request,
+            searchid: str = Path(..., description="search id"),
         ):
             """Search viewer."""
             route_params = {
@@ -464,10 +472,12 @@ class MVTilerFactory:
             return Response(content, media_type="application/x-protobuf")
 
         @self.router.get(
-            "/grid/mercator/{searchid}/index.html", response_class=HTMLResponse,
+            "/grid/mercator/{searchid}/index.html",
+            response_class=HTMLResponse,
         )
         async def grid_page(
-            request: Request, searchid: str = Path(..., description="search id"),
+            request: Request,
+            searchid: str = Path(..., description="search id"),
         ):
             """Search viewer."""
             return templates.TemplateResponse(

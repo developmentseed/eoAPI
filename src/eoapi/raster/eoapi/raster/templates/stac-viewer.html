@@ -297,8 +297,6 @@
         <script>
 var scope = { assets: undefined, info: undefined }
 
-mapboxgl.accessToken = ''
-
 const dtype_ranges = {
     'int8': [-128, 127],
     'uint8': [0, 255],
@@ -350,13 +348,14 @@ map.on('zoom', function (e) {
 })
 
 const set1bViz = () => {
-    params = {}
-
+    params = {
+        url: '{{ stac_url }}'
+    }
     const asset = document.getElementById('asset-selector').value
     params.assets = asset
 
     const bidx = document.getElementById('layer-selector').value
-    params.bidx = bidx
+    params.asset_bidx = `${asset}|${bidx}`
 
     if (['uint8','int8'].indexOf(scope.info[asset].dtype) === -1) {
         params.rescale = `${document.getElementById('data-min').value},${document.getElementById('data-max').value}`
@@ -370,8 +369,7 @@ const set1bViz = () => {
     if (cmap.value !== 'b&w') params.colormap_name = cmap.value
 
     const url_params = Object.keys(params).map(i => `${i}=${params[i]}`).join('&')
-    //let url = `${tilejson_endpoint}?${url_params}`
-    let url = `{{ endpoint }}/tilejson.json?url={{ stac_url }}&${url_params}`
+    let url = `{{ endpoint }}/tilejson.json?${url_params}`
 
     map.addSource('raster', { type: 'raster', url: url , tileSize: 256})
     map.addLayer({ id: 'raster', type: 'raster', source: 'raster' })
@@ -384,19 +382,22 @@ const set3bViz = () => {
     const g = document.getElementById('g-selector').value
     const b = document.getElementById('b-selector').value
 
-    params = {}
+    params = {
+        url: '{{ stac_url }}'
+    }
 
-    let assets
-    let indexes
+    let asset_params
+    let indexes_params
     if (document.getElementById("compose-switch").checked === true) {
-        assets = [r, g, b]
-        indexes = [1]
-        params.rescale = `${document.getElementById('data-min').value},${document.getElementById('data-max').value}`
+        asset_params = [r, g, b].map(i => `assets=${i}`).join('&')
+        indexes_params =  [r, g, b].map(i => `asset_bidx=${i}|1`).join('&')
 
+        // we can't know the type for merged assets
+        params.rescale = `${document.getElementById('data-min').value},${document.getElementById('data-max').value}`
     } else {
         const asset = document.getElementById('asset-selector').value
-        assets = [asset]
-        indexes = [r, g, b]
+        asset_params = `assets=${asset}`
+        indexes_params =  `asset_bidx=${asset}|${r},${g},${b}`
 
         if (['uint8','int8'].indexOf(scope.info[asset].dtype) === -1) {
             params.rescale = `${document.getElementById('data-min').value},${document.getElementById('data-max').value}`
@@ -407,14 +408,8 @@ const set3bViz = () => {
         params.color_formula = document.getElementById('ColorFormulaValue').value
     }
 
-    // const asset_params = assets.map(i => `asset=${i}`).join('&')
-    params.assets = assets.join(',')
-
-    // const indexes_params = indexes.map(i => `bidx=${i}`).join('&')
-    params.bidx = indexes.join(',')
-
     const url_params = Object.keys(params).map(i => `${i}=${params[i]}`).join('&')
-    let url = `{{ endpoint }}/tilejson.json?url={{ stac_url }}&${url_params}`
+    let url = `{{ endpoint }}/tilejson.json?${url_params}&${asset_params}&${indexes_params}`
 
     map.addSource('raster', { type: 'raster', url: url, tileSize: 256 })
     map.addLayer({ id: 'raster', type: 'raster', source: 'raster' })

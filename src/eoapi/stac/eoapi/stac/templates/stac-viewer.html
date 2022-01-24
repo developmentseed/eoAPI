@@ -575,36 +575,48 @@ const cleanup = () => {
 document.getElementById('btn-query').addEventListener('click', () => {
   cleanup()
 
-  // build query
+  // CQL2 query
   body = {limit: scope.limit}
 
+  filter = {op: 'and', args: []}
   // geom filter
   const draws = Draw.getAll()
-  if (draws.features.length !== 0) {
-    body.intersects = draws.features[0].geometry
-  }
+  if (draws.features.length !== 0) filter.args.push({"op": "s_intersects", "args": [{"property": "geometry"}, draws.features[0].geometry]})
 
   // date filters
   const startdate = document.getElementById('start-date').value
   const enddate = document.getElementById('end-date').value
+
   if (startdate !== '' && enddate !== '') {
-    body.datetime = `${startdate}/${enddate}`
+    filter.args.push(
+      {"op": "t_intersects", "args": [{"property": "datetime"}, [startdate, enddate]]}
+    )
   } else if (startdate !== '' && enddate === '') {
-    body.datetime = `${startdate}/..`
+    filter.args.push(
+      {
+        "op": "ge",
+        "args": [ { "property": "datetime" }, startdate ]
+      }
+    )
+
   } else if (startdate === '' && enddate !== '') {
-    body.datetime = `../${enddate}`
+    filter.args.push(
+      {
+        "op": "le",
+        "args": [ { "property": "datetime" }, enddate ]
+      }
+    )
   }
 
   // collection filters
-  let query_collection = []
+  let collections = []
   document.getElementById('collection-filters').childNodes.forEach((e) => {
     const collection = e.querySelector("#collection-name").value
-    query_collection.push(collection)
+    collections.push(collection)
   })
-  if (query_collection.length > 0) body.collections = query_collection
+  if (collections.length > 0) filter.args.push({"op": "in", "args": [{"property": "collection"}, collections]})
 
-  // property filters
-  query_body = {}
+  // Properties filters
   document.getElementById('property-filters').childNodes.forEach((e) => {
     const field = e.querySelector("#filter-field").value
     if (field === '') return
@@ -614,19 +626,15 @@ document.getElementById('btn-query').addEventListener('click', () => {
     if (value === '') return
 
     const type = e.querySelector("#filter-value-type").value
-
-    if (!query_body.hasOwnProperty(field)) {
-      query_body[field] = {}
-    }
     if (type === "int"){
       value = parseInt(value)
     } else if (type === "float") {
       value = parseFloat(value)
     }
-    query_body[field][operator] = value
+    filter.args.push({"op": operator, "args": [{"property": field}, value]})
   })
 
-  if (Object.keys(query_body).length > 0) body.query = query_body
+  if (filter.args.length > 0) body.filter = filter
 
   scope.query = body
   query(body)
