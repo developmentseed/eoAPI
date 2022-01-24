@@ -1,0 +1,42 @@
+name: CI
+
+# On every pull request, but only on push to master
+on:
+  push:
+    branches:
+    - master
+    tags:
+    - '*'
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pre-commit pytest pytest-asyncio httpx pypgstac
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+      - name: Launch services
+        run: docker-compose up stac raster -d
+
+      - name: Ingest Stac Items/Collection
+        run: |
+          pypgstac load collections .github/workflows/data/noaa-emergency-response.json --dsn postgresql://username:password@0.0.0.0:5439/postgis
+          pypgstac load items .github/workflows/data/noaa-eri-nashville2020.json --dsn postgresql://username:password@0.0.0.0:5439/postgis
+
+      - name: Run tests
+        run: python -m pytest .github/workflows/tests/test_eoapi.py
+
+      - name: Stop services
+        run: docker-compose stop
