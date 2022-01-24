@@ -43,16 +43,11 @@ def test_stac_to_raster():
         f"{stac_endpoint}/collections/noaa-emergency-response/items/20200307aC0853300w361200/tilejson.json",
         params={"assets": "cog"},
     )
-    assert resp.status_code == 200
-    item = resp.json()
-    assert "tilejson" in item
-    tile_url = item["tiles"][0]
-    assert "assets=cog" in tile_url
-    assert ":8082" in tile_url
+    assert resp.status_code == 307
 
     # viewer
     resp = httpx.get(
         f"{stac_endpoint}/collections/noaa-emergency-response/items/20200307aC0853300w361200/viewer",
         params={"assets": "cog"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == 307
