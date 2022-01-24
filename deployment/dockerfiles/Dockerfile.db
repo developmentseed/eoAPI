@@ -1,10 +1,16 @@
-FROM --platform=linux/amd64 lambci/lambda:build-python3.8
+FROM lambci/lambda:build-python3.8
+
+ARG PGSTAC_VERSION
 
 WORKDIR /tmp
 
-RUN pip install "importlib_resources>=1.1.0;python_version<'3.9'" requests psycopg2-binary pypgstac==0.3.4 -t /asset
+RUN echo "Using PGSTAC Version ${PGSTAC_VERSION}"
+RUN pip install requests psycopg["binary"] pypgstac==${PGSTAC_VERSION} -t /asset
 
-COPY deployment/handlers/cfnresponse.py /asset/cfnresponse.py
 COPY deployment/handlers/db_handler.py /asset/handler.py
+
+# https://stackoverflow.com/a/61746719
+# Turns out, asyncio is part of python
+RUN rm -rf /asset/asyncio*
 
 CMD ["echo", "hello world"]

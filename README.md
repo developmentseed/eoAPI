@@ -97,16 +97,17 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
 3. Update settings
 
-    Using environment variable or editing `deployment/cdk/config.py`
+    Set environment variable or hard code in `deployment/.env` file (e.g `EOAPI_DB_PGSTAC_VERSION=0.4.3`).
 
 4. Deploy
 
     ```bash
-    $ EOAPI_STAGE=staging npm run cdk deploy eoapi-staging --profile {my-aws-profile}
+    $ EOAPI_STAGE=staging EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
 
     # Deploy in specific region
-    $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 npm run cdk deploy eoapi-production --profile {my-aws-profile}
+    $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
+
 
 ## Contribution & Development
 

@@ -3,7 +3,6 @@ version: '3'
 services:
   stac:
     container_name: eoapi.stac
-    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.stac
@@ -87,7 +86,6 @@ services:
 
   vector:
     container_name: eoapi.vector
-    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.vector

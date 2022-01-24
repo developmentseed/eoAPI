@@ -26,6 +26,9 @@ class eoDBSettings(pydantic.BaseSettings):
     dbname: str = "postgis"
     user: str = "eostac"
 
+    # Define PGSTAC VERSION
+    pgstac_version: str
+
     class Config:
         """model config"""
 

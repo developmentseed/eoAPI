@@ -1,6 +1,6 @@
 ARG PYTHON_VERSION=3.9
 
-FROM tiangolo/uvicorn-gunicorn:python${PYTHON_VERSION}
+FROM ghcr.io/vincentsarago/uvicorn-gunicorn:${PYTHON_VERSION}
 
 RUN pip install psycopg2
 
