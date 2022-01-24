@@ -9,7 +9,7 @@ import attr
 from buildpg import render
 
 from eoapi.stac.config import post_request_model as POSTModel
-from fastapi import APIRouter, FastAPI, Path, Query
+from fastapi import APIRouter, FastAPI, HTTPException, Path, Query
 from fastapi.responses import RedirectResponse
 from stac_fastapi.types.errors import NotFoundError
 from stac_fastapi.types.extension import ApiExtension
@@ -69,6 +69,12 @@ class TiTilerExtension(ApiExtension):
             ),
         ):
             """Get items and redirect to stac tiler."""
+            if not assets and not expression:
+                raise HTTPException(
+                    status_code=500,
+                    detail="assets must be defined either via expression or assets options.",
+                )
+
             pool = request.app.state.readpool
 
             req = POSTModel(
@@ -76,10 +82,10 @@ class TiTilerExtension(ApiExtension):
                     "op": "and",
                     "args": [
                         {
-                            "op": "in",
-                            "args": [{"property": "collection"}, [collectionId]],
+                            "op": "eq",
+                            "args": [{"property": "collection"}, collectionId],
                         },
-                        {"op": "eq", "args": [{"property": "id"}, [itemId]]},
+                        {"op": "eq", "args": [{"property": "id"}, itemId]},
                     ],
                 },
             ).json(exclude_none=True, by_alias=True)
@@ -138,8 +144,8 @@ class TiTilerExtension(ApiExtension):
                     "op": "and",
                     "args": [
                         {
-                            "op": "in",
-                            "args": [{"property": "collection"}, [collectionId]],
+                            "op": "eq",
+                            "args": [{"property": "collection"}, collectionId],
                         },
                         {"op": "eq", "args": [{"property": "id"}, itemId]},
                     ],

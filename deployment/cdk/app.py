@@ -5,6 +5,7 @@ import json
 import os
 from typing import Any
 
+import aws_cdk.aws_logs as logs
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as apigw_integrations
 from aws_cdk import aws_ec2 as ec2
@@ -52,6 +53,7 @@ class BootstrappedDb(core.Construct):
             timeout=core.Duration.minutes(5),
             vpc=db.vpc,
             allow_public_subnet=True,
+            log_retention=logs.RetentionDays.ONE_WEEK,
         )
 
         self.secret = secretsmanager.Secret(
@@ -81,10 +83,15 @@ class BootstrappedDb(core.Construct):
             id="BootstrappedDbResource",
             service_token=handler.function_arn,
             properties={
+                # By setting pgstac_version in the properties assures
+                # that Create/Update events will be passed to the service token
                 "pgstac_version": pgstac_version,
                 "conn_secret_arn": db.secret.secret_arn,
                 "new_user_secret_arn": self.secret.secret_arn,
             },
+            # We do not need to run the custom resource on STAC Delete
+            # Custom Resource are not physical resources so it's OK to `Retain` it
+            removal_policy=core.RemovalPolicy.RETAIN,
         )
 
         # Allow lambda to...
@@ -203,6 +210,7 @@ class eoAPIconstruct(core.Stack):
             memory_size=eoraster_settings.memory,
             timeout=core.Duration.seconds(eoraster_settings.timeout),
             environment=eoraster_settings.env or {},
+            log_retention=logs.RetentionDays.ONE_WEEK,
         )
         for k, v in db_secrets.items():
             eoraster_function.add_environment(key=k, value=str(v))
@@ -246,6 +254,7 @@ class eoAPIconstruct(core.Stack):
         #     memory_size=eovector_settings.memory,
         #     timeout=core.Duration.seconds(eovector_settings.timeout),
         #     environment=eovector_settings.env or {},
+        #     log_retention=logs.RetentionDays.ONE_WEEK,
         # )
         # for k, v in db_secrets.items():
         #     eovector_function.add_environment(key=k, value=str(v))
@@ -279,6 +288,7 @@ class eoAPIconstruct(core.Stack):
             memory_size=eostac_settings.memory,
             timeout=core.Duration.seconds(eostac_settings.timeout),
             environment=eostac_settings.env or {},
+            log_retention=logs.RetentionDays.ONE_WEEK,
         )
         for k, v in db_secrets.items():
             eostac_function.add_environment(key=k, value=str(v))

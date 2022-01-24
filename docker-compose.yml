@@ -35,6 +35,10 @@ services:
     depends_on:
       - database
       - raster
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
+    volumes:
+      - ./scripts:/tmp/scripts
 
   raster:
     container_name: eoapi.raster
@@ -83,6 +87,10 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - database
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
+    volumes:
+      - ./scripts:/tmp/scripts
 
   vector:
     container_name: eoapi.vector
