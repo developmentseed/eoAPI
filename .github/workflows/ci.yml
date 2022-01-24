@@ -32,8 +32,8 @@ jobs:
 
       - name: Ingest Stac Items/Collection
         run: |
-          pypgstac load collections .github/workflows/data/noaa-emergency-response.json --dsn postgresql://username:password@0.0.0.0:5439/postgis
-          pypgstac load items .github/workflows/data/noaa-eri-nashville2020.json --dsn postgresql://username:password@0.0.0.0:5439/postgis
+          pypgstac load collections .github/workflows/data/noaa-emergency-response.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
+          pypgstac load items .github/workflows/data/noaa-eri-nashville2020.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
 
       - name: Run tests
         run: python -m pytest .github/workflows/tests/test_eoapi.py
