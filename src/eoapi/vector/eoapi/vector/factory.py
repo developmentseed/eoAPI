@@ -27,7 +27,7 @@ except ImportError:
     from importlib_resources import files as resources_files  # type: ignore
 
 
-templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))
+templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))  # type: ignore
 
 
 def TileMatrixSetParams(
