@@ -172,4 +172,4 @@ class TiTilerExtension(ApiExtension):
 
             return RedirectResponse(titiler_endpoint + f"/stac/viewer?{urlencode(qs)}")
 
-        app.include_router(router)
+        app.include_router(router, tags=["TiTiler Extension"])
