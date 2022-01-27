@@ -126,11 +126,11 @@ services:
       context: .
       dockerfile: Dockerfile.features
     ports:
-      - "8084:8084"
+      - "8085:8085"
     environment:
       # Application
       - HOST=0.0.0.0
-      - PORT=8084
+      - PORT=8085
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
       - WEB_CONCURRENCY=10
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core

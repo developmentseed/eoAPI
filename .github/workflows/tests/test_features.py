@@ -2,7 +2,7 @@
 
 import httpx
 
-features_endpoint = "http://0.0.0.0:8084"
+features_endpoint = "http://0.0.0.0:8085"
 
 
 def test_features_api():
