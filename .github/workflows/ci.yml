@@ -28,7 +28,7 @@ jobs:
         run: pre-commit run --all-files
 
       - name: Launch services
-        run: docker-compose up -d stac raster
+        run: docker-compose up -d stac raster features
 
       - name: Ingest Stac Items/Collection
         run: |
@@ -41,7 +41,7 @@ jobs:
         shell: bash
 
       - name: Run tests
-        run: python -m pytest .github/workflows/tests/test_eoapi.py
+        run: python -m pytest .github/workflows/tests/
 
       - name: Stop services
         run: docker-compose stop
