@@ -120,6 +120,38 @@ services:
     depends_on:
       - database
 
+  features:
+    container_name: eoapi.features
+    build:
+      context: .
+      dockerfile: Dockerfile.features
+    ports:
+      - "8084:8084"
+    environment:
+      # Application
+      - HOST=0.0.0.0
+      - PORT=8084
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      - WEB_CONCURRENCY=10
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
+      # - WORKERS_PER_CORE=1
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # - MAX_WORKERS=10
+      # Postgres connection
+      - POSTGRES_USER=username
+      - POSTGRES_PASS=password
+      - POSTGRES_DBNAME=postgis
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - DB_MIN_CONN_SIZE=1
+      - DB_MAX_CONN_SIZE=10
+    depends_on:
+      - database
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
+    volumes:
+      - ./scripts:/tmp/scripts
+
   database:
     container_name: eoapi.db
     platform: linux/amd64
