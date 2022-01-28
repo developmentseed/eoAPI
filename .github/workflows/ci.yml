@@ -40,7 +40,7 @@ jobs:
         run: sleep 10s
         shell: bash
 
-      - name: Run tests
+      - name: Integrations tests
         run: python -m pytest .github/workflows/tests/
 
       - name: Stop services

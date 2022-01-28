@@ -1,7 +1,6 @@
 """TiTiler+PgSTAC FastAPI application."""
 
 import logging
-from typing import Dict
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -48,7 +47,7 @@ app.include_router(
 
 
 @app.get("/healthz", description="Health Check", tags=["Health Check"])
-def ping() -> Dict:
+def ping():
     """Health check."""
     return {"ping": "pong!"}
 
