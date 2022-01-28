@@ -1,8 +1,18 @@
 """eoAPI Configs."""
 
+from enum import Enum
 from typing import Dict, List, Optional
 
 import pydantic
+
+
+class functionName(str, Enum):
+    """Function names."""
+
+    stac = "stac"
+    raster = "raster"
+    vector = "vector"
+    features = "features"
 
 
 class eoAPISettings(pydantic.BaseSettings):
@@ -12,12 +22,14 @@ class eoAPISettings(pydantic.BaseSettings):
     stage: str = "production"
     owner: Optional[str]
     client: Optional[str]
+    functions: List[functionName] = [functionName.stac, functionName.raster]
 
     class Config:
         """model config"""
 
         env_file = "deployment/.env"
         env_prefix = "EOAPI_"
+        use_enum_values = True
 
 
 class eoDBSettings(pydantic.BaseSettings):
@@ -105,8 +117,16 @@ class eoVectorSettings(pydantic.BaseSettings):
         env_prefix = "EOAPI_VECTOR_"
 
 
-eoapi_settings = eoAPISettings()
-eoraster_settings = eoRasterSettings()
-eostac_settings = eoSTACSettings()
-eovector_settings = eoVectorSettings()
-eodb_settings = eoDBSettings()
+class eoFeaturesSettings(pydantic.BaseSettings):
+    """Application settings"""
+
+    env: Dict = {}
+
+    timeout: int = 10
+    memory: int = 256
+
+    class Config:
+        """model config"""
+
+        env_file = "deployment/.env"
+        env_prefix = "EOAPI_FEATURES_"

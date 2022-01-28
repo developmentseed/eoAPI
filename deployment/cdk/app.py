@@ -14,9 +14,16 @@ from aws_cdk import aws_lambda
 from aws_cdk import aws_rds as rds
 from aws_cdk import aws_secretsmanager as secretsmanager
 from aws_cdk import core
-from config import eoapi_settings, eodb_settings, eoraster_settings, eostac_settings
+from config import (
+    eoAPISettings,
+    eoDBSettings,
+    eoFeaturesSettings,
+    eoRasterSettings,
+    eoSTACSettings,
+    eoVectorSettings,
+)
 
-# from config import eovector_settings,
+eoapi_settings = eoAPISettings()
 
 
 class BootstrappedDb(core.Construct):
@@ -141,6 +148,7 @@ class eoAPIconstruct(core.Stack):
         for (id, service) in gateway_endpoints:
             vpc.add_gateway_endpoint(id, service=service)
 
+        eodb_settings = eoDBSettings()
         db = rds.DatabaseInstance(
             self,
             f"{id}-postgres-db",
@@ -195,118 +203,166 @@ class eoAPIconstruct(core.Stack):
         )
 
         # eoapi.raster
-        eoraster_function = aws_lambda.Function(
-            self,
-            f"{id}-raster-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
-            code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath(code_dir),
-                file="deployment/dockerfiles/Dockerfile.raster",
-                platform="linux/amd64",
-            ),
-            vpc=vpc,
-            allow_public_subnet=True,
-            handler="handler.handler",
-            memory_size=eoraster_settings.memory,
-            timeout=core.Duration.seconds(eoraster_settings.timeout),
-            environment=eoraster_settings.env or {},
-            log_retention=logs.RetentionDays.ONE_WEEK,
-        )
-        for k, v in db_secrets.items():
-            eoraster_function.add_environment(key=k, value=str(v))
-
-        eoraster_function.add_to_role_policy(
-            iam.PolicyStatement(
-                actions=["s3:GetObject"],
-                resources=[
-                    f"arn:aws:s3:::{bucket}/{eoraster_settings.key}"
-                    for bucket in eoraster_settings.buckets
-                ],
+        if "raster" in eoapi_settings.functions:
+            eoraster_settings = eoRasterSettings()
+            eoraster_function = aws_lambda.Function(
+                self,
+                f"{id}-raster-lambda",
+                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                code=aws_lambda.Code.from_docker_build(
+                    path=os.path.abspath(code_dir),
+                    file="deployment/dockerfiles/Dockerfile.raster",
+                    platform="linux/amd64",
+                ),
+                vpc=vpc,
+                allow_public_subnet=True,
+                handler="handler.handler",
+                memory_size=eoraster_settings.memory,
+                timeout=core.Duration.seconds(eoraster_settings.timeout),
+                environment=eoraster_settings.env or {},
+                log_retention=logs.RetentionDays.ONE_WEEK,
             )
-        )
+            for k, v in db_secrets.items():
+                eoraster_function.add_environment(key=k, value=str(v))
 
-        db.connections.allow_from(eoraster_function, port_range=ec2.Port.tcp(5432))
+            eoraster_function.add_to_role_policy(
+                iam.PolicyStatement(
+                    actions=["s3:GetObject"],
+                    resources=[
+                        f"arn:aws:s3:::{bucket}/{eoraster_settings.key}"
+                        for bucket in eoraster_settings.buckets
+                    ],
+                )
+            )
 
-        raster_api = apigw.HttpApi(
-            self,
-            f"{id}-raster-endpoint",
-            default_integration=apigw_integrations.LambdaProxyIntegration(
-                handler=eoraster_function
-            ),
-        )
-        core.CfnOutput(self, "eoAPI-raster", value=raster_api.url)
+            db.connections.allow_from(eoraster_function, port_range=ec2.Port.tcp(5432))
 
-        setup_db.is_required_by(eoraster_function)
+            raster_api = apigw.HttpApi(
+                self,
+                f"{id}-raster-endpoint",
+                default_integration=apigw_integrations.LambdaProxyIntegration(
+                    handler=eoraster_function
+                ),
+            )
+            core.CfnOutput(self, "eoAPI-raster", value=raster_api.url)
 
-        # # eoapi.vector
-        # eovector_function = aws_lambda.Function(
-        #     self,
-        #     f"{id}-vector-lambda",
-        #     runtime=aws_lambda.Runtime.PYTHON_3_8,
-        #     code=aws_lambda.Code.from_docker_build(
-        #         path=os.path.abspath(code_dir),
-        #         file="deployment/dockerfiles/Dockerfile.vector",
-        #         platform="linux/amd64",
-        #     ),
-        #     vpc=vpc,
-        #     allow_public_subnet=True,
-        #     handler="handler.handler",
-        #     memory_size=eovector_settings.memory,
-        #     timeout=core.Duration.seconds(eovector_settings.timeout),
-        #     environment=eovector_settings.env or {},
-        #     log_retention=logs.RetentionDays.ONE_WEEK,
-        # )
-        # for k, v in db_secrets.items():
-        #     eovector_function.add_environment(key=k, value=str(v))
-
-        # db.connections.allow_from(eovector_function, port_range=ec2.Port.tcp(5432))
-
-        # vector_api = apigw.HttpApi(
-        #     self,
-        #     f"{id}-vector-endpoint",
-        #     default_integration=apigw_integrations.LambdaProxyIntegration(
-        #         handler=eovector_function
-        #     ),
-        # )
-        # core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
-
-        # setup_db.is_required_by(eovector_function)
+            setup_db.is_required_by(eoraster_function)
 
         # eoapi.stac
-        eostac_function = aws_lambda.Function(
-            self,
-            f"{id}-stac-lambda",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
-            code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath(code_dir),
-                file="deployment/dockerfiles/Dockerfile.stac",
-                platform="linux/amd64",
-            ),
-            vpc=vpc,
-            allow_public_subnet=True,
-            handler="handler.handler",
-            memory_size=eostac_settings.memory,
-            timeout=core.Duration.seconds(eostac_settings.timeout),
-            environment=eostac_settings.env or {},
-            log_retention=logs.RetentionDays.ONE_WEEK,
-        )
-        for k, v in db_secrets.items():
-            eostac_function.add_environment(key=k, value=str(v))
+        if "stac" in eoapi_settings.functions:
+            eostac_settings = eoSTACSettings()
+            eostac_function = aws_lambda.Function(
+                self,
+                f"{id}-stac-lambda",
+                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                code=aws_lambda.Code.from_docker_build(
+                    path=os.path.abspath(code_dir),
+                    file="deployment/dockerfiles/Dockerfile.stac",
+                    platform="linux/amd64",
+                ),
+                vpc=vpc,
+                allow_public_subnet=True,
+                handler="handler.handler",
+                memory_size=eostac_settings.memory,
+                timeout=core.Duration.seconds(eostac_settings.timeout),
+                environment=eostac_settings.env or {},
+                log_retention=logs.RetentionDays.ONE_WEEK,
+            )
+            for k, v in db_secrets.items():
+                eostac_function.add_environment(key=k, value=str(v))
 
-        eostac_function.add_environment(key="TITILER_ENDPOINT", value=raster_api.url)
+            # If raster is deployed we had the TITILER_ENDPOINT env to add the Proxy extension
+            if "raster" in eoapi_settings.functions:
+                eostac_function.add_environment(
+                    key="TITILER_ENDPOINT", value=raster_api.url
+                )
 
-        db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
+            db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
 
-        stac_api = apigw.HttpApi(
-            self,
-            f"{id}-stac-endpoint",
-            default_integration=apigw_integrations.LambdaProxyIntegration(
-                handler=eostac_function
-            ),
-        )
-        core.CfnOutput(self, "eoAPI-stac", value=stac_api.url)
+            stac_api = apigw.HttpApi(
+                self,
+                f"{id}-stac-endpoint",
+                default_integration=apigw_integrations.LambdaProxyIntegration(
+                    handler=eostac_function
+                ),
+            )
+            core.CfnOutput(self, "eoAPI-stac", value=stac_api.url)
 
-        setup_db.is_required_by(eostac_function)
+            setup_db.is_required_by(eostac_function)
+
+        # eoapi.vector
+        if "vector" in eoapi_settings.functions:
+            eovector_settings = eoVectorSettings()
+            eovector_function = aws_lambda.Function(
+                self,
+                f"{id}-vector-lambda",
+                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                code=aws_lambda.Code.from_docker_build(
+                    path=os.path.abspath(code_dir),
+                    file="deployment/dockerfiles/Dockerfile.vector",
+                    platform="linux/amd64",
+                ),
+                vpc=vpc,
+                allow_public_subnet=True,
+                handler="handler.handler",
+                memory_size=eovector_settings.memory,
+                timeout=core.Duration.seconds(eovector_settings.timeout),
+                environment=eovector_settings.env or {},
+                log_retention=logs.RetentionDays.ONE_WEEK,
+            )
+            for k, v in db_secrets.items():
+                eovector_function.add_environment(key=k, value=str(v))
+
+            db.connections.allow_from(eovector_function, port_range=ec2.Port.tcp(5432))
+
+            vector_api = apigw.HttpApi(
+                self,
+                f"{id}-vector-endpoint",
+                default_integration=apigw_integrations.LambdaProxyIntegration(
+                    handler=eovector_function
+                ),
+            )
+            core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
+
+            setup_db.is_required_by(eovector_function)
+
+        # eoapi.feature
+        if "features" in eoapi_settings.functions:
+            eofeatures_settings = eoFeaturesSettings()
+            eofeatures_function = aws_lambda.Function(
+                self,
+                f"{id}-features-lambda",
+                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                code=aws_lambda.Code.from_docker_build(
+                    path=os.path.abspath(code_dir),
+                    file="deployment/dockerfiles/Dockerfile.features",
+                    platform="linux/amd64",
+                ),
+                vpc=vpc,
+                allow_public_subnet=True,
+                handler="handler.handler",
+                memory_size=eofeatures_settings.memory,
+                timeout=core.Duration.seconds(eofeatures_settings.timeout),
+                environment=eofeatures_settings.env or {},
+                log_retention=logs.RetentionDays.ONE_WEEK,
+            )
+            for k, v in db_secrets.items():
+                eofeatures_function.add_environment(key=k, value=str(v))
+
+            db.connections.allow_from(
+                eofeatures_function, port_range=ec2.Port.tcp(5432)
+            )
+
+            features_api = apigw.HttpApi(
+                self,
+                f"{id}-features-endpoint",
+                default_integration=apigw_integrations.LambdaProxyIntegration(
+                    handler=eofeatures_function
+                ),
+            )
+            core.CfnOutput(self, "eoAPI-features", value=features_api.url)
+
+            setup_db.is_required_by(eofeatures_function)
 
 
 app = core.App()

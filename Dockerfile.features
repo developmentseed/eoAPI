@@ -1,0 +1,10 @@
+ARG PYTHON_VERSION=3.9
+
+FROM ghcr.io/vincentsarago/uvicorn-gunicorn:${PYTHON_VERSION}
+
+COPY src/eoapi/features /tmp/features
+RUN pip install /tmp/features
+RUN rm -rf /tmp/features
+
+ENV MODULE_NAME eoapi.features.app
+ENV VARIABLE_NAME app

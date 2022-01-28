@@ -2,12 +2,13 @@
 
 from typing import Dict
 
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
 from eoapi.vector.config import ApiSettings
 from eoapi.vector.db import close_db_connection, connect_to_db
 from eoapi.vector.factory import MVTilerFactory
 from eoapi.vector.version import __version__
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
 
 settings = ApiSettings()
 
