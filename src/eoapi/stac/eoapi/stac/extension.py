@@ -8,12 +8,13 @@ from urllib.parse import urlencode
 import attr
 from buildpg import render
 
-from eoapi.stac.config import post_request_model as POSTModel
 from fastapi import APIRouter, FastAPI, HTTPException, Path, Query
 from fastapi.responses import RedirectResponse
 from stac_fastapi.types.errors import NotFoundError
 from stac_fastapi.types.extension import ApiExtension
 from starlette.requests import Request
+
+from eoapi.stac.config import post_request_model as POSTModel
 
 router = APIRouter()
 
@@ -77,6 +78,7 @@ class TiTilerExtension(ApiExtension):
 
             pool = request.app.state.readpool
 
+            # TODO: exclude/include useless fields
             req = POSTModel(
                 filter={
                     "op": "and",
@@ -139,6 +141,7 @@ class TiTilerExtension(ApiExtension):
             """Get items and redirect to stac tiler."""
             pool = request.app.state.readpool
 
+            # TODO: exclude/include useless fields
             req = POSTModel(
                 filter={
                     "op": "and",

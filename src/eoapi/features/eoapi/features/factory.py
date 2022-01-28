@@ -8,13 +8,14 @@ from typing import Any, Dict, List, Optional
 from buildpg import render
 from geojson_pydantic.geometries import Polygon
 
+from fastapi import APIRouter, Depends, Path, Query
+from starlette.datastructures import QueryParams
+from starlette.requests import Request
+
 from eoapi.features import model
 from eoapi.features.errors import NotFoundError
 from eoapi.features.model import MediaType
 from eoapi.features.response import GeoJSONResponse
-from fastapi import APIRouter, Depends, Path, Query
-from starlette.datastructures import QueryParams
-from starlette.requests import Request
 
 
 def queryparams_to_kwargs(q: QueryParams, ignore_keys: List = []) -> Dict:

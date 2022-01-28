@@ -2,8 +2,9 @@
 
 from buildpg import asyncpg
 
-from eoapi.vector.config import PostgresSettings
 from fastapi import FastAPI
+
+from eoapi.vector.config import PostgresSettings
 
 settings = PostgresSettings()
 

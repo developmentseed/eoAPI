@@ -7,12 +7,13 @@ from typing import Any, Optional
 from buildpg import render
 from morecantile import Tile, TileMatrixSet, tms
 
-from eoapi.vector.config import TileSettings
-from eoapi.vector.models import SearchQuery, TileJSON
 from fastapi import APIRouter, Depends, Path, Query
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, Response
 from starlette.templating import Jinja2Templates
+
+from eoapi.vector.config import TileSettings
+from eoapi.vector.models import SearchQuery, TileJSON
 
 mvt_settings = TileSettings()
 

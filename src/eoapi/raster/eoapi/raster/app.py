@@ -3,55 +3,31 @@
 import logging
 from typing import Dict
 
-from eoapi.raster.config import ApiSettings
-from eoapi.raster.factory import MultiBaseTilerFactory
-from eoapi.raster.reader import STACReader
-from eoapi.raster.version import __version__ as eoapi_raster_version
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette_cramjam.middleware import CompressionMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
+from titiler.core.middleware import CacheControlMiddleware
 from titiler.core.resources.enums import OptionalHeader
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.pgstac.db import close_db_connection, connect_to_db
 from titiler.pgstac.factory import MosaicTilerFactory
+
+from eoapi.raster.config import ApiSettings
+from eoapi.raster.factory import MultiBaseTilerFactory
+from eoapi.raster.reader import STACReader
+from eoapi.raster.version import __version__ as eoapi_raster_version
 
 logging.getLogger("botocore.credentials").disabled = True
 logging.getLogger("botocore.utils").disabled = True
 logging.getLogger("rio-tiler").setLevel(logging.ERROR)
 
 settings = ApiSettings()
+optional_headers = [OptionalHeader.server_timing] if settings.debug else []
 
 app = FastAPI(title=settings.name, version=eoapi_raster_version)
-
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 add_exception_handlers(app, MOSAIC_STATUS_CODES)
-
-app.add_middleware(
-    CompressionMiddleware,
-    exclude_mediatype={
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/jp2",
-        "image/webp",
-    },
-)
-
-# Set all CORS enabled origins
-if settings.cors_origins:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=["GET", "POST"],
-        allow_headers=["*"],
-    )
-
-if settings.debug:
-    optional_headers = [OptionalHeader.server_timing]
-else:
-    optional_headers = []
 
 # PgSTAC mosaic tiler
 mosaic = MosaicTilerFactory(router_prefix="mosaic", optional_headers=optional_headers)
@@ -75,6 +51,32 @@ app.include_router(
 def ping() -> Dict:
     """Health check."""
     return {"ping": "pong!"}
+
+
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST"],
+        allow_headers=["*"],
+    )
+
+app.add_middleware(
+    CacheControlMiddleware,
+    cachecontrol=settings.cachecontrol,
+    exclude_path={r"/healthz"},
+)
+app.add_middleware(
+    CompressionMiddleware,
+    exclude_mediatype={
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/jp2",
+        "image/webp",
+    },
+)
 
 
 @app.on_event("startup")

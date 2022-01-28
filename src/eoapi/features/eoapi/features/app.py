@@ -1,20 +1,24 @@
 """eoAPI.features FastAPI application."""
 
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+from starlette_cramjam.middleware import CompressionMiddleware
+
 from eoapi.features.config import ApiSettings
 from eoapi.features.db import close_db_connection, connect_to_db
 from eoapi.features.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from eoapi.features.factory import Endpoints
 from eoapi.features.middleware import CacheControlMiddleware
-from eoapi.features.version import __version__
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette_cramjam.middleware import CompressionMiddleware
+from eoapi.features.version import __version__ as eoapi_features_version
 
 settings = ApiSettings()
 
-app = FastAPI(title=settings.name, version=__version__, openapi_url="/api")
+app = FastAPI(title=settings.name, version=eoapi_features_version, openapi_url="/api")
+add_exception_handlers(app, DEFAULT_STATUS_CODES)
 
-# Set all CORS enabled origins
+features = Endpoints()
+app.include_router(features.router)
+
 if settings.cors_origins:
     app.add_middleware(
         CORSMiddleware,
@@ -26,9 +30,6 @@ if settings.cors_origins:
 
 app.add_middleware(CacheControlMiddleware, cachecontrol=settings.cachecontrol)
 app.add_middleware(CompressionMiddleware)
-add_exception_handlers(app, DEFAULT_STATUS_CODES)
-
-app.include_router(Endpoints().router)
 
 
 @app.on_event("startup")

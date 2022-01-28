@@ -22,11 +22,39 @@
 
 # The Earth Observation API
 
-`EOapi` is a combination of 4 elements: a `PgSTAC` database, a `STAC API`, a Dynamic Raster Tile server (`TiTiler`) and a Dynamic Mapbox Vector Tiles server (`TiMVT`). The project's goal is to enable a full, but easy to deploy, Earth Observation API for Metadata search (STAC), Raster and Vector services.
+`EOapi` is a combination of multiple elements:
+- [PgSTAC](https://github.com/stac-utils/pgstac) database
+- **STAC** API built on top of [stac-fastapi](https://github.com/stac-utils/stac-fastapi)
+- **Dynamic Raster Tile** API for STAC Items and Mosaic built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac)
+- **Dynamic Mapbox Vector Tile** API built on top of [timvt](https://github.com/developmentseed/timvt)
+- **OGC Features** API for `PgSTAC` following [Features REST API standard](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html#_api_definition_2)
 
-## STAC
+The project's goal is to enable a full, but easy to deploy, Earth Observation API for Metadata search (STAC), Raster and Vector services.
+
+### STAC -> [/src/eoapi/stac](/src/eoapi/stac)
 
 A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), adding a `TiTilerExtension` and a simple `Search Viewer`.
+
+#### Features
+
+- Full **stac-fastapi** implementation
+- Simple STAC Search **viewer**
+- **Proxy** to the Tiler endpoint for STAC Items
+
+  When `TITILER_ENDPOINT` environement is set (pointing the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/master/src/eoapi/stac/eoapi/stac/extension.py)):
+
+  - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an items
+  - `/collections/{collectionId}/items/{itemId}/viewer`: Redirect to the `raster` viewer
+
+  **important**: The extension implement a `trick` to avoid unnecessary requests between the `raster` api and the `stac` api. Instead of passing a STAC Item url we encode (base64) the full item (see [raster/reader.py](https://github.com/developmentseed/eoAPI/blob/b845e11460195b6305189c498a6cf1fdc9e95abc/src/eoapi/raster/eoapi/raster/reader.py#L24-L27))
+
+  ```
+  # normal url
+  http://{raster}/stac/tilejson.json?url=http://{stac}/collections/{collectionId}/items/{itemId}
+
+  # url used in proxy
+  http://{raster}/stac/tilejson.json?url=stac://{base64 encoded item}
+  ```
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/10407788/146790933-e439893c-ef2e-4d78-a372-f2f18694836c.png"/>
@@ -34,16 +62,27 @@ A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), 
 </p>
 
 
-## Raster
+### Raster -> [/src/eoapi/raster](/src/eoapi/raster)
 
-The dyanic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
+The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
+
+- Full **titiler-pgstac** implementation
+- base64 encoded STAC item support for `STAC` **Proxy**
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/10407788/129632282-f71e9f45-264c-4882-af28-7062c4e56f25.png"/>
   <p align="center">TiTiler-PgSTAC workflow</p>
 </p>
 
-## Vector (Experimental)
+### Features (Optional) [-> /src/eoapi/features](/src/eoapi/features)
+
+Simple and Fast Geospatial Feature Server for PgSTAC
+
+This can be seen as a simplistic version of stac-fastapi
+
+- Full OGC [Features REST API standard](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html#_api_definition_2) implementation
+
+### Vector (Experimental) [-> /src/eoapi/vector](/src/eoapi/vector)
 
 Mapbox Vector Tile server for STAC queries.
 
@@ -65,11 +104,11 @@ $ docker-compose up stac raster
  └──src/eoapi/
     ├── raster/            - eoAPI raster Application package
     ├── stac/              - eoAPI stac Application package
+    ├── features/          - eoAPI feature Application package [OPTIONAL]
     └── vector/            - eoAPI vector Application package [EXPERIMENTAL]
 ```
 
-
-### Deployment
+## Deployment
 
 The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Under the hood, CDK will create the deployment packages required for AWS Lambda, upload it to AWS, and handle the creation of the Lambda and API Gateway resources.
 
