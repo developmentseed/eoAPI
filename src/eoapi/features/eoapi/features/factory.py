@@ -3,7 +3,7 @@
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from buildpg import render
 from geojson_pydantic.geometries import Polygon
@@ -16,20 +16,6 @@ from eoapi.features import model
 from eoapi.features.errors import NotFoundError
 from eoapi.features.model import MediaType
 from eoapi.features.response import GeoJSONResponse
-
-
-def queryparams_to_kwargs(q: QueryParams, ignore_keys: List = []) -> Dict:
-    """Convert query params to dict."""
-    keys = list(q.keys())
-    values = {}
-    for k in keys:
-        if k in ignore_keys:
-            continue
-
-        v = q.getlist(k)
-        values[k] = v if len(v) > 1 else v[0]
-
-    return values
 
 
 @dataclass
