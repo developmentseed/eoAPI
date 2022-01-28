@@ -138,6 +138,10 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
     Set environment variable or hard code in `deployment/.env` file (e.g `EOAPI_DB_PGSTAC_VERSION=0.4.3`).
 
+    **Important**:
+      - `EOAPI_DB_PGSTAC_VERSION` is a required env
+      - You can choose which functions to deploy by setting `EOAPI_FUNCTIONS` env (e.g `EOAPI_FUNCTIONS='["stac","raster","features"]'`)
+
 4. Deploy
 
     ```bash
