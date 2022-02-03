@@ -236,12 +236,12 @@ class eoAPIconstruct(core.Stack):
             )
 
             db.connections.allow_from(eoraster_function, port_range=ec2.Port.tcp(5432))
-
             raster_api = apigw.HttpApi(
                 self,
                 f"{id}-raster-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eoraster_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-raster-integration",
+                    handler=eoraster_function,
                 ),
             )
             core.CfnOutput(self, "eoAPI-raster", value=raster_api.url)
@@ -282,8 +282,9 @@ class eoAPIconstruct(core.Stack):
             stac_api = apigw.HttpApi(
                 self,
                 f"{id}-stac-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eostac_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-stac-integration",
+                    handler=eostac_function,
                 ),
             )
             core.CfnOutput(self, "eoAPI-stac", value=stac_api.url)
@@ -318,8 +319,9 @@ class eoAPIconstruct(core.Stack):
             vector_api = apigw.HttpApi(
                 self,
                 f"{id}-vector-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eovector_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-vector-integration",
+                    handler=eovector_function,
                 ),
             )
             core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
@@ -356,8 +358,9 @@ class eoAPIconstruct(core.Stack):
             features_api = apigw.HttpApi(
                 self,
                 f"{id}-features-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eofeatures_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-features-integration",
+                    handler=eofeatures_function,
                 ),
             )
             core.CfnOutput(self, "eoAPI-features", value=features_api.url)
