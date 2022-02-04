@@ -176,25 +176,6 @@ class eoAPIconstruct(core.Stack):
             secrets_prefix=os.path.join(stage, name),
         )
 
-        db_secrets = {
-            "POSTGRES_HOST_READER": setup_db.secret.secret_value_from_json(
-                "host"
-            ).to_string(),
-            "POSTGRES_HOST_WRITER": setup_db.secret.secret_value_from_json(
-                "host"
-            ).to_string(),
-            "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
-                "dbname"
-            ).to_string(),
-            "POSTGRES_USER": setup_db.secret.secret_value_from_json(
-                "username"
-            ).to_string(),
-            "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
-                "password"
-            ).to_string(),
-            "POSTGRES_PORT": setup_db.secret.secret_value_from_json("port").to_string(),
-        }
-
         core.CfnOutput(
             self,
             f"{id}-database-secret-arn",
@@ -204,6 +185,23 @@ class eoAPIconstruct(core.Stack):
 
         # eoapi.raster
         if "raster" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
             eoraster_settings = eoRasterSettings()
             eoraster_function = aws_lambda.Function(
                 self,
@@ -250,6 +248,27 @@ class eoAPIconstruct(core.Stack):
 
         # eoapi.stac
         if "stac" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST_READER": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_HOST_WRITER": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
+
             eostac_settings = eoSTACSettings()
             eostac_function = aws_lambda.Function(
                 self,
@@ -293,6 +312,24 @@ class eoAPIconstruct(core.Stack):
 
         # eoapi.vector
         if "vector" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
+
             eovector_settings = eoVectorSettings()
             eovector_function = aws_lambda.Function(
                 self,
@@ -330,6 +367,23 @@ class eoAPIconstruct(core.Stack):
 
         # eoapi.feature
         if "features" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
             eofeatures_settings = eoFeaturesSettings()
             eofeatures_function = aws_lambda.Function(
                 self,
