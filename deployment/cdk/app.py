@@ -242,7 +242,7 @@ class eoAPIconstruct(core.Stack):
                     handler=eoraster_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-raster", value=raster_api.url)
+            core.CfnOutput(self, "eoAPI-raster", value=raster_api.url.strip("/"))
 
             setup_db.is_required_by(eoraster_function)
 
@@ -293,7 +293,7 @@ class eoAPIconstruct(core.Stack):
             # If raster is deployed we had the TITILER_ENDPOINT env to add the Proxy extension
             if "raster" in eoapi_settings.functions:
                 eostac_function.add_environment(
-                    key="TITILER_ENDPOINT", value=raster_api.url
+                    key="TITILER_ENDPOINT", value=raster_api.url.strip("/")
                 )
 
             db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
@@ -306,7 +306,7 @@ class eoAPIconstruct(core.Stack):
                     handler=eostac_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-stac", value=stac_api.url)
+            core.CfnOutput(self, "eoAPI-stac", value=stac_api.url.strip("/"))
 
             setup_db.is_required_by(eostac_function)
 
@@ -361,7 +361,7 @@ class eoAPIconstruct(core.Stack):
                     handler=eovector_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
+            core.CfnOutput(self, "eoAPI-vector", value=vector_api.url.strip("/"))
 
             setup_db.is_required_by(eovector_function)
 
@@ -417,7 +417,7 @@ class eoAPIconstruct(core.Stack):
                     handler=eofeatures_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-features", value=features_api.url)
+            core.CfnOutput(self, "eoAPI-features", value=features_api.url.strip("/"))
 
             setup_db.is_required_by(eofeatures_function)
 
