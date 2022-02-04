@@ -81,6 +81,9 @@ class eoRasterSettings(pydantic.BaseSettings):
         "VSI_CACHE_SIZE": "5000000",  # 5 MB (per file-handle)
         "DB_MIN_CONN_SIZE": "1",
         "DB_MAX_CONN_SIZE": "1",
+        "GDAL_HTTP_COOKIEJAR": "/tmp/edl_cookies",
+        "GDAL_HTTP_COOKIEFILE": "/tmp/edl_cookies",
+        "HOME": "/var/task/eoapi/raster/auth",
     }
 
     # S3 bucket names where TiTiler could do HEAD and GET Requests

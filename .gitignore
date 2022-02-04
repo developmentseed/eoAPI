@@ -106,3 +106,4 @@ cdk.out/
 node_modules/
 
 .pgdata
+.netrc
