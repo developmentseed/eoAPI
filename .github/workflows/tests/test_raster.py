@@ -112,7 +112,7 @@ def test_stac_api():
     assert "assets=cog" in resp.json()["tiles"][0]
     assert resp.json()["bounds"] == [-85.5501, 36.1749, -85.5249, 36.2001]
 
-    # pg://
+    # pgstac://
     resp = httpx.get(
         f"{raster_endpoint}/stac/assets",
         params={"url": "pgstac://noaa-emergency-response/20200307aC0853300w361200"},

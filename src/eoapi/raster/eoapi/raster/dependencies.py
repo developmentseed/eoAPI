@@ -56,7 +56,7 @@ def DatasetPathParams(
     if parsed.scheme == "stac":
         return json.loads(b64decode(url.replace("stac://", "")))
 
-    # pg://{collectionId}/{itemId}
+    # pgstac://{collectionId}/{itemId}
     elif parsed.scheme == "pgstac":
         collection_id = parsed.netloc
         item_id = parsed.path.strip("/")
