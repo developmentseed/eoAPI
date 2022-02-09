@@ -18,6 +18,8 @@ from eoapi.stac.config import post_request_model as POSTModel
 
 router = APIRouter()
 
+MAX_B64_ITEM_SIZE = 2000
+
 
 @attr.s
 class TiTilerExtension(ApiExtension):
@@ -106,6 +108,10 @@ class TiTilerExtension(ApiExtension):
 
             item = json.dumps(items["features"][0])
             itemb64 = b64encode(item.encode())
+            if len(itemb64) > MAX_B64_ITEM_SIZE:
+                stac_url = f"pgstac://{collectionId}/{itemId}"
+            else:
+                stac_url = f"stac://{itemb64.decode()}"
 
             qs_key_to_remove = [
                 "tile_format",
@@ -118,7 +124,7 @@ class TiTilerExtension(ApiExtension):
                 for (key, value) in request.query_params._list
                 if key.lower() not in qs_key_to_remove
             ]
-            qs.append(("url", f"stac://{itemb64.decode()}"))
+            qs.append(("url", stac_url))
 
             return RedirectResponse(
                 titiler_endpoint + f"/stac/tilejson.json?{urlencode(qs)}"
@@ -169,9 +175,13 @@ class TiTilerExtension(ApiExtension):
 
             item = json.dumps(items["features"][0])
             itemb64 = b64encode(item.encode())
+            if len(itemb64) > MAX_B64_ITEM_SIZE:
+                stac_url = f"pgstac://{collectionId}/{itemId}"
+            else:
+                stac_url = f"stac://{itemb64.decode()}"
 
             qs = [(key, value) for (key, value) in request.query_params._list]
-            qs.append(("url", f"stac://{itemb64.decode()}"))
+            qs.append(("url", stac_url))
 
             return RedirectResponse(titiler_endpoint + f"/stac/viewer?{urlencode(qs)}")
 

@@ -94,6 +94,7 @@ def test_stac_api():
     }
     itemb64 = b64encode(json.dumps(item).encode()).decode()
 
+    # stac://
     resp = httpx.get(
         f"{raster_endpoint}/stac/assets", params={"url": f"stac://{itemb64}"}
     )
@@ -104,6 +105,28 @@ def test_stac_api():
     resp = httpx.get(
         f"{raster_endpoint}/stac/tilejson.json",
         params={"url": f"stac://{itemb64}", "assets": "cog"},
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/json"
+    assert resp.json()["tilejson"]
+    assert "assets=cog" in resp.json()["tiles"][0]
+    assert resp.json()["bounds"] == [-85.5501, 36.1749, -85.5249, 36.2001]
+
+    # pgstac://
+    resp = httpx.get(
+        f"{raster_endpoint}/stac/assets",
+        params={"url": "pgstac://noaa-emergency-response/20200307aC0853300w361200"},
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/json"
+    assert resp.json() == ["cog"]
+
+    resp = httpx.get(
+        f"{raster_endpoint}/stac/tilejson.json",
+        params={
+            "url": "pgstac://noaa-emergency-response/20200307aC0853300w361200",
+            "assets": "cog",
+        },
     )
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/json"
