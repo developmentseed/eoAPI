@@ -115,7 +115,7 @@ def test_stac_api():
     # pg://
     resp = httpx.get(
         f"{raster_endpoint}/stac/assets",
-        params={"url": "pg://noaa-emergency-response/20200307aC0853300w361200"},
+        params={"url": "pgstac://noaa-emergency-response/20200307aC0853300w361200"},
     )
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/json"
@@ -124,7 +124,7 @@ def test_stac_api():
     resp = httpx.get(
         f"{raster_endpoint}/stac/tilejson.json",
         params={
-            "url": "pg://noaa-emergency-response/20200307aC0853300w361200",
+            "url": "pgstac://noaa-emergency-response/20200307aC0853300w361200",
             "assets": "cog",
         },
     )

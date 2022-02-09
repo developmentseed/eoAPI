@@ -109,7 +109,7 @@ class TiTilerExtension(ApiExtension):
             item = json.dumps(items["features"][0])
             itemb64 = b64encode(item.encode())
             if len(itemb64) > MAX_B64_ITEM_SIZE:
-                stac_url = f"pg://{collectionId}/{itemId}"
+                stac_url = f"pgstac://{collectionId}/{itemId}"
             else:
                 stac_url = f"stac://{itemb64.decode()}"
 
@@ -176,7 +176,7 @@ class TiTilerExtension(ApiExtension):
             item = json.dumps(items["features"][0])
             itemb64 = b64encode(item.encode())
             if len(itemb64) > MAX_B64_ITEM_SIZE:
-                stac_url = f"pg://{collectionId}/{itemId}"
+                stac_url = f"pgstac://{collectionId}/{itemId}"
             else:
                 stac_url = f"stac://{itemb64.decode()}"
 
