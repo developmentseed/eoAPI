@@ -23,7 +23,11 @@ logging.getLogger("botocore.utils").disabled = True
 logging.getLogger("rio-tiler").setLevel(logging.ERROR)
 
 settings = ApiSettings()
-optional_headers = [OptionalHeader.server_timing] if settings.debug else []
+
+if settings.debug:
+    optional_headers = [OptionalHeader.server_timing, OptionalHeader.x_assets]
+else:
+    optional_headers = []
 
 app = FastAPI(title=settings.name, version=eoapi_raster_version)
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
