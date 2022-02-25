@@ -13,7 +13,7 @@ inst_reqs = [
     "asyncpg",
     "stac-pydantic~=2.0",
     "geojson-pydantic>=0.3.1,<0.4",
-    "jinja2>=2.11.2,<3.0.0",
+    "jinja2>=3.0,<4.0",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
 
