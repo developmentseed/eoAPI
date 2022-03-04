@@ -28,7 +28,7 @@ class eoAPISettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = "deployment/.env"
-        env_prefix = "EOAPI_"
+        env_prefix = "CDK_EOAPI_"
         use_enum_values = True
 
 
@@ -45,7 +45,7 @@ class eoDBSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = "deployment/.env"
-        env_prefix = "EOAPI_DB_"
+        env_prefix = "CDK_EOAPI_DB_"
 
 
 class eoSTACSettings(pydantic.BaseSettings):
@@ -60,7 +60,7 @@ class eoSTACSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = "deployment/.env"
-        env_prefix = "EOAPI_STAC_"
+        env_prefix = "CDK_EOAPI_STAC_"
 
 
 class eoRasterSettings(pydantic.BaseSettings):
@@ -73,6 +73,7 @@ class eoRasterSettings(pydantic.BaseSettings):
         "CPL_VSIL_CURL_ALLOWED_EXTENSIONS": ".tif,.TIF,.tiff",
         "GDAL_CACHEMAX": "200",  # 200 mb
         "GDAL_DISABLE_READDIR_ON_OPEN": "EMPTY_DIR",
+        "GDAL_INGESTED_BYTES_AT_OPEN": "32768",
         "GDAL_HTTP_MERGE_CONSECUTIVE_RANGES": "YES",
         "GDAL_HTTP_MULTIPLEX": "YES",
         "GDAL_HTTP_VERSION": "2",
@@ -99,7 +100,7 @@ class eoRasterSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = "deployment/.env"
-        env_prefix = "EOAPI_RASTER_"
+        env_prefix = "CDK_EOAPI_RASTER_"
 
 
 class eoVectorSettings(pydantic.BaseSettings):
@@ -114,7 +115,7 @@ class eoVectorSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = "deployment/.env"
-        env_prefix = "EOAPI_VECTOR_"
+        env_prefix = "CDK_EOAPI_VECTOR_"
 
 
 class eoFeaturesSettings(pydantic.BaseSettings):
@@ -129,4 +130,4 @@ class eoFeaturesSettings(pydantic.BaseSettings):
         """model config"""
 
         env_file = "deployment/.env"
-        env_prefix = "EOAPI_FEATURES_"
+        env_prefix = "CDK_EOAPI_FEATURES_"

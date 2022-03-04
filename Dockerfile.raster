@@ -4,11 +4,7 @@ FROM ghcr.io/vincentsarago/uvicorn-gunicorn:${PYTHON_VERSION}
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
-# Speed up dev cycle by pre-installing titiler
-RUN pip install \
-    titiler.core==0.4.* \
-    titiler.mosaic==0.4.* \
-    psycopg[binary,pool]
+RUN pip install psycopg[binary,pool]
 
 COPY src/eoapi/raster /tmp/raster
 RUN pip install /tmp/raster

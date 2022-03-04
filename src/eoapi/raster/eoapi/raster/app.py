@@ -10,11 +10,10 @@ from titiler.core.middleware import CacheControlMiddleware
 from titiler.core.resources.enums import OptionalHeader
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.pgstac.db import close_db_connection, connect_to_db
-from titiler.pgstac.factory import MosaicTilerFactory
 
 from eoapi.raster.config import ApiSettings
 from eoapi.raster.dependencies import DatasetPathParams
-from eoapi.raster.factory import MultiBaseTilerFactory
+from eoapi.raster.factory import MosaicTilerFactory, MultiBaseTilerFactory
 from eoapi.raster.reader import STACReader
 from eoapi.raster.version import __version__ as eoapi_raster_version
 
@@ -33,8 +32,12 @@ app = FastAPI(title=settings.name, version=eoapi_raster_version)
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 add_exception_handlers(app, MOSAIC_STATUS_CODES)
 
-# PgSTAC mosaic tiler
-mosaic = MosaicTilerFactory(router_prefix="mosaic", optional_headers=optional_headers)
+# Custom PgSTAC mosaic tiler
+mosaic = MosaicTilerFactory(
+    router_prefix="mosaic",
+    enable_mosaic_search=settings.enable_mosaic_search,
+    optional_headers=optional_headers,
+)
 app.include_router(mosaic.router, prefix="/mosaic", tags=["PgSTAC Mosaic"])
 
 # Custom STAC titiler endpoint (not added to the openapi docs)

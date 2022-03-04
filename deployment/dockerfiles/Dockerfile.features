@@ -3,7 +3,7 @@ FROM lambci/lambda:build-python3.8
 WORKDIR /tmp
 
 COPY src/eoapi/features /tmp/features
-RUN pip install mangum /tmp/features -t /asset --no-binary pydantic
+RUN pip install mangum>=0.14,<0.15 /tmp/features -t /asset --no-binary pydantic
 RUN rm -rf /tmp/features
 
 # Reduce package size and remove useless files
