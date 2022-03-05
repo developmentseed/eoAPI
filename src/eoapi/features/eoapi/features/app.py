@@ -24,7 +24,7 @@ if settings.cors_origins:
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_credentials=True,
-        allow_methods=["GET"],
+        allow_methods=["GET", "OPTIONS"],
         allow_headers=["*"],
     )
 
