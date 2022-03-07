@@ -42,15 +42,15 @@ def test_mosaic_api():
     assert list(resp.json()[0]) == ["id", "bbox", "assets"]
     assert resp.json()[0]["id"] == "20200307aC0853900w361030"
 
-    # z, x, y = 15, 8589, 12849
-    # resp = httpx.get(
-    #     f"{raster_endpoint}/mosaic/tiles/{searchid}/{z}/{x}/{y}",
-    #     params={"assets": "cog"},
-    #     headers={"Accept-Encoding": "br, gzip"},
-    # )
-    # assert resp.status_code == 200
-    # assert resp.headers["content-type"] == "image/jpeg"
-    # assert "content-encoding" not in resp.headers
+    z, x, y = 15, 8589, 12849
+    resp = httpx.get(
+        f"{raster_endpoint}/mosaic/tiles/{searchid}/{z}/{x}/{y}",
+        params={"assets": "cog"},
+        headers={"Accept-Encoding": "br, gzip"},
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/jpeg"
+    assert "content-encoding" not in resp.headers
 
 
 def test_mosaic_search():
