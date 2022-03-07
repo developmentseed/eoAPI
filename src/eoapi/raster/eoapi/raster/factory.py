@@ -107,7 +107,7 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
             ]
 
             # filter to only return `metadata->type == 'mosaic'`
-            mosaic_filter = sql.SQL("metadata::json->>{key} = {value}").format(
+            mosaic_filter = sql.SQL("metadata->>{key} = {value}").format(
                 key=sql.Literal("type"), value=sql.Literal("mosaic")
             )
 
@@ -115,7 +115,7 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
             # <propname>=val - filter for a metadata property. Multiple property filters are ANDed together.
             qs_key_to_remove = ["limit", "offset", "properties", "sortby"]
             additional_filter = [
-                sql.SQL("metadata::json->>{key} = {value}").format(
+                sql.SQL("metadata->>{key} = {value}").format(
                     key=sql.Literal(key), value=sql.Literal(value)
                 )
                 for (key, value) in request.query_params.items()
