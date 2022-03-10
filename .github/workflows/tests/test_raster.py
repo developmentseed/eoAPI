@@ -164,7 +164,7 @@ def test_mosaic_search():
 
     resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"sortby": "owner"})
     assert resp.status_code == 200
-    assert "owner" not in resp.json()["searches"][0]["search"]["metadata"]
+    assert "owner" in resp.json()["searches"][0]["search"]["metadata"]
 
 
 def test_stac_api():

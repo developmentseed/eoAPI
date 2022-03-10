@@ -6,9 +6,9 @@
 </p>
 
 <p align="center">
-  <!-- <a href="https://github.com/developmentseed/eoAPI/actions?query=workflow%3ACI" target="_blank">
+  <a href="https://github.com/developmentseed/eoAPI/actions?query=workflow%3ACI" target="_blank">
       <img src="https://github.com/developmentseed/eoAPI/workflows/CI/badge.svg" alt="Test">
-  </a> -->
+  </a>
   <a href="https://github.com/developmentseed/eoAPI/blob/master/LICENSE" target="_blank">
       <img src="https://img.shields.io/github/license/developmentseed/titiler.svg" alt="Downloads">
   </a>
