@@ -115,7 +115,7 @@ def test_mosaic_search():
     assert resp.headers["content-type"] == "application/json"
     assert resp.status_code == 200
     assert (
-        resp.json()["numberMatched"] > 10
+        resp.json()["context"]["matched"] > 10
     )  # there should be at least 12 mosaic registered
     assert resp.json()["context"]["returned"] == 10  # default limit is 10
 
