@@ -117,7 +117,7 @@ def test_mosaic_search():
     assert (
         resp.json()["numberMatched"] > 10
     )  # there should be at least 12 mosaic registered
-    assert resp.json()["numberReturned"] == 10  # default limit is 10
+    assert resp.json()["context"]["returned"] == 10  # default limit is 10
 
     # Make sure all mosaics returned have
     for mosaic in resp.json()["searches"]:
@@ -131,8 +131,9 @@ def test_mosaic_search():
 
     resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"limit": 1, "offset": 1})
     assert resp.status_code == 200
-    assert resp.json()["numberMatched"] > 10
-    assert resp.json()["numberReturned"] == 1
+    assert resp.json()["context"]["matched"] > 10
+    assert resp.json()["context"]["limit"] == 1
+    assert resp.json()["context"]["returned"] == 1
 
     links = resp.json()["links"]
     assert len(links) == 3
@@ -146,8 +147,9 @@ def test_mosaic_search():
     # Filter on mosaic metadata
     resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"owner": "vincent"})
     assert resp.status_code == 200
-    assert resp.json()["numberMatched"] == 7
-    assert resp.json()["numberReturned"] == 7
+    assert resp.json()["context"]["matched"] == 7
+    assert resp.json()["context"]["limit"] == 10
+    assert resp.json()["context"]["returned"] == 7
 
     # sortBy
     resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"sortby": "lastused"})

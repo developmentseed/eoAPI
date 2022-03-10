@@ -7,7 +7,7 @@ from typing import Any, Generator, List, Optional
 
 from psycopg import sql
 from psycopg.rows import class_row
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from fastapi import Depends, Query
 from starlette.datastructures import QueryParams
@@ -57,13 +57,29 @@ class MultiBaseTilerFactory(TitilerFactory.MultiBaseTilerFactory):
             )
 
 
+class Context(BaseModel):
+    """Context Model."""
+
+    returned: int
+    limit: Optional[int]
+    matched: Optional[int]
+
+    @validator("limit")
+    def validate_limit(cls, v, values):
+        """validate limit."""
+        if values["returned"] > v:
+            raise ValueError(
+                "Number of returned items must be less than or equal to the limit"
+            )
+        return v
+
+
 class Infos(BaseModel):
     """Response model for /list endpoint."""
 
     searches: List[model.Info]
     links: Optional[List[model.Link]]
-    numberMatched: Optional[int]
-    numberReturned: Optional[int]
+    context: Context
 
 
 @dataclass
@@ -106,19 +122,12 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
             ),
         ):
             """List a Search query."""
-            offset_and_limit = [
-                sql.SQL("LIMIT {number}").format(number=sql.Literal(limit)),
-                sql.SQL("OFFSET {start}").format(start=sql.Literal(offset)),
-            ]
+            # Default filter to only return `metadata->type == 'mosaic'`
+            mosaic_filter = sql.SQL("metadata->>'type' = 'mosaic'")
 
-            # filter to only return `metadata->type == 'mosaic'`
-            mosaic_filter = sql.SQL("metadata->>{key} = {value}").format(
-                key=sql.Literal("type"), value=sql.Literal("mosaic")
-            )
-
-            # additional metadata property filter
+            # additional metadata property filter passed in query-parameters
             # <propname>=val - filter for a metadata property. Multiple property filters are ANDed together.
-            qs_key_to_remove = ["limit", "offset", "properties", "sortby"]
+            qs_key_to_remove = ["limit", "offset", "sortby"]
             additional_filter = [
                 sql.SQL("metadata->>{key} = {value}").format(
                     key=sql.Literal(key), value=sql.Literal(value)
@@ -172,7 +181,7 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                         *filters,
                     ]
                     cursor.execute(sql.SQL(" ").join(query))
-                    nb_items = cursor.fetchone()[0]
+                    nb_items = int(cursor.fetchone()[0])
 
                     # Get rows
                     cursor.row_factory = class_row(model.Search)
@@ -180,10 +189,11 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                         sql.SQL("SELECT * FROM searches"),
                         *filters,
                         *order_by,
-                        *offset_and_limit,
+                        sql.SQL("LIMIT %(limit)s OFFSET %(offset)s"),
                     ]
-
-                    cursor.execute(sql.SQL(" ").join(query))
+                    cursor.execute(
+                        sql.SQL(" ").join(query), {"limit": limit, "offset": offset}
+                    )
 
                     searches_info = cursor.fetchall()
 
@@ -195,7 +205,7 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                 ),
             ]
 
-            if len(searches_info) < int(nb_items):
+            if len(searches_info) < nb_items:
                 next_token = offset + len(searches_info)
                 qs = QueryParams(
                     {**request.query_params, "limit": limit, "offset": next_token}
@@ -241,6 +251,9 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                     for search in searches_info
                 ],
                 links=links,
-                numberMatched=int(nb_items),
-                numberReturned=len(searches_info),
+                context=Context(
+                    returned=len(searches_info),
+                    matched=nb_items,
+                    limit=limit,
+                ),
             )
