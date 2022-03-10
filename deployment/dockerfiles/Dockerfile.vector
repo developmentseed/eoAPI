@@ -3,7 +3,7 @@ FROM lambci/lambda:build-python3.8
 WORKDIR /tmp
 
 COPY src/eoapi/vector /tmp/vector
-RUN pip install mangum /tmp/vector -t /asset --no-binary pydantic
+RUN pip install mangum>=0.14,<0.15 /tmp/vector -t /asset --no-binary pydantic
 RUN rm -rf /tmp/vector
 
 # Reduce package size and remove useless files

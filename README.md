@@ -6,9 +6,9 @@
 </p>
 
 <p align="center">
-  <!-- <a href="https://github.com/developmentseed/eoAPI/actions?query=workflow%3ACI" target="_blank">
+  <a href="https://github.com/developmentseed/eoAPI/actions?query=workflow%3ACI" target="_blank">
       <img src="https://github.com/developmentseed/eoAPI/workflows/CI/badge.svg" alt="Test">
-  </a> -->
+  </a>
   <a href="https://github.com/developmentseed/eoAPI/blob/master/LICENSE" target="_blank">
       <img src="https://img.shields.io/github/license/developmentseed/titiler.svg" alt="Downloads">
   </a>
@@ -136,19 +136,19 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
 3. Update settings
 
-    Set environment variable or hard code in `deployment/.env` file (e.g `EOAPI_DB_PGSTAC_VERSION=0.4.3`).
+    Set environment variable or hard code in `deployment/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3`).
 
     **Important**:
       - `EOAPI_DB_PGSTAC_VERSION` is a required env
-      - You can choose which functions to deploy by setting `EOAPI_FUNCTIONS` env (e.g `EOAPI_FUNCTIONS='["stac","raster","features"]'`)
+      - You can choose which functions to deploy by setting `CDK_EOAPI_FUNCTIONS` env (e.g `CDK_EOAPI_FUNCTIONS='["stac","raster","features"]'`)
 
 4. Deploy
 
     ```bash
-    $ EOAPI_STAGE=staging EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
+    $ EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
 
     # Deploy in specific region
-    $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
+    $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
 
 

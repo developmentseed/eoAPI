@@ -190,14 +190,27 @@ def handler(event, context):
                 register_extensions(cursor=cur)
 
         dsn = "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
-            dbname=user_params.get("dbname", "postgres"),
+            dbname=user_params["dbname"],
             user=user_params["username"],
             password=user_params["password"],
             host=connection_params["host"],
             port=connection_params["port"],
         )
 
+        print("Running to PgSTAC migration...")
         asyncio.run(run_migration(dsn))
+
+        print("Adding mosaic index...")
+        with psycopg.connect(
+            dsn,
+            autocommit=True,
+            options="-c search_path=pgstac,public -c application_name=pgstac",
+        ) as conn:
+            conn.execute(
+                sql.SQL(
+                    "CREATE INDEX IF NOT EXISTS searches_mosaic ON searches ((true)) WHERE metadata->>'type'='mosaic';"
+                )
+            )
 
     except Exception as e:
         print(e)

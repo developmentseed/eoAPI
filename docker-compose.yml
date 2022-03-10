@@ -85,6 +85,8 @@ services:
       # AWS S3 endpoint config
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # API Config
+      - EOAPI_RASTER_ENABLE_MOSAIC_SEARCH=TRUE
     depends_on:
       - database
     command:
@@ -155,7 +157,7 @@ services:
   database:
     container_name: eoapi.db
     platform: linux/amd64
-    image: ghcr.io/stac-utils/pgstac:v0.4.3
+    image: ghcr.io/stac-utils/pgstac:v0.4.5
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password

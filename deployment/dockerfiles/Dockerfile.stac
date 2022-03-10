@@ -3,7 +3,7 @@ FROM lambci/lambda:build-python3.8
 WORKDIR /tmp
 
 COPY src/eoapi/stac /tmp/stac
-RUN pip install mangum /tmp/stac -t /asset --no-binary pydantic
+RUN pip install mangum>=0.14,<0.15 /tmp/stac -t /asset --no-binary pydantic
 RUN rm -rf /tmp/stac
 
 # Reduce package size and remove useless files
