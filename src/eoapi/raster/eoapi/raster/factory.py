@@ -1,8 +1,9 @@
 """Custom MultiBaseTilerFactory."""
 
 import os
+import re
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any, Generator, List, Optional
 
 from psycopg import sql
 from psycopg.rows import class_row
@@ -99,6 +100,10 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                 ge=0,
                 description="Page offset",
             ),
+            sortby: Optional[str] = Query(
+                None,
+                description="Sort the response items by a property (ascending (default) or descending).",
+            ),
         ):
             """List a Search query."""
             offset_and_limit = [
@@ -126,7 +131,39 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                 sql.SQL("AND ").join([mosaic_filter, *additional_filter]),
             ]
 
-            # TODO: enable SortBy
+            def parse_sort_by(sortby: str) -> Generator[sql.Composable, None, None]:
+                """Parse SortBy expression."""
+                for s in sortby.split(","):
+                    parts = re.match(
+                        "^(?P<dir>[+-]?)(?P<prop>.*)$", s
+                    ).groupdict()  # type:ignore
+                    prop = parts["prop"]
+                    if parts["prop"] in ["lastused", "usecount"]:
+                        prop = sql.Identifier(parts["prop"])
+                    else:
+                        prop = sql.SQL("metadata->>{}").format(
+                            sql.Literal(parts["prop"])
+                        )
+
+                    if parts["dir"] == "-":
+                        order = sql.SQL("{} DESC").format(prop)
+                    else:
+                        order = sql.SQL("{} ASC").format(prop)
+
+                    yield order
+
+            # sortby=[+|-]PROP - sort the response items by a property (ascending (default) or descending).
+            order_by = []
+            if sortby:
+                sort_expr = list(parse_sort_by(sortby))
+
+                print(sort_expr)
+                if sort_expr:
+                    order_by = [
+                        sql.SQL("ORDER BY"),
+                        sql.SQL(", ").join(sort_expr),
+                    ]
+
             with request.app.state.dbpool.connection() as conn:
                 with conn.cursor() as cursor:
                     # Get Total Number of searches rows
@@ -142,6 +179,7 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
                     query = [
                         sql.SQL("SELECT * FROM searches"),
                         *filters,
+                        *order_by,
                         *offset_and_limit,
                     ]
 

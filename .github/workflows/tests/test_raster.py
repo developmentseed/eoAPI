@@ -149,6 +149,23 @@ def test_mosaic_search():
     assert resp.json()["numberMatched"] == 7
     assert resp.json()["numberReturned"] == 7
 
+    # sortBy
+    resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"sortby": "lastused"})
+    assert resp.status_code == 200
+
+    resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"sortby": "usecount"})
+    assert resp.status_code == 200
+
+    resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"sortby": "-owner"})
+    assert resp.status_code == 200
+    assert (
+        "owner" not in resp.json()["searches"][0]["search"]["metadata"]
+    )  # some mosaic don't have owners
+
+    resp = httpx.get(f"{raster_endpoint}/mosaic/list", params={"sortby": "owner"})
+    assert resp.status_code == 200
+    assert "owner" not in resp.json()["searches"][0]["search"]["metadata"]
+
 
 def test_stac_api():
     """test stac proxy."""
