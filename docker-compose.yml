@@ -31,7 +31,7 @@ services:
       - DB_MAX_CONN_SIZE=10
       # https://github.com/developmentseed/eoAPI/issues/16
       # - TITILER_ENDPOINT=raster
-      - TITILER_ENDPOINT=0.0.0.0:8082
+      - TITILER_ENDPOINT=http://0.0.0.0:8082
     depends_on:
       - database
       - raster
