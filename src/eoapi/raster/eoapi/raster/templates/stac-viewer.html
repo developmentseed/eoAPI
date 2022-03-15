@@ -349,7 +349,8 @@ map.on('zoom', function (e) {
 
 const set1bViz = () => {
     params = {
-        url: '{{ stac_url }}'
+        collection: '{{ collection }}',
+        item: '{{ item }}'
     }
     const asset = document.getElementById('asset-selector').value
     params.assets = asset
@@ -383,7 +384,8 @@ const set3bViz = () => {
     const b = document.getElementById('b-selector').value
 
     params = {
-        url: '{{ stac_url }}'
+        collection: '{{ collection }}',
+        item: '{{ item }}'
     }
 
     let asset_params
@@ -689,7 +691,7 @@ const updateUI = () => {
 }
 
 map.on('load', () => {
-    fetch('{{ endpoint }}/info?url={{ stac_url }}')
+    fetch('{{ endpoint }}/info?collection={{ collection }}&item={{ item }}')
         .then(res => {
             if (res.ok) return res.json()
             throw new Error('Network response was not ok.')

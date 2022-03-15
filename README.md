@@ -43,18 +43,8 @@ A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), 
 
   When `TITILER_ENDPOINT` environement is set (pointing the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/master/src/eoapi/stac/eoapi/stac/extension.py)):
 
-  - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an items
+  - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an item
   - `/collections/{collectionId}/items/{itemId}/viewer`: Redirect to the `raster` viewer
-
-  **important**: The extension implement a `trick` to avoid unnecessary requests between the `raster` api and the `stac` api. Instead of passing a STAC Item url we encode (base64) the full item (see [raster/reader.py](https://github.com/developmentseed/eoAPI/blob/b845e11460195b6305189c498a6cf1fdc9e95abc/src/eoapi/raster/eoapi/raster/reader.py#L24-L27)). If the stac item is too big, we are using a second trick by passing `pgstac://{collectionid}/{itemid}` as the url which will be used by the api to directly get the item from the database.
-
-  ```
-  # normal url
-  http://{raster}/stac/tilejson.json?url=http://{stac}/collections/{collectionId}/items/{itemId}
-
-  # url used in proxy
-  http://{raster}/stac/tilejson.json?url=stac://{base64 encoded item} or http://{raster}/stac/tilejson.json?url=pgstac://{collectionId}/{itemId}
-  ```
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/10407788/146790933-e439893c-ef2e-4d78-a372-f2f18694836c.png"/>

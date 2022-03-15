@@ -1,20 +1,14 @@
 """TiTiler extension."""
 
-import json
-from base64 import b64encode
 from typing import Optional
 from urllib.parse import urlencode
 
 import attr
-from buildpg import render
 
 from fastapi import APIRouter, FastAPI, HTTPException, Path, Query
 from fastapi.responses import RedirectResponse
-from stac_fastapi.types.errors import NotFoundError
 from stac_fastapi.types.extension import ApiExtension
 from starlette.requests import Request
-
-from eoapi.stac.config import post_request_model as POSTModel
 
 router = APIRouter()
 
@@ -78,41 +72,6 @@ class TiTilerExtension(ApiExtension):
                     detail="assets must be defined either via expression or assets options.",
                 )
 
-            pool = request.app.state.readpool
-
-            # TODO: exclude/include useless fields
-            req = POSTModel(
-                filter={
-                    "op": "and",
-                    "args": [
-                        {
-                            "op": "eq",
-                            "args": [{"property": "collection"}, collectionId],
-                        },
-                        {"op": "eq", "args": [{"property": "id"}, itemId]},
-                    ],
-                },
-            ).json(exclude_none=True, by_alias=True)
-
-            async with pool.acquire() as conn:
-                q, p = render(
-                    """
-                    SELECT * FROM search(:req::text::jsonb);
-                    """,
-                    req=req,
-                )
-                items = await conn.fetchval(q, *p)
-
-            if not items["features"]:
-                raise NotFoundError("No features found")
-
-            item = json.dumps(items["features"][0])
-            itemb64 = b64encode(item.encode())
-            if len(itemb64) > MAX_B64_ITEM_SIZE:
-                stac_url = f"pgstac://{collectionId}/{itemId}"
-            else:
-                stac_url = f"stac://{itemb64.decode()}"
-
             qs_key_to_remove = [
                 "tile_format",
                 "tile_scale",
@@ -124,10 +83,11 @@ class TiTilerExtension(ApiExtension):
                 for (key, value) in request.query_params._list
                 if key.lower() not in qs_key_to_remove
             ]
-            qs.append(("url", stac_url))
+            qs.append(("item", itemId))
+            qs.append(("collection", collectionId))
 
             return RedirectResponse(
-                titiler_endpoint + f"/stac/tilejson.json?{urlencode(qs)}"
+                f"{titiler_endpoint}/stac/tilejson.json?{urlencode(qs)}"
             )
 
         @router.get(
@@ -145,44 +105,10 @@ class TiTilerExtension(ApiExtension):
             itemId: str = Path(..., description="Item ID"),
         ):
             """Get items and redirect to stac tiler."""
-            pool = request.app.state.readpool
-
-            # TODO: exclude/include useless fields
-            req = POSTModel(
-                filter={
-                    "op": "and",
-                    "args": [
-                        {
-                            "op": "eq",
-                            "args": [{"property": "collection"}, collectionId],
-                        },
-                        {"op": "eq", "args": [{"property": "id"}, itemId]},
-                    ],
-                },
-            ).json(exclude_none=True, by_alias=True)
-
-            async with pool.acquire() as conn:
-                q, p = render(
-                    """
-                    SELECT * FROM search(:req::text::jsonb);
-                    """,
-                    req=req,
-                )
-                items = await conn.fetchval(q, *p)
-
-            if not items["features"]:
-                raise NotFoundError("No features found")
-
-            item = json.dumps(items["features"][0])
-            itemb64 = b64encode(item.encode())
-            if len(itemb64) > MAX_B64_ITEM_SIZE:
-                stac_url = f"pgstac://{collectionId}/{itemId}"
-            else:
-                stac_url = f"stac://{itemb64.decode()}"
-
             qs = [(key, value) for (key, value) in request.query_params._list]
-            qs.append(("url", stac_url))
+            qs.append(("item", itemId))
+            qs.append(("collection", collectionId))
 
-            return RedirectResponse(titiler_endpoint + f"/stac/viewer?{urlencode(qs)}")
+            return RedirectResponse(f"{titiler_endpoint}/stac/viewer?{urlencode(qs)}")
 
         app.include_router(router, tags=["TiTiler Extension"])

@@ -41,7 +41,7 @@ class MultiBaseTilerFactory(TitilerFactory.MultiBaseTilerFactory):
         @self.router.get("/viewer", response_class=HTMLResponse)
         def stac_demo(
             request: Request,
-            src_path: Any = Depends(self.path_dependency),
+            item: Any = Depends(self.path_dependency),
         ):
             """STAC Viewer."""
             return templates.TemplateResponse(
@@ -49,9 +49,8 @@ class MultiBaseTilerFactory(TitilerFactory.MultiBaseTilerFactory):
                 context={
                     "request": request,
                     "endpoint": request.url.path.replace("/viewer", ""),
-                    "stac_url": request.query_params[
-                        "url"
-                    ],  # Warning: This assume that `self.path_dependency` uses `url=`
+                    "collection": request.query_params["collection"],
+                    "item": request.query_params["item"],
                 },
                 media_type="text/html",
             )
@@ -165,8 +164,6 @@ class MosaicTilerFactory(TitilerPgSTACFactory.MosaicTilerFactory):
             order_by = []
             if sortby:
                 sort_expr = list(parse_sort_by(sortby))
-
-                print(sort_expr)
                 if sort_expr:
                     order_by = [
                         sql.SQL("ORDER BY"),
