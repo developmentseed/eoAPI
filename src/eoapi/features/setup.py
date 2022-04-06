@@ -21,7 +21,7 @@ extra_reqs = {
 
 setup(
     name="eoapi.features",
-    description=u"",
+    description="",
     python_requires=">=3.7",
     packages=find_namespace_packages(exclude=["tests*"]),
     include_package_data=True,

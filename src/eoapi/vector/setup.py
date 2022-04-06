@@ -13,7 +13,7 @@ inst_reqs = [
     "asyncpg",
     "stac-pydantic~=2.0",
     "geojson-pydantic>=0.3.1,<0.4",
-    "jinja2>=2.11.2,<3.0.0",
+    "jinja2>=3.0,<4.0",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
 
@@ -24,7 +24,7 @@ extra_reqs = {
 
 setup(
     name="eoapi.vector",
-    description=u"",
+    description="",
     python_requires=">=3.7",
     packages=find_namespace_packages(exclude=["tests*"]),
     package_data={"eoapi": ["vector/templates/*.html"]},

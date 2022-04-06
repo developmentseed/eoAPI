@@ -176,25 +176,6 @@ class eoAPIconstruct(core.Stack):
             secrets_prefix=os.path.join(stage, name),
         )
 
-        db_secrets = {
-            "POSTGRES_HOST_READER": setup_db.secret.secret_value_from_json(
-                "host"
-            ).to_string(),
-            "POSTGRES_HOST_WRITER": setup_db.secret.secret_value_from_json(
-                "host"
-            ).to_string(),
-            "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
-                "dbname"
-            ).to_string(),
-            "POSTGRES_USER": setup_db.secret.secret_value_from_json(
-                "username"
-            ).to_string(),
-            "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
-                "password"
-            ).to_string(),
-            "POSTGRES_PORT": setup_db.secret.secret_value_from_json("port").to_string(),
-        }
-
         core.CfnOutput(
             self,
             f"{id}-database-secret-arn",
@@ -204,6 +185,23 @@ class eoAPIconstruct(core.Stack):
 
         # eoapi.raster
         if "raster" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
             eoraster_settings = eoRasterSettings()
             eoraster_function = aws_lambda.Function(
                 self,
@@ -236,20 +234,41 @@ class eoAPIconstruct(core.Stack):
             )
 
             db.connections.allow_from(eoraster_function, port_range=ec2.Port.tcp(5432))
-
             raster_api = apigw.HttpApi(
                 self,
                 f"{id}-raster-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eoraster_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-raster-integration",
+                    handler=eoraster_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-raster", value=raster_api.url)
+            core.CfnOutput(self, "eoAPI-raster", value=raster_api.url.strip("/"))
 
             setup_db.is_required_by(eoraster_function)
 
         # eoapi.stac
         if "stac" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST_READER": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_HOST_WRITER": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
+
             eostac_settings = eoSTACSettings()
             eostac_function = aws_lambda.Function(
                 self,
@@ -274,7 +293,7 @@ class eoAPIconstruct(core.Stack):
             # If raster is deployed we had the TITILER_ENDPOINT env to add the Proxy extension
             if "raster" in eoapi_settings.functions:
                 eostac_function.add_environment(
-                    key="TITILER_ENDPOINT", value=raster_api.url
+                    key="TITILER_ENDPOINT", value=raster_api.url.strip("/")
                 )
 
             db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
@@ -282,16 +301,35 @@ class eoAPIconstruct(core.Stack):
             stac_api = apigw.HttpApi(
                 self,
                 f"{id}-stac-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eostac_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-stac-integration",
+                    handler=eostac_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-stac", value=stac_api.url)
+            core.CfnOutput(self, "eoAPI-stac", value=stac_api.url.strip("/"))
 
             setup_db.is_required_by(eostac_function)
 
         # eoapi.vector
         if "vector" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
+
             eovector_settings = eoVectorSettings()
             eovector_function = aws_lambda.Function(
                 self,
@@ -318,16 +356,34 @@ class eoAPIconstruct(core.Stack):
             vector_api = apigw.HttpApi(
                 self,
                 f"{id}-vector-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eovector_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-vector-integration",
+                    handler=eovector_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-vector", value=vector_api.url)
+            core.CfnOutput(self, "eoAPI-vector", value=vector_api.url.strip("/"))
 
             setup_db.is_required_by(eovector_function)
 
         # eoapi.feature
         if "features" in eoapi_settings.functions:
+            db_secrets = {
+                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                    "host"
+                ).to_string(),
+                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                    "dbname"
+                ).to_string(),
+                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                    "username"
+                ).to_string(),
+                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                    "password"
+                ).to_string(),
+                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                    "port"
+                ).to_string(),
+            }
             eofeatures_settings = eoFeaturesSettings()
             eofeatures_function = aws_lambda.Function(
                 self,
@@ -356,11 +412,12 @@ class eoAPIconstruct(core.Stack):
             features_api = apigw.HttpApi(
                 self,
                 f"{id}-features-endpoint",
-                default_integration=apigw_integrations.LambdaProxyIntegration(
-                    handler=eofeatures_function
+                default_integration=apigw_integrations.HttpLambdaIntegration(
+                    f"{id}-features-integration",
+                    handler=eofeatures_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-features", value=features_api.url)
+            core.CfnOutput(self, "eoAPI-features", value=features_api.url.strip("/"))
 
             setup_db.is_required_by(eofeatures_function)
 
