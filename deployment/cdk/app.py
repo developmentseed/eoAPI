@@ -141,12 +141,12 @@ class eoAPIconstruct(core.Stack):
                 ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS,
             ),
         ]
-        for (id, service) in interface_endpoints:
-            vpc.add_interface_endpoint(id, service=service)
+        for (key, service) in interface_endpoints:
+            vpc.add_interface_endpoint(key, service=service)
 
         gateway_endpoints = [("S3", ec2.GatewayVpcEndpointAwsService.S3)]
-        for (id, service) in gateway_endpoints:
-            vpc.add_gateway_endpoint(id, service=service)
+        for (key, service) in gateway_endpoints:
+            vpc.add_gateway_endpoint(key, service=service)
 
         eodb_settings = eoDBSettings()
         db = rds.DatabaseInstance(
