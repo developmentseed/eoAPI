@@ -30,13 +30,13 @@ def test_mosaic_api():
     resp = httpx.get(f"{raster_endpoint}/mosaic/{searchid}/-85.6358,36.1624/assets")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
-    assert list(resp.json()[0]) == ["id", "bbox", "assets"]
+    assert list(resp.json()[0]) == ["id", "bbox", "assets", "collection"]
     assert resp.json()[0]["id"] == "20200307aC0853900w361030"
 
     resp = httpx.get(f"{raster_endpoint}/mosaic/{searchid}/15/8589/12849/assets")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
-    assert list(resp.json()[0]) == ["id", "bbox", "assets"]
+    assert list(resp.json()[0]) == ["id", "bbox", "assets", "collection"]
     assert resp.json()[0]["id"] == "20200307aC0853900w361030"
 
     z, x, y = 15, 8589, 12849
