@@ -5,7 +5,7 @@ from setuptools import find_namespace_packages, setup
 with open("README.md") as f:
     long_description = f.read()
 
-inst_reqs = ["timvt>=0.4.1,<0.5"]
+inst_reqs = ["timvt>=0.5.0,<0.6"]
 
 extra_reqs = {
     "test": ["pytest", "pytest-cov", "pytest-asyncio", "requests"],
