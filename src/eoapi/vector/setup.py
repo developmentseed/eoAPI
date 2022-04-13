@@ -14,7 +14,7 @@ extra_reqs = {
 
 setup(
     name="eoapi.vector",
-    description=u"",
+    description="",
     python_requires=">=3.7",
     packages=find_namespace_packages(exclude=["tests*"]),
     package_data={"eoapi": ["vector/templates/*.html", "vector/sql/*.sql"]},
