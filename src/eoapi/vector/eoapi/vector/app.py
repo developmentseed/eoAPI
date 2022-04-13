@@ -3,16 +3,15 @@
 from typing import Dict
 
 from timvt.factory import VectorTilerFactory
+from timvt.layer import Function, FunctionRegistry
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from starlette.templating import Jinja2Templates
 from starlette_cramjam.middleware import CompressionMiddleware
 
 from eoapi.vector.config import ApiSettings
 from eoapi.vector.db import close_db_connection, connect_to_db
 from eoapi.vector.dependencies import LayerParams, TileMatrixSetParams
-from eoapi.vector.function import function_registry
 from eoapi.vector.middleware import CacheControlMiddleware
 from eoapi.vector.version import __version__
 
@@ -23,22 +22,34 @@ except ImportError:
     from importlib_resources import files as resources_files  # type: ignore
 
 settings = ApiSettings()
-templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))  # type: ignore
 
 app = FastAPI(title=settings.name, version=__version__)
-app.state.function_catalog = function_registry
 
 vector = VectorTilerFactory(
     layer_dependency=LayerParams,
-    # We are not using table
-    with_tables_metadata=False,
+    with_tables_metadata=False,  # We are not using table
     with_functions_metadata=True,
     with_viewer=True,
     tms_dependency=TileMatrixSetParams,
 )
-
 app.include_router(vector.router)
 
+app.state.function_catalog = FunctionRegistry()
+app.state.function_catalog.register(
+    Function.from_file(
+        id="search",
+        infile=str(resources_files("eoapi.vector").joinpath("sql/search.sql")),  # type: ignore
+        function_name="search_mvt",
+    )
+)
+
+app.state.function_catalog.register(
+    Function.from_file(
+        id="mercator",
+        infile=str(resources_files("eoapi.vector").joinpath("sql/mercator.sql")),  # type: ignore
+        function_name="mercator",
+    )
+)
 
 # Set all CORS enabled origins
 if settings.cors_origins:
@@ -46,7 +57,7 @@ if settings.cors_origins:
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET"],
         allow_headers=["*"],
     )
 

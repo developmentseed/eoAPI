@@ -7,19 +7,14 @@ with open("README.md") as f:
 
 inst_reqs = ["timvt>=0.5.0,<0.6"]
 
-extra_reqs = {
-    "test": ["pytest", "pytest-cov", "pytest-asyncio", "requests"],
-}
-
 
 setup(
     name="eoapi.vector",
     description="",
     python_requires=">=3.7",
     packages=find_namespace_packages(exclude=["tests*"]),
-    package_data={"eoapi": ["vector/templates/*.html", "vector/sql/*.sql"]},
+    package_data={"eoapi": ["vector/sql/*.sql"]},
     include_package_data=True,
     zip_safe=False,
     install_requires=inst_reqs,
-    extras_require=extra_reqs,
 )

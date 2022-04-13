@@ -1,4 +1,3 @@
-include eoapi/vector/templates/*.html
 include eoapi/vector/sql/*.sql
 
 recursive-exclude tests *
