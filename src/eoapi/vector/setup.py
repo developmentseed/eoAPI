@@ -5,7 +5,7 @@ from setuptools import find_namespace_packages, setup
 with open("README.md") as f:
     long_description = f.read()
 
-inst_reqs = ["timvt>=0.5.0,<0.6"]
+inst_reqs = ["timvt>=0.6.0,<0.7"]
 
 
 setup(
