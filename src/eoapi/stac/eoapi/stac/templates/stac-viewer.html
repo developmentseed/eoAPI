@@ -576,7 +576,7 @@ document.getElementById('btn-query').addEventListener('click', () => {
   cleanup()
 
   // CQL2 query
-  body = {limit: scope.limit}
+  body = {limit: scope.limit, 'filter-lang': 'cql2-json'}
 
   filter = {op: 'and', args: []}
   // geom filter
