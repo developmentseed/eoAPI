@@ -80,10 +80,10 @@ Mapbox Vector Tile server for STAC queries.
 
 You can launch the APIs locally using docker. This will start 3 services: database, eoapi.stac, eoapi.raster
 ```
-$ git clone https://github.com/developmentseed/eoAPI.git
-$ cd eoAPI
-$ docker-compose build
-$ docker-compose up stac raster
+git clone https://github.com/developmentseed/eoAPI.git
+cd eoAPI
+docker-compose build
+docker-compose up stac raster
 ```
 
 ## Project structure
