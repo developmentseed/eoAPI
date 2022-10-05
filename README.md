@@ -106,22 +106,22 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
     ```bash
     # Download titiler repo
-    $ git clone https://github.com/developmentseed/eoapi.git
+    git clone https://github.com/developmentseed/eoapi.git
 
     # install cdk dependencies
-    $ pip install -r deployment/requirements.txt
-    $ npm install
+    pip install -r deployment/requirements.txt
+    npm install
 
-    $ npm run cdk bootstrap # Deploys the CDK toolkit stack into an AWS environment
+    npm run cdk bootstrap # Deploys the CDK toolkit stack into an AWS environment
 
     # in specific region
-    $ npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/eu-central-1
+    npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/eu-central-1
     ```
 
 2. Pre-Generate CFN template
 
     ```bash
-    $ npm run cdk synth  # Synthesizes and prints the CloudFormation template for this stack
+    npm run cdk synth  # Synthesizes and prints the CloudFormation template for this stack
     ```
 
 3. Update settings
@@ -135,10 +135,10 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 4. Deploy
 
     ```bash
-    $ EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
+    EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
 
     # Deploy in specific region
-    $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
+    AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
 
 
