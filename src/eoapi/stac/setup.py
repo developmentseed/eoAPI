@@ -18,6 +18,7 @@ inst_reqs = [
     "jinja2>=2.11.2,<4.0.0",
     "starlette-cramjam>=0.1.0.a0,<0.2",
     "importlib_resources>=1.1.0;python_version<'3.9'",
+    "psycopg_pool"
 ]
 
 extra_reqs = {
