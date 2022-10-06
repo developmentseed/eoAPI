@@ -16,9 +16,10 @@ inst_reqs = [
     "stac-fastapi.pgstac @ git+https://github.com/stac-utils/stac-fastapi/@81015a153c1d9f36d8e12f17a1bf67370396f472#egg=stac-fastapi.pgstac&subdirectory=stac_fastapi/pgstac",
     "stac-fastapi.types @ git+https://github.com/stac-utils/stac-fastapi/@81015a153c1d9f36d8e12f17a1bf67370396f472#egg=stac-fastapi.types&subdirectory=stac_fastapi/types",
     "jinja2>=2.11.2,<4.0.0",
+    "pygeoif==0.7",
     "starlette-cramjam>=0.1.0.a0,<0.2",
     "importlib_resources>=1.1.0;python_version<'3.9'",
-    "psycopg_pool"
+    "psycopg_pool",
 ]
 
 extra_reqs = {

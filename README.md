@@ -90,7 +90,7 @@ docker-compose up stac raster
 
 ```
  ├──demo/                  - items/collections and notebook
- ├──deployment/            - AWS CDK code
+ ├──stack/                 - AWS CDK code
  └──src/eoapi/
     ├── raster/            - eoAPI raster Application package
     ├── stac/              - eoAPI stac Application package
@@ -109,7 +109,7 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
     git clone https://github.com/developmentseed/eoapi.git
 
     # install cdk dependencies
-    pip install -r deployment/requirements.txt
+    pip install -r requirements-cdk.txt
     npm install
 
     npm run cdk bootstrap # Deploys the CDK toolkit stack into an AWS environment
@@ -126,7 +126,7 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
 3. Update settings
 
-    Set environment variable or hard code in `deployment/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3`).
+    Set environment variable or hard code in `stack/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3`).
 
     **Important**:
       - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env
@@ -140,7 +140,7 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
     # Deploy in specific region
     AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
-    
+
 If you get an error saying that the max VPC's has been reached, this means that you have hit the limit for the amount of VPCs per unique AWS account and region combination. You can change the AWS region to a region that has less VPCs and deploy again to fix this.
 
 ## Contribution & Development

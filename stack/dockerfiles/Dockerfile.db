@@ -7,7 +7,7 @@ WORKDIR /tmp
 RUN echo "Using PGSTAC Version ${PGSTAC_VERSION}"
 RUN pip install requests psycopg["binary"] pypgstac==${PGSTAC_VERSION} -t /asset
 
-COPY deployment/handlers/db_handler.py /asset/handler.py
+COPY stack/handlers/db_handler.py /asset/handler.py
 
 # https://stackoverflow.com/a/61746719
 # Turns out, asyncio is part of python

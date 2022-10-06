@@ -53,7 +53,7 @@ class BootstrappedDb(core.Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             code=aws_lambda.Code.from_docker_build(
                 path=os.path.abspath("./"),
-                file="deployment/dockerfiles/Dockerfile.db",
+                file="stack/dockerfiles/Dockerfile.db",
                 build_args={"PGSTAC_VERSION": pgstac_version},
                 platform="linux/amd64",
             ),
@@ -209,7 +209,7 @@ class eoAPIconstruct(core.Stack):
                 runtime=aws_lambda.Runtime.PYTHON_3_8,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
-                    file="deployment/dockerfiles/Dockerfile.raster",
+                    file="stack/dockerfiles/Dockerfile.raster",
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
@@ -276,7 +276,7 @@ class eoAPIconstruct(core.Stack):
                 runtime=aws_lambda.Runtime.PYTHON_3_8,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
-                    file="deployment/dockerfiles/Dockerfile.stac",
+                    file="stack/dockerfiles/Dockerfile.stac",
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
@@ -337,7 +337,7 @@ class eoAPIconstruct(core.Stack):
                 runtime=aws_lambda.Runtime.PYTHON_3_8,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
-                    file="deployment/dockerfiles/Dockerfile.vector",
+                    file="stack/dockerfiles/Dockerfile.vector",
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
@@ -391,7 +391,7 @@ class eoAPIconstruct(core.Stack):
                 runtime=aws_lambda.Runtime.PYTHON_3_8,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
-                    file="deployment/dockerfiles/Dockerfile.features",
+                    file="stack/dockerfiles/Dockerfile.features",
                     platform="linux/amd64",
                 ),
                 vpc=vpc,

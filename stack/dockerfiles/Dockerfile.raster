@@ -3,7 +3,7 @@ FROM lambci/lambda:build-python3.8
 WORKDIR /tmp
 
 COPY src/eoapi/raster /tmp/raster
-RUN pip install mangum>=0.14,<0.15 /tmp/raster["psycopg-binary"] -t /asset --no-binary pydantic
+RUN pip install "mangum>=0.14,<0.15" /tmp/raster["psycopg-binary"] -t /asset --no-binary pydantic
 RUN rm -rf /tmp/raster
 
 # Reduce package size and remove useless files
@@ -13,6 +13,6 @@ RUN cd /asset && find . -type f -a -name '*.py' -print0 | xargs -0 rm -f
 RUN find /asset -type d -a -name 'tests' -print0 | xargs -0 rm -rf
 RUN rm -rdf /asset/numpy/doc/ /asset/boto3* /asset/botocore* /asset/bin /asset/geos_license /asset/Misc
 
-COPY deployment/handlers/raster_handler.py /asset/handler.py
+COPY stack/handlers/raster_handler.py /asset/handler.py
 
 CMD ["echo", "hello world"]

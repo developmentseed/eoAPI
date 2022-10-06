@@ -27,7 +27,7 @@ class eoAPISettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
-        env_file = "deployment/.env"
+        env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_"
         use_enum_values = True
 
@@ -44,7 +44,7 @@ class eoDBSettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
-        env_file = "deployment/.env"
+        env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_DB_"
 
 
@@ -59,7 +59,7 @@ class eoSTACSettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
-        env_file = "deployment/.env"
+        env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_STAC_"
 
 
@@ -99,7 +99,7 @@ class eoRasterSettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
-        env_file = "deployment/.env"
+        env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_RASTER_"
 
 
@@ -114,7 +114,7 @@ class eoVectorSettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
-        env_file = "deployment/.env"
+        env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_VECTOR_"
 
 
@@ -129,5 +129,5 @@ class eoFeaturesSettings(pydantic.BaseSettings):
     class Config:
         """model config"""
 
-        env_file = "deployment/.env"
+        env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_FEATURES_"
