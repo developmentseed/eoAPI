@@ -80,10 +80,10 @@ Mapbox Vector Tile server for STAC queries.
 
 You can launch the APIs locally using docker. This will start 3 services: database, eoapi.stac, eoapi.raster
 ```
-$ git clone https://github.com/developmentseed/eoAPI.git
-$ cd eoAPI
-$ docker-compose build
-$ docker-compose up stac raster
+git clone https://github.com/developmentseed/eoAPI.git
+cd eoAPI
+docker-compose build
+docker-compose up stac raster
 ```
 
 ## Project structure
@@ -106,22 +106,22 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
     ```bash
     # Download titiler repo
-    $ git clone https://github.com/developmentseed/eoapi.git
+    git clone https://github.com/developmentseed/eoapi.git
 
     # install cdk dependencies
-    $ pip install -r deployment/requirements.txt
-    $ npm install
+    pip install -r deployment/requirements.txt
+    npm install
 
-    $ npm run cdk bootstrap # Deploys the CDK toolkit stack into an AWS environment
+    npm run cdk bootstrap # Deploys the CDK toolkit stack into an AWS environment
 
     # in specific region
-    $ npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/eu-central-1
+    npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/eu-central-1
     ```
 
 2. Pre-Generate CFN template
 
     ```bash
-    $ npm run cdk synth  # Synthesizes and prints the CloudFormation template for this stack
+    npm run cdk synth  # Synthesizes and prints the CloudFormation template for this stack
     ```
 
 3. Update settings
@@ -129,18 +129,19 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
     Set environment variable or hard code in `deployment/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3`).
 
     **Important**:
-      - `EOAPI_DB_PGSTAC_VERSION` is a required env
+      - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env
       - You can choose which functions to deploy by setting `CDK_EOAPI_FUNCTIONS` env (e.g `CDK_EOAPI_FUNCTIONS='["stac","raster","features"]'`)
 
 4. Deploy
 
     ```bash
-    $ EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
+    EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-staging --profile {my-aws-profile}
 
     # Deploy in specific region
-    $ AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
+    AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_DB_PGSTAC_VERSION=0.4.3 npm run cdk deploy eoapi-production --profile {my-aws-profile}
     ```
-
+    
+If you get an error saying that the max VPC's has been reached, this means that you have hit the limit for the amount of VPCs per unique AWS account and region combination. You can change the AWS region to a region that has less VPCs and deploy again to fix this.
 
 ## Contribution & Development
 
