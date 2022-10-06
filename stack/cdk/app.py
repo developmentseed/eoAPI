@@ -117,7 +117,7 @@ class BootstrappedDb(core.Construct):
 class eoAPIconstruct(core.Stack):
     """Earth Observation API CDK application"""
 
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         scope: core.Construct,
         id: str,
@@ -202,7 +202,12 @@ class eoAPIconstruct(core.Stack):
                     "port"
                 ).to_string(),
             }
+
             eoraster_settings = eoRasterSettings()
+            env = eoraster_settings.env or {}
+            if "DB_MAX_CONN_SIZE" not in env:
+                env["DB_MAX_CONN_SIZE"] = "1"
+
             eoraster_function = aws_lambda.Function(
                 self,
                 f"{id}-raster-lambda",
@@ -217,7 +222,7 @@ class eoAPIconstruct(core.Stack):
                 handler="handler.handler",
                 memory_size=eoraster_settings.memory,
                 timeout=core.Duration.seconds(eoraster_settings.timeout),
-                environment=eoraster_settings.env or {},
+                environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
             for k, v in db_secrets.items():
@@ -270,6 +275,10 @@ class eoAPIconstruct(core.Stack):
             }
 
             eostac_settings = eoSTACSettings()
+            env = eostac_settings.env or {}
+            if "DB_MAX_CONN_SIZE" not in env:
+                env["DB_MAX_CONN_SIZE"] = "1"
+
             eostac_function = aws_lambda.Function(
                 self,
                 f"{id}-stac-lambda",
@@ -284,7 +293,7 @@ class eoAPIconstruct(core.Stack):
                 handler="handler.handler",
                 memory_size=eostac_settings.memory,
                 timeout=core.Duration.seconds(eostac_settings.timeout),
-                environment=eostac_settings.env or {},
+                environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
             for k, v in db_secrets.items():
@@ -331,6 +340,10 @@ class eoAPIconstruct(core.Stack):
             }
 
             eovector_settings = eoVectorSettings()
+            env = eovector_settings.env or {}
+            if "DB_MAX_CONN_SIZE" not in env:
+                env["DB_MAX_CONN_SIZE"] = "1"
+
             eovector_function = aws_lambda.Function(
                 self,
                 f"{id}-vector-lambda",
@@ -345,7 +358,7 @@ class eoAPIconstruct(core.Stack):
                 handler="handler.handler",
                 memory_size=eovector_settings.memory,
                 timeout=core.Duration.seconds(eovector_settings.timeout),
-                environment=eovector_settings.env or {},
+                environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
             for k, v in db_secrets.items():
@@ -385,6 +398,10 @@ class eoAPIconstruct(core.Stack):
                 ).to_string(),
             }
             eofeatures_settings = eoFeaturesSettings()
+            env = eofeatures_settings.env or {}
+            if "DB_MAX_CONN_SIZE" not in env:
+                env["DB_MAX_CONN_SIZE"] = "1"
+
             eofeatures_function = aws_lambda.Function(
                 self,
                 f"{id}-features-lambda",
@@ -399,7 +416,7 @@ class eoAPIconstruct(core.Stack):
                 handler="handler.handler",
                 memory_size=eofeatures_settings.memory,
                 timeout=core.Duration.seconds(eofeatures_settings.timeout),
-                environment=eofeatures_settings.env or {},
+                environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
             for k, v in db_secrets.items():
