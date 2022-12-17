@@ -13,6 +13,11 @@ def test_raster_api():
     )
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/json"
+    assert resp.headers["content-encoding"] == "gzip"
+
+    resp = httpx.get(f"{raster_endpoint}/healthz", headers={"Accept-Encoding": "br"})
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/json"
     assert resp.headers["content-encoding"] == "br"
 
 
@@ -177,7 +182,7 @@ def test_item():
     assert resp.json() == ["cog"]
 
     resp = httpx.get(
-        f"{raster_endpoint}/collections/noaa-emergency-respons/items/20200307aC0853300w361200/tilejson.json",
+        f"{raster_endpoint}/collections/noaa-emergency-response/items/20200307aC0853300w361200/tilejson.json",
         params={
             "assets": "cog",
         },
@@ -187,7 +192,7 @@ def test_item():
     assert resp.json()["tilejson"]
     assert "assets=cog" in resp.json()["tiles"][0]
     assert (
-        "/collections/noaa-emergency-respons/items/20200307aC0853300w361200"
+        "/collections/noaa-emergency-response/items/20200307aC0853300w361200"
         in resp.json()["tiles"][0]
     )
     assert resp.json()["bounds"] == [-85.5501, 36.1749, -85.5249, 36.2001]
