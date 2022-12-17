@@ -12,8 +12,6 @@ from starlette.requests import Request
 
 router = APIRouter()
 
-MAX_B64_ITEM_SIZE = 2000
-
 
 @attr.s
 class TiTilerExtension(ApiExtension):
@@ -60,10 +58,6 @@ class TiTilerExtension(ApiExtension):
                 None,
                 description="comma (',') delimited band indexes to apply to each asset",
             ),
-            asset_expression: Optional[str] = Query(  # noqa
-                None,
-                description="rio-tiler's band math expression (e.g b1/b2) to apply to each asset",
-            ),
         ):
             """Get items and redirect to stac tiler."""
             if not assets and not expression:
@@ -83,11 +77,8 @@ class TiTilerExtension(ApiExtension):
                 for (key, value) in request.query_params._list
                 if key.lower() not in qs_key_to_remove
             ]
-            qs.append(("item", itemId))
-            qs.append(("collection", collectionId))
-
             return RedirectResponse(
-                f"{titiler_endpoint}/stac/tilejson.json?{urlencode(qs)}"
+                f"{titiler_endpoint}/collections/{collectionId}/items/{itemId}/tilejson.json?{urlencode(qs)}"
             )
 
         @router.get(
@@ -106,9 +97,8 @@ class TiTilerExtension(ApiExtension):
         ):
             """Get items and redirect to stac tiler."""
             qs = [(key, value) for (key, value) in request.query_params._list]
-            qs.append(("item", itemId))
-            qs.append(("collection", collectionId))
-
-            return RedirectResponse(f"{titiler_endpoint}/stac/viewer?{urlencode(qs)}")
+            return RedirectResponse(
+                f"{titiler_endpoint}/collections/{collectionId}/items/{itemId}/viewer?{urlencode(qs)}"
+            )
 
         app.include_router(router, tags=["TiTiler Extension"])

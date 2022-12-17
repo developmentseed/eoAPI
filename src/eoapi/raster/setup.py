@@ -6,8 +6,8 @@ with open("README.md") as f:
     long_description = f.read()
 
 inst_reqs = [
-    "titiler.pgstac==0.1.0.a7",
-    "starlette-cramjam>=0.1.0,<0.2",
+    "titiler.pgstac==0.3.1",
+    "starlette-cramjam>=0.3,<0.4",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]
 

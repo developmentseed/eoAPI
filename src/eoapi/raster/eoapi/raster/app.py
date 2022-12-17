@@ -1,27 +1,46 @@
 """TiTiler+PgSTAC FastAPI application."""
 
 import logging
+from typing import Dict
 
-from fastapi import FastAPI
+import pystac
+from psycopg import OperationalError
+from psycopg_pool import PoolTimeout
+
+from fastapi import Depends, FastAPI, Query
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
 from starlette_cramjam.middleware import CompressionMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
+from titiler.core.factory import AlgorithmFactory, MultiBaseTilerFactory, TMSFactory
 from titiler.core.middleware import CacheControlMiddleware
 from titiler.core.resources.enums import OptionalHeader
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.pgstac.db import close_db_connection, connect_to_db
 from titiler.pgstac.dependencies import ItemPathParams
+from titiler.pgstac.factory import MosaicTilerFactory
 from titiler.pgstac.reader import PgSTACReader
 
 from eoapi.raster.config import ApiSettings
-from eoapi.raster.factory import MosaicTilerFactory, MultiBaseTilerFactory
 from eoapi.raster.version import __version__ as eoapi_raster_version
+
+try:
+    from importlib.resources import files as resources_files  # type: ignore
+except ImportError:
+    # Try backported to PY<39 `importlib_resources`.
+    from importlib_resources import files as resources_files  # type: ignore
 
 logging.getLogger("botocore.credentials").disabled = True
 logging.getLogger("botocore.utils").disabled = True
 logging.getLogger("rio-tiler").setLevel(logging.ERROR)
 
 settings = ApiSettings()
+
+# TODO: mypy fails in python 3.9, we need to find a proper way to do this
+templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))  # type: ignore
+
 
 if settings.debug:
     optional_headers = [OptionalHeader.server_timing, OptionalHeader.x_assets]
@@ -32,27 +51,72 @@ app = FastAPI(title=settings.name, version=eoapi_raster_version)
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 add_exception_handlers(app, MOSAIC_STATUS_CODES)
 
-# Custom PgSTAC mosaic tiler
+###############################################################################
+# MOSAIC Endpoints
 mosaic = MosaicTilerFactory(
-    router_prefix="/mosaic",
-    enable_mosaic_search=settings.enable_mosaic_search,
     optional_headers=optional_headers,
+    router_prefix="/mosaic",
+    add_statistics=True,
+    add_map_viewer=True,
+    add_mosaic_list=True,
 )
-app.include_router(mosaic.router, prefix="/mosaic", tags=["Mosaic"])
+app.include_router(mosaic.router, tags=["Mosaic"], prefix="/mosaic")
 
+###############################################################################
+# STAC Item Endpoints
 stac = MultiBaseTilerFactory(
     reader=PgSTACReader,
     path_dependency=ItemPathParams,
     optional_headers=optional_headers,
-    router_prefix="/stac",
+    router_prefix="/collections/{collection_id}/items/{item_id}",
 )
-app.include_router(stac.router, tags=["Items"], prefix="/stac")
 
 
+@stac.router.get("/viewer", response_class=HTMLResponse)
+def viewer(request: Request, item: pystac.Item = Depends(stac.path_dependency)):
+    """STAC Viewer."""
+    return templates.TemplateResponse(
+        name="stac-viewer.html",
+        context={
+            "request": request,
+            "endpoint": request.url.path.replace("/viewer", ""),
+            "collection": item.collection_id,
+            "item": item.id,
+        },
+        media_type="text/html",
+    )
+
+
+app.include_router(
+    stac.router, tags=["Item"], prefix="/collections/{collection_id}/items/{item_id}"
+)
+
+###############################################################################
+# Tiling Schemes Endpoints
+tms = TMSFactory()
+app.include_router(tms.router, tags=["Tiling Schemes"])
+
+###############################################################################
+# Algorithms Endpoints
+algorithms = AlgorithmFactory()
+app.include_router(algorithms.router, tags=["Algorithms"])
+
+
+###############################################################################
+# Health Check Endpoint
 @app.get("/healthz", description="Health Check", tags=["Health Check"])
-def ping():
+def ping(
+    timeout: int = Query(1, description="Timeout getting SQL connection from the pool.")
+) -> Dict:
     """Health check."""
-    return {"ping": "pong!"}
+    try:
+        with app.state.dbpool.connection(timeout) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT version from pgstac.migrations;")
+                version = cursor.fetchone()
+        return {"database_online": True, "pgstac_version": version}
+    except (OperationalError, PoolTimeout):
+        return {"database_online": False}
 
 
 if settings.cors_origins:
