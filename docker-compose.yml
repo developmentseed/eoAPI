@@ -161,7 +161,7 @@ services:
   database:
     container_name: eoapi.db
     platform: linux/amd64
-    image: ghcr.io/stac-utils/pgstac:v0.4.5
+    image: ghcr.io/stac-utils/pgstac:v0.6.11
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
