@@ -80,8 +80,6 @@ def viewer(request: Request, item: pystac.Item = Depends(stac.path_dependency)):
         context={
             "request": request,
             "endpoint": request.url.path.replace("/viewer", ""),
-            "collection": item.collection_id,
-            "item": item.id,
         },
         media_type="text/html",
     )
