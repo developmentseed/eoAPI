@@ -10,14 +10,6 @@ from handlers import db_handler
 @patch("handlers.db_handler.boto3")
 def test_bootstrap(boto3, requests, database_url):
     """Test Bootstrap."""
-    print(boto3)
-
-    class put:
-        """Fake requests.put response."""
-
-        reason: str = "All Good"
-
-    requests.put.return_value = put()
     boto3.client.return_value.get_secret_value.side_effect = [
         # connection_params
         {
@@ -44,6 +36,13 @@ def test_bootstrap(boto3, requests, database_url):
             )
         },
     ]
+
+    class put:
+        """Fake requests.put response."""
+
+        reason: str = "All Good"
+
+    requests.put.return_value = put()
 
     event = {
         "StackId": "eoapi-test",
