@@ -287,6 +287,8 @@ class eoAPIconstruct(core.Stack):
             env = eostac_settings.env or {}
             if "DB_MAX_CONN_SIZE" not in env:
                 env["DB_MAX_CONN_SIZE"] = "1"
+            if "DB_MIN_CONN_SIZE" not in env:
+                env["DB_MIN_CONN_SIZE"] = "1"
 
             eostac_function = aws_lambda.Function(
                 self,
