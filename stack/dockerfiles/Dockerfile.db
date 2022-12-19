@@ -1,8 +1,13 @@
-FROM lambci/lambda:build-python3.8
+ARG PYTHON_VERSION=3.9
+
+FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
+
+WORKDIR /tmp
 
 ARG PGSTAC_VERSION
 
 WORKDIR /tmp
+RUN pip install pip -U
 
 RUN echo "Using PGSTAC Version ${PGSTAC_VERSION}"
 RUN pip install requests psycopg["binary"] pypgstac==${PGSTAC_VERSION} -t /asset

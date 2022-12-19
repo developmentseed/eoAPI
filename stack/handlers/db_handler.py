@@ -1,6 +1,5 @@
 """Bootstrap Postgres db."""
 
-import asyncio
 import json
 
 import boto3
@@ -8,7 +7,8 @@ import psycopg
 import requests
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
-from pypgstac.migrate import run_migration
+from pypgstac.db import PgstacDB
+from pypgstac.migrate import Migrate
 
 
 def send(
@@ -117,6 +117,9 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
             "GRANT ALL PRIVILEGES ON TABLES TO {username};"
             "ALTER DEFAULT PRIVILEGES IN SCHEMA public "
             "GRANT ALL PRIVILEGES ON SEQUENCES TO {username};"
+            "GRANT pgstac_read TO {username};"
+            "GRANT pgstac_ingest TO {username};"
+            "GRANT pgstac_admin TO {username};"
         ).format(
             db_name=sql.Identifier(db_name),
             username=sql.Identifier(username),
@@ -127,6 +130,33 @@ def create_permissions(cursor, db_name: str, username: str) -> None:
 def register_extensions(cursor) -> None:
     """Add PostGIS extension."""
     cursor.execute(sql.SQL("CREATE EXTENSION IF NOT EXISTS postgis;"))
+
+
+###############################################################################
+# PgSTAC Customization
+###############################################################################
+def customization(cursor, params) -> None:
+    """
+    CUSTOMIZED YOUR PGSTAC DATABASE
+
+    ref: https://github.com/stac-utils/pgstac/blob/main/docs/src/pgstac.md
+
+    """
+    if params.get("context", False):
+        # Add CONTEXT=ON
+        pgstac_settings = """
+        INSERT INTO pgstac_settings (name, value)
+        VALUES ('context', 'on')
+        ON CONFLICT ON CONSTRAINT pgstac_settings_pkey DO UPDATE SET value = excluded.value;"""
+        cursor.execute(sql.SQL(pgstac_settings))
+
+    if params.get("mosaic_index", False):
+        # Create index of searches with `mosaic`` type
+        cursor.execute(
+            sql.SQL(
+                "CREATE INDEX IF NOT EXISTS searches_mosaic ON searches ((true)) WHERE metadata->>'type'='mosaic';"
+            )
+        )
 
 
 def handler(event, context):
@@ -141,15 +171,15 @@ def handler(event, context):
         connection_params = get_secret(params["conn_secret_arn"])
         user_params = get_secret(params["new_user_secret_arn"])
 
-        print("Connecting to DB...")
-        con_str = make_conninfo(
+        print("Connecting to admin DB...")
+        admin_db_conninfo = make_conninfo(
             dbname=connection_params.get("dbname", "postgres"),
             user=connection_params["username"],
             password=connection_params["password"],
             host=connection_params["host"],
             port=connection_params["port"],
         )
-        with psycopg.connect(con_str, autocommit=True) as conn:
+        with psycopg.connect(admin_db_conninfo, autocommit=True) as conn:
             with conn.cursor() as cur:
                 print("Creating database...")
                 create_db(
@@ -164,6 +194,44 @@ def handler(event, context):
                     password=user_params["password"],
                 )
 
+        # Install extensions on the user DB with
+        # superuser permissions, since they will
+        # otherwise fail to install when run as
+        # the non-superuser within the pgstac
+        # migrations.
+        print("Connecting to STAC DB...")
+        stac_db_conninfo = make_conninfo(
+            dbname=user_params["dbname"],
+            user=connection_params["username"],
+            password=connection_params["password"],
+            host=connection_params["host"],
+            port=connection_params["port"],
+        )
+        with psycopg.connect(stac_db_conninfo, autocommit=True) as conn:
+            with conn.cursor() as cur:
+                print("Registering PostGIS ...")
+                register_extensions(cursor=cur)
+
+        stac_db_admin_dsn = (
+            "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
+                dbname=user_params.get("dbname", "postgres"),
+                user=connection_params["username"],
+                password=connection_params["password"],
+                host=connection_params["host"],
+                port=connection_params["port"],
+            )
+        )
+
+        with PgstacDB(dsn=stac_db_admin_dsn, debug=True) as pgdb:
+            print(f"Current {pgdb.version}")
+
+            # As admin, run migrations
+            print("Running migrations...")
+            Migrate(pgdb).run_migration(params["pgstac_version"])
+
+        # Assign appropriate permissions to user (requires pgSTAC migrations to have run)
+        with psycopg.connect(admin_db_conninfo, autocommit=True) as conn:
+            with conn.cursor() as cur:
                 print("Setting permissions...")
                 create_permissions(
                     cursor=cur,
@@ -171,50 +239,32 @@ def handler(event, context):
                     username=user_params["username"],
                 )
 
-        # Install extensions on the user DB with
-        # superuser permissions, since they will
-        # otherwise fail to install when run as
-        # the non-superuser within the pgstac
-        # migrations.
-        print("Connecting to DB...")
-        con_str = make_conninfo(
-            dbname=user_params["dbname"],
-            user=connection_params["username"],
-            password=connection_params["password"],
-            host=connection_params["host"],
-            port=connection_params["port"],
-        )
-        with psycopg.connect(con_str, autocommit=True) as conn:
-            with conn.cursor() as cur:
-                print("Registering PostGIS ...")
-                register_extensions(cursor=cur)
-
-        dsn = "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
-            dbname=user_params["dbname"],
-            user=user_params["username"],
-            password=user_params["password"],
-            host=connection_params["host"],
-            port=connection_params["port"],
-        )
-
-        print("Running to PgSTAC migration...")
-        asyncio.run(run_migration(dsn))
-
-        print("Adding mosaic index...")
+        print("Customize PgSTAC database...")
         with psycopg.connect(
-            dsn,
+            stac_db_admin_dsn,
             autocommit=True,
             options="-c search_path=pgstac,public -c application_name=pgstac",
         ) as conn:
-            conn.execute(
-                sql.SQL(
-                    "CREATE INDEX IF NOT EXISTS searches_mosaic ON searches ((true)) WHERE metadata->>'type'='mosaic';"
-                )
+            with conn.cursor() as cur:
+                customization(cursor=cur, params=params)
+
+        # Make sure the user can access the database
+        stac_db_user_dsn = (
+            "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
+                dbname=user_params.get("dbname", "postgres"),
+                user=user_params["username"],
+                password=user_params["password"],
+                host=connection_params["host"],
+                port=connection_params["port"],
             )
+        )
+        with PgstacDB(dsn=stac_db_user_dsn, debug=True) as pgdb:
+            print(f"User can access pgstac: {pgdb.version}")
 
     except Exception as e:
-        print(e)
-        return send(event, context, "FAILED", {"message": str(e)})
+        print(f"Unable to bootstrap database with exception={e}")
+        send(event, context, "FAILED", {"message": str(e)})
+        raise e
 
     print("Complete.")
     return send(event, context, "SUCCESS", {})

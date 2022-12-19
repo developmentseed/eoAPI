@@ -1,6 +1,9 @@
-FROM lambci/lambda:build-python3.8
+ARG PYTHON_VERSION=3.9
+
+FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
 WORKDIR /tmp
+RUN pip install pip -U
 
 COPY src/eoapi/vector /tmp/vector
 RUN pip install "mangum>=0.14,<0.15" /tmp/vector -t /asset --no-binary pydantic

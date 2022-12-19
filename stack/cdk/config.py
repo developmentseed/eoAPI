@@ -35,11 +35,13 @@ class eoAPISettings(pydantic.BaseSettings):
 class eoDBSettings(pydantic.BaseSettings):
     """Application settings"""
 
-    dbname: str = "postgis"
-    user: str = "eostac"
+    dbname: str = "eoapi"
+    user: str = "eouser"
 
     # Define PGSTAC VERSION
     pgstac_version: str
+    context: bool = True
+    mosaic_index: bool = True
 
     class Config:
         """model config"""
