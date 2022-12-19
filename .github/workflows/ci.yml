@@ -32,10 +32,15 @@ jobs:
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pre-commit pytest pytest-asyncio httpx pypgstac==0.6.11 psycopg[pool] brotlipy
+          python -m pip install pre-commit pytest pytest-asyncio httpx pypgstac==0.6.11 psycopg[pool] brotlipy requests boto3 pytest-pgsql psycopg2
 
       - name: Run pre-commit
         run: pre-commit run --all-files
+
+      - name: CDK DB Bootstrap tests
+        working-directory: ./stack
+        run: |
+          python -m pytest tests/test_bootstrap.py -v -ss
 
       - name: Launch services
         run: docker-compose up -d stac raster features

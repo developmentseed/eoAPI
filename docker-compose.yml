@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.stac
     ports:
-      - "8081:8081"
+      - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
       - APP_HOST=0.0.0.0
       - APP_PORT=8081
@@ -31,7 +31,7 @@ services:
       - DB_MAX_CONN_SIZE=10
       # https://github.com/developmentseed/eoAPI/issues/16
       # - TITILER_ENDPOINT=raster
-      - TITILER_ENDPOINT=http://0.0.0.0:8082
+      - TITILER_ENDPOINT=http://127.0.0.1:8082
     depends_on:
       - database
       - raster
@@ -49,7 +49,7 @@ services:
       context: .
       dockerfile: Dockerfile.raster
     ports:
-      - "8082:8082"
+      - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
       # Application
       - HOST=0.0.0.0
@@ -100,7 +100,7 @@ services:
       context: .
       dockerfile: Dockerfile.vector
     ports:
-      - "8083:8083"
+      - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
       # Application
       - HOST=0.0.0.0
@@ -132,7 +132,7 @@ services:
       context: .
       dockerfile: Dockerfile.features
     ports:
-      - "8085:8085"
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
     environment:
       # Application
       - HOST=0.0.0.0

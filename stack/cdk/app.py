@@ -39,8 +39,10 @@ class BootstrappedDb(core.Construct):
         db: rds.DatabaseInstance,
         new_dbname: str,
         new_username: str,
-        pgstac_version: str,
         secrets_prefix: str,
+        pgstac_version: str,
+        enable_context: bool = False,
+        enable_mosaic_index: bool = False,
     ) -> None:
         """Update RDS database."""
         super().__init__(scope, id)
@@ -50,11 +52,11 @@ class BootstrappedDb(core.Construct):
             self,
             "DatabaseBootstrapper",
             handler="handler.handler",
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
+            runtime=aws_lambda.Runtime.PYTHON_3_9,
             code=aws_lambda.Code.from_docker_build(
                 path=os.path.abspath("./"),
                 file="stack/dockerfiles/Dockerfile.db",
-                build_args={"PGSTAC_VERSION": pgstac_version},
+                build_args={"PYTHON_VERSION": "3.9", "PGSTAC_VERSION": pgstac_version},
                 platform="linux/amd64",
             ),
             timeout=core.Duration.minutes(5),
@@ -93,6 +95,8 @@ class BootstrappedDb(core.Construct):
                 # By setting pgstac_version in the properties assures
                 # that Create/Update events will be passed to the service token
                 "pgstac_version": pgstac_version,
+                "context": enable_context,
+                "mosaic_index": enable_mosaic_index,
                 "conn_secret_arn": db.secret.secret_arn,
                 "new_user_secret_arn": self.secret.secret_arn,
             },
@@ -157,7 +161,7 @@ class eoAPIconstruct(core.Stack):
             instance_type=ec2.InstanceType.of(
                 ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL
             ),
-            database_name=eodb_settings.dbname,
+            database_name="postgres",
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             backup_retention=core.Duration.days(7),
             deletion_protection=eoapi_settings.stage.lower() == "production",
@@ -172,8 +176,10 @@ class eoAPIconstruct(core.Stack):
             db=db,
             new_dbname=eodb_settings.dbname,
             new_username=eodb_settings.user,
-            pgstac_version=eodb_settings.pgstac_version,
             secrets_prefix=os.path.join(stage, name),
+            pgstac_version=eodb_settings.pgstac_version,
+            enable_context=eodb_settings.context,
+            enable_mosaic_index=eodb_settings.mosaic_index,
         )
 
         core.CfnOutput(
@@ -211,10 +217,13 @@ class eoAPIconstruct(core.Stack):
             eoraster_function = aws_lambda.Function(
                 self,
                 f"{id}-raster-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                runtime=aws_lambda.Runtime.PYTHON_3_9,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.raster",
+                    build_args={
+                        "PYTHON_VERSION": "3.9",
+                    },
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
@@ -278,14 +287,19 @@ class eoAPIconstruct(core.Stack):
             env = eostac_settings.env or {}
             if "DB_MAX_CONN_SIZE" not in env:
                 env["DB_MAX_CONN_SIZE"] = "1"
+            if "DB_MIN_CONN_SIZE" not in env:
+                env["DB_MIN_CONN_SIZE"] = "1"
 
             eostac_function = aws_lambda.Function(
                 self,
                 f"{id}-stac-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                runtime=aws_lambda.Runtime.PYTHON_3_9,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.stac",
+                    build_args={
+                        "PYTHON_VERSION": "3.9",
+                    },
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
@@ -347,10 +361,13 @@ class eoAPIconstruct(core.Stack):
             eovector_function = aws_lambda.Function(
                 self,
                 f"{id}-vector-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                runtime=aws_lambda.Runtime.PYTHON_3_9,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.vector",
+                    build_args={
+                        "PYTHON_VERSION": "3.9",
+                    },
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
@@ -405,10 +422,13 @@ class eoAPIconstruct(core.Stack):
             eofeatures_function = aws_lambda.Function(
                 self,
                 f"{id}-features-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_8,
+                runtime=aws_lambda.Runtime.PYTHON_3_9,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.features",
+                    build_args={
+                        "PYTHON_VERSION": "3.9",
+                    },
                     platform="linux/amd64",
                 ),
                 vpc=vpc,

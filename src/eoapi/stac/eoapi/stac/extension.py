@@ -97,8 +97,10 @@ class TiTilerExtension(ApiExtension):
         ):
             """Get items and redirect to stac tiler."""
             qs = [(key, value) for (key, value) in request.query_params._list]
-            return RedirectResponse(
-                f"{titiler_endpoint}/collections/{collectionId}/items/{itemId}/viewer?{urlencode(qs)}"
-            )
+            url = f"{titiler_endpoint}/collections/{collectionId}/items/{itemId}/viewer"
+            if qs:
+                url += f"?{urlencode(qs)}"
+
+            return RedirectResponse(url)
 
         app.include_router(router, tags=["TiTiler Extension"])
