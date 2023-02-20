@@ -1,4 +1,0 @@
-include eoapi/vector/templates/*.html
-
-recursive-exclude tests *
-
