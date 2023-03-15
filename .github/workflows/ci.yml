@@ -30,7 +30,7 @@ jobs:
       - name: Launch database and build services
         run: |
           docker-compose up -d database
-          docker-compose up build stac raster vector
+          docker-compose build stac raster vector
 
       - name: install lib postgres
         run: |
