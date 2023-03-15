@@ -93,12 +93,12 @@ def ping():
 
 if settings.debug:
 
-    @app.get("/rawcatalog")
+    @app.get("/rawcatalog", include_in_schema=False)
     async def raw_catalog(request: Request):
         """Return parsed catalog data for testing."""
         return request.app.state.collection_catalog
 
-    @app.get("/refresh")
+    @app.get("/refresh", include_in_schema=False)
     async def refresh(request: Request):
         """Return parsed catalog data for testing."""
         await startup_event()
