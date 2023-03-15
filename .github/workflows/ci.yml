@@ -27,10 +27,8 @@ jobs:
           python -m pip install pre-commit
           pre-commit run --all-files
 
-      - name: Launch database and build services
-        run: |
-          docker-compose up -d database
-          docker-compose build stac raster vector
+      - name: Launch services
+        run: docker-compose up -d stac raster vector
 
       - name: install lib postgres
         run: |
@@ -49,15 +47,17 @@ jobs:
         run: |
           python -m pytest tests/test_bootstrap.py -v -ss
 
-      - name: Ingest Stac Items/Collection and public data
+      - name: Ingest Stac Items/Collection
         run: |
           pypgstac pgready --dsn postgresql://username:password@0.0.0.0:5439/postgis
           pypgstac load collections .github/workflows/data/noaa-emergency-response.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
           pypgstac load items .github/workflows/data/noaa-eri-nashville2020.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
           psql postgresql://username:password@0.0.0.0:5439/postgis -f .github/workflows/data/my_data.sql
 
-      - name: Launch services
-        run: docker-compose up -d stac raster vector
+      - name: Restart the Vector service
+        run: |
+          docker-compose stop vector
+          docker-compose up -d vector
 
       - name: Sleep for 10 seconds
         run: sleep 10s
