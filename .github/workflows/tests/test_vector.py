@@ -2,7 +2,7 @@
 
 import httpx
 
-vector_endpoint = "http://127.0.0.1:8083"
+vector_endpoint = "http://0.0.0.0:8083"
 
 
 def test_vector_api():
