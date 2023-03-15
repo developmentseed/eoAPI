@@ -17,7 +17,6 @@ from aws_cdk import core
 from config import (
     eoAPISettings,
     eoDBSettings,
-    eoFeaturesSettings,
     eoRasterSettings,
     eoSTACSettings,
     eoVectorSettings,

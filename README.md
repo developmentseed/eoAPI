@@ -31,7 +31,7 @@
 
 The project's goal is to enable a full, but easy to deploy, Earth Observation API for Metadata search (STAC), Raster and Vector services.
 
-### STAC -> [/src/eoapi/stac](/src/eoapi/stac)
+## STAC -> [/src/eoapi/stac](/src/eoapi/stac)
 
 A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), adding a `TiTilerExtension` and a simple `Search Viewer`.
 
@@ -52,7 +52,7 @@ A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), 
 </p>
 
 
-### Raster -> [/src/eoapi/raster](/src/eoapi/raster)
+## Raster -> [/src/eoapi/raster](/src/eoapi/raster)
 
 The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
 
@@ -63,17 +63,14 @@ The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](http
   <p align="center">TiTiler-PgSTAC workflow</p>
 </p>
 
-### Features (Optional) [-> /src/eoapi/features](/src/eoapi/features)
+## Vector (Optional) [-> /src/eoapi/features](/src/eoapi/features)
 
-Simple and Fast Geospatial Feature Server for PgSTAC
+OGC Features + Tiles API (https://github.com/developmentseed/tipg)
 
-This can be seen as a simplistic version of stac-fastapi
-
-- Full OGC [Features REST API standard](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html#_api_definition_2) implementation
-
-### Vector (Experimental) [-> /src/eoapi/vector](/src/eoapi/vector)
-
-Mapbox Vector Tile server for STAC queries.
+By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions which connect to the PgSTAC schema:
+- **pg_temp.pgstac_collections_view**: Simple function which return PgSTAC Collections
+- **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
+- **pg_temp.pgstac_hash_count**: Return the number of items per geometry for a specific searchId (hash)
 
 ## Local
 
@@ -93,8 +90,7 @@ docker-compose up stac raster
  └──src/eoapi/
     ├── raster/            - eoAPI raster Application package
     ├── stac/              - eoAPI stac Application package
-    ├── features/          - eoAPI feature Application package [OPTIONAL]
-    └── vector/            - eoAPI vector Application package [EXPERIMENTAL]
+    └── vector/            - eoAPI features+tiles Application package
 ```
 
 ## Deployment
@@ -129,7 +125,7 @@ The stack is deployed by the [AWS CDK](https://aws.amazon.com/cdk/) utility. Und
 
     **Important**:
       - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env
-      - You can choose which functions to deploy by setting `CDK_EOAPI_FUNCTIONS` env (e.g `CDK_EOAPI_FUNCTIONS='["stac","raster","features"]'`)
+      - You can choose which functions to deploy by setting `CDK_EOAPI_FUNCTIONS` env (e.g `CDK_EOAPI_FUNCTIONS='["stac","raster","vector"]'`)
 
 4. Deploy
 

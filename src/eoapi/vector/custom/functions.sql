@@ -1,13 +1,9 @@
--- TODO
--- add function for STAC collections or searchid
--- items MVT (return geojson features)
--- items count (return input geometry + count as MVT)
-
 CREATE OR REPLACE FUNCTION pg_temp.jsonb2timestamptz(j jsonb) RETURNS timestamptz AS $$
     SELECT
         (nullif(j->>0, 'null'))::timestamptz;
 $$ LANGUAGE SQL IMMUTABLE STRICT;
 
+-- Functions returning Collections available in PgSTAC
 CREATE OR REPLACE VIEW pg_temp.pgstac_collections_view AS
 SELECT
     id,
@@ -23,7 +19,7 @@ SELECT
     content
 FROM pgstac.collections;
 
-
+-- Functions returning the Searches available in PgSTAC
 CREATE OR REPLACE FUNCTION pg_temp.pgstac_hash(
     IN queryhash text,
     IN bounds geometry DEFAULT ST_MakeEnvelope(-180,-90,180,90,4326),
@@ -134,6 +130,7 @@ BEGIN
 END;
 $$ LANGUAGE PLPGSQL;
 
+-- Functions returning the item count per Search for the input geometry
 CREATE OR REPLACE FUNCTION pg_temp.pgstac_hash_count(
     IN queryhash text,
     IN bounds geometry DEFAULT ST_MakeEnvelope(-180,-90,180,90,4326),
