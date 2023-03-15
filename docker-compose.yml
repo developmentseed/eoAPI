@@ -129,15 +129,13 @@ services:
 
   database:
     container_name: eoapi.db
-    platform: linux/amd64
-    image: ghcr.io/stac-utils/pgstac:v0.6.13
+    image: ghcr.io/stac-utils/pgstac:v0.7.1
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgis
       - PGUSER=username
       - PGPASSWORD=password
-      - PGHOST=localhost
       - PGDATABASE=postgis
     ports:
       - "5439:5432"
