@@ -23,6 +23,7 @@ SELECT
     content
 FROM pgstac.collections;
 
+
 CREATE OR REPLACE FUNCTION pg_temp.pgstac_hash(
     IN queryhash text,
     IN bounds geometry DEFAULT ST_MakeEnvelope(-180,-90,180,90,4326),
@@ -130,5 +131,57 @@ BEGIN
     END LOOP;
 
     RETURN;
+END;
+$$ LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION pg_temp.pgstac_hash_count(
+    IN queryhash text,
+    IN bounds geometry DEFAULT ST_MakeEnvelope(-180,-90,180,90,4326),
+    IN depth int DEFAULT 1,
+    OUT geom geometry,
+    OUT cnt bigint
+) RETURNS SETOF RECORD AS $$
+DECLARE
+    search record;
+    xmin float := ST_XMin(bounds);
+    xmax float := ST_XMax(bounds);
+    ymin float := ST_YMin(bounds);
+    ymax float := ST_YMax(bounds);
+    w float := (xmax - xmin) / depth;
+    h float := (ymax - ymin) / depth;
+    q text;
+BEGIN
+    SELECT * INTO search FROM pgstac.searches WHERE hash=queryhash;
+    DROP VIEW IF EXISTS searchitems;
+    EXECUTE format($q$
+        CREATE TEMP VIEW searchitems AS
+        SELECT geometry
+        FROM pgstac.items WHERE %s
+            AND ST_Intersects(geometry, %L)
+        ;
+        $q$,
+        search._where,
+        bounds
+    );
+    RETURN QUERY
+        WITH grid AS (
+            SELECT
+                ST_MakeEnvelope(
+                    xmin + w * (a-1),
+                    ymin + h * (b-1),
+                    xmin + w * a,
+                    ymin + h * b,
+                    4326
+                ) as geom
+            FROM generate_series(1, depth) a, generate_series(1, depth) b
+        )
+        SELECT
+            grid.geom,
+            count(*) as cnt
+        FROM
+            grid
+            JOIN searchitems ON (ST_Intersects(searchitems.geometry, grid.geom))
+        GROUP BY 1
+    ;
 END;
 $$ LANGUAGE PLPGSQL;
