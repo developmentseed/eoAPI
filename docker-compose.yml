@@ -119,7 +119,6 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-      - EOAPI_VECTOR_DEBUG=TRUE
     command:
       bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     depends_on:
