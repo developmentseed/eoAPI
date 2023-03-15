@@ -52,6 +52,7 @@ jobs:
           pypgstac pgready --dsn postgresql://username:password@0.0.0.0:5439/postgis
           pypgstac load collections .github/workflows/data/noaa-emergency-response.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
           pypgstac load items .github/workflows/data/noaa-eri-nashville2020.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
+          psql postgresql://username:password@0.0.0.0:5439/postgis -f .github/workflows/data/my_data.sql
 
       - name: Sleep for 10 seconds
         run: sleep 10s

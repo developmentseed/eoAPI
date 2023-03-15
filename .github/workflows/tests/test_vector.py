@@ -30,8 +30,8 @@ def test_vector_api():
         "numberReturned",
         "collections",
     ]
-    assert resp.json()["numberMatched"] == 3
-    assert resp.json()["numberReturned"] == 3
+    assert resp.json()["numberMatched"] == 4  # one public table + 3 functions
+    assert resp.json()["numberReturned"] == 4
 
     collections = resp.json()["collections"]
     ids = [c["id"] for c in collections]
@@ -39,6 +39,8 @@ def test_vector_api():
     assert "pg_temp.pgstac_collections_view" in ids
     assert "pg_temp.pgstac_hash" in ids
     assert "pg_temp.pgstac_hash_count" in ids
+    # 1 public table
+    assert "public.my_data" in ids
 
     # collection
     resp = httpx.get(f"{vector_endpoint}/collections/pg_temp.pgstac_collections_view")
@@ -74,66 +76,6 @@ def test_vector_api():
     items = resp.json()["features"]
     assert len(items) == 1
 
-    # # properties
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"properties": ""},
-    # )
-    # assert resp.status_code == 200
-    # item = resp.json()["features"][0]
-    # assert "properties" not in item
-
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"properties": "event"},
-    # )
-    # assert resp.status_code == 200
-    # item = resp.json()["features"][0]
-    # assert "datetime" not in item["properties"]
-
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"properties": "event,datetime"},
-    # )
-    # assert resp.status_code == 200
-    # item = resp.json()["features"][0]
-    # assert "datetime" in item["properties"]
-    # assert "event" in item["properties"]
-
-    # # sortby
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"sortby": "datetime"},
-    # )
-    # assert resp.status_code == 200
-    # item = resp.json()["features"][0]
-    # assert item["properties"]["datetime"] == "2020-03-07T00:00:00Z"
-
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"sortby": "+datetime"},
-    # )
-    # assert resp.status_code == 200
-    # item = resp.json()["features"][0]
-    # assert item["properties"]["datetime"] == "2020-03-07T00:00:00Z"
-
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"sortby": "-datetime"},
-    # )
-    # assert resp.status_code == 200
-    # item = resp.json()["features"][0]
-    # assert item["properties"]["datetime"] == "2020-03-11T00:00:01Z"
-
-    # # propname
-    # resp = httpx.get(
-    #     f"{vector_endpoint}/collections/noaa-emergency-response/items",
-    #     params={"datetime": "2020-03-07T00:00:00Z", "limit": 200},
-    # )
-    # assert resp.status_code == 200
-    # items = resp.json()["features"]
-    # assert len(items) == 38
-
     # item
     resp = httpx.get(
         f"{vector_endpoint}/collections/pg_temp.pgstac_collections_view/items/noaa-emergency-response"
@@ -141,3 +83,18 @@ def test_vector_api():
     assert resp.status_code == 200
     item = resp.json()
     assert item["id"] == "noaa-emergency-response"
+
+    # OGC Tiles
+    resp = httpx.get(f"{vector_endpoint}/collections/public.my_data/tiles/0/0/0")
+    assert resp.status_code == 200
+
+    resp = httpx.get(
+        f"{vector_endpoint}/collections/pg_temp.pgstac_collections_view/tilejson.json"
+    )
+    assert resp.status_code == 200
+
+    resp = httpx.get(f"{vector_endpoint}/tileMatrixSets")
+    assert resp.status_code == 200
+
+    resp = httpx.get(f"{vector_endpoint}/tileMatrixSets/WebMercatorQuad")
+    assert resp.status_code == 200
