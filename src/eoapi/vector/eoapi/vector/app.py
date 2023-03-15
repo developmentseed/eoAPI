@@ -70,7 +70,6 @@ async def startup_event() -> None:
         schemas=["public"],
         tables=db_settings.tables,
         function_schemas=["pg_temp"],
-        # functions=db_settings.functions,
     )
 
 

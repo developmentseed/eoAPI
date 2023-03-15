@@ -355,8 +355,12 @@ class eoAPIconstruct(core.Stack):
 
             eovector_settings = eoVectorSettings()
             env = eovector_settings.env or {}
+
             if "DB_MAX_CONN_SIZE" not in env:
                 env["DB_MAX_CONN_SIZE"] = "1"
+
+            if "TIPG_CUSTOM_SQL_DIRECTORY" not in env:
+                env["TIPG_CUSTOM_SQL_DIRECTORY"] = "/var/task/eoapi_sql_functions"
 
             eovector_function = aws_lambda.Function(
                 self,
@@ -394,69 +398,6 @@ class eoAPIconstruct(core.Stack):
             core.CfnOutput(self, "eoAPI-vector", value=vector_api.url.strip("/"))
 
             setup_db.is_required_by(eovector_function)
-
-        # eoapi.feature
-        if "features" in eoapi_settings.functions:
-            db_secrets = {
-                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
-                    "host"
-                ).to_string(),
-                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
-                    "dbname"
-                ).to_string(),
-                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
-                    "username"
-                ).to_string(),
-                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
-                    "password"
-                ).to_string(),
-                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
-                    "port"
-                ).to_string(),
-            }
-            eofeatures_settings = eoFeaturesSettings()
-            env = eofeatures_settings.env or {}
-            if "DB_MAX_CONN_SIZE" not in env:
-                env["DB_MAX_CONN_SIZE"] = "1"
-
-            eofeatures_function = aws_lambda.Function(
-                self,
-                f"{id}-features-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_9,
-                code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(code_dir),
-                    file="stack/dockerfiles/Dockerfile.features",
-                    build_args={
-                        "PYTHON_VERSION": "3.9",
-                    },
-                    platform="linux/amd64",
-                ),
-                vpc=vpc,
-                allow_public_subnet=True,
-                handler="handler.handler",
-                memory_size=eofeatures_settings.memory,
-                timeout=core.Duration.seconds(eofeatures_settings.timeout),
-                environment=env,
-                log_retention=logs.RetentionDays.ONE_WEEK,
-            )
-            for k, v in db_secrets.items():
-                eofeatures_function.add_environment(key=k, value=str(v))
-
-            db.connections.allow_from(
-                eofeatures_function, port_range=ec2.Port.tcp(5432)
-            )
-
-            features_api = apigw.HttpApi(
-                self,
-                f"{id}-features-endpoint",
-                default_integration=apigw_integrations.HttpLambdaIntegration(
-                    f"{id}-features-integration",
-                    handler=eofeatures_function,
-                ),
-            )
-            core.CfnOutput(self, "eoAPI-features", value=features_api.url.strip("/"))
-
-            setup_db.is_required_by(eofeatures_function)
 
 
 app = core.App()

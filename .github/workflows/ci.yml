@@ -43,7 +43,7 @@ jobs:
           python -m pytest tests/test_bootstrap.py -v -ss
 
       - name: Launch services
-        run: docker-compose up -d stac raster features
+        run: docker-compose up -d stac raster vector
 
       - name: Ingest Stac Items/Collection
         run: |
