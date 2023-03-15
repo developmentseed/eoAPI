@@ -27,10 +27,9 @@ jobs:
           python -m pip install pre-commit
           pre-commit run --all-files
 
-      - name: Launch database and build services
+      - name: Launch database
         run: |
           docker-compose up -d database
-          docker-compose build stac raster vector
 
       - name: install lib postgres
         run: |
