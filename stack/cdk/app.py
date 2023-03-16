@@ -5,15 +5,15 @@ import json
 import os
 from typing import Any
 
-import aws_cdk.aws_logs as logs
-from aws_cdk import aws_apigatewayv2 as apigw
-from aws_cdk import aws_apigatewayv2_integrations as apigw_integrations
+from aws_cdk import App, CfnOutput, CustomResource, Duration, RemovalPolicy, Stack, Tags
+from aws_cdk import aws_apigatewayv2_alpha as apigw
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda
+from aws_cdk import aws_logs as logs
 from aws_cdk import aws_rds as rds
 from aws_cdk import aws_secretsmanager as secretsmanager
-from aws_cdk import core
+from aws_cdk.aws_apigatewayv2_integrations_alpha import HttpLambdaIntegration
 from config import (
     eoAPISettings,
     eoDBSettings,
@@ -21,11 +21,12 @@ from config import (
     eoSTACSettings,
     eoVectorSettings,
 )
+from constructs import Construct
 
 eoapi_settings = eoAPISettings()
 
 
-class BootstrappedDb(core.Construct):
+class BootstrappedDb(Construct):
     """
     Given an RDS database, connect to DB and create a database, user, and
     password
@@ -33,7 +34,7 @@ class BootstrappedDb(core.Construct):
 
     def __init__(
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         db: rds.DatabaseInstance,
         new_dbname: str,
@@ -58,7 +59,7 @@ class BootstrappedDb(core.Construct):
                 build_args={"PYTHON_VERSION": "3.9", "PGSTAC_VERSION": pgstac_version},
                 platform="linux/amd64",
             ),
-            timeout=core.Duration.minutes(5),
+            timeout=Duration.minutes(5),
             vpc=db.vpc,
             allow_public_subnet=True,
             log_retention=logs.RetentionDays.ONE_WEEK,
@@ -68,7 +69,7 @@ class BootstrappedDb(core.Construct):
             self,
             id,
             secret_name=os.path.join(
-                secrets_prefix, id.replace(" ", "_"), self.node.unique_id[-8:]
+                secrets_prefix, id.replace(" ", "_"), self.node.addr
             ),
             generate_secret_string=secretsmanager.SecretStringGenerator(
                 secret_string_template=json.dumps(
@@ -83,10 +84,10 @@ class BootstrappedDb(core.Construct):
                 generate_string_key="password",
                 exclude_punctuation=True,
             ),
-            description=f"Deployed by {core.Stack.of(self).stack_name}",
+            description=f"Deployed by {Stack.of(self).stack_name}",
         )
 
-        self.resource = core.CustomResource(
+        self.resource = CustomResource(
             scope=scope,
             id="BootstrappedDbResource",
             service_token=handler.function_arn,
@@ -101,7 +102,7 @@ class BootstrappedDb(core.Construct):
             },
             # We do not need to run the custom resource on STAC Delete
             # Custom Resource are not physical resources so it's OK to `Retain` it
-            removal_policy=core.RemovalPolicy.RETAIN,
+            removal_policy=RemovalPolicy.RETAIN,
         )
 
         # Allow lambda to...
@@ -112,17 +113,17 @@ class BootstrappedDb(core.Construct):
         # connect to database
         db.connections.allow_from(handler, port_range=ec2.Port.tcp(5432))
 
-    def is_required_by(self, construct: core.Construct):
+    def is_required_by(self, construct: Construct):
         """Register required services."""
         return construct.node.add_dependency(self.resource)
 
 
-class eoAPIconstruct(core.Stack):
+class eoAPIconstruct(Stack):
     """Earth Observation API CDK application"""
 
     def __init__(  # noqa: C901
         self,
-        scope: core.Construct,
+        scope: Construct,
         id: str,
         stage: str,
         name: str,
@@ -162,11 +163,11 @@ class eoAPIconstruct(core.Stack):
             ),
             database_name="postgres",
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
-            backup_retention=core.Duration.days(7),
+            backup_retention=Duration.days(7),
             deletion_protection=eoapi_settings.stage.lower() == "production",
-            removal_policy=core.RemovalPolicy.SNAPSHOT
+            removal_policy=RemovalPolicy.SNAPSHOT
             if eoapi_settings.stage.lower() == "production"
-            else core.RemovalPolicy.DESTROY,
+            else RemovalPolicy.DESTROY,
         )
 
         setup_db = BootstrappedDb(
@@ -181,7 +182,7 @@ class eoAPIconstruct(core.Stack):
             enable_mosaic_index=eodb_settings.mosaic_index,
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             f"{id}-database-secret-arn",
             value=db.secret.secret_arn,
@@ -229,7 +230,7 @@ class eoAPIconstruct(core.Stack):
                 allow_public_subnet=True,
                 handler="handler.handler",
                 memory_size=eoraster_settings.memory,
-                timeout=core.Duration.seconds(eoraster_settings.timeout),
+                timeout=Duration.seconds(eoraster_settings.timeout),
                 environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
@@ -250,12 +251,12 @@ class eoAPIconstruct(core.Stack):
             raster_api = apigw.HttpApi(
                 self,
                 f"{id}-raster-endpoint",
-                default_integration=apigw_integrations.HttpLambdaIntegration(
+                default_integration=HttpLambdaIntegration(
                     f"{id}-raster-integration",
-                    handler=eoraster_function,
+                    eoraster_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-raster", value=raster_api.url.strip("/"))
+            CfnOutput(self, "eoAPI-raster", value=raster_api.url.strip("/"))
 
             setup_db.is_required_by(eoraster_function)
 
@@ -305,7 +306,7 @@ class eoAPIconstruct(core.Stack):
                 allow_public_subnet=True,
                 handler="handler.handler",
                 memory_size=eostac_settings.memory,
-                timeout=core.Duration.seconds(eostac_settings.timeout),
+                timeout=Duration.seconds(eostac_settings.timeout),
                 environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
@@ -323,12 +324,12 @@ class eoAPIconstruct(core.Stack):
             stac_api = apigw.HttpApi(
                 self,
                 f"{id}-stac-endpoint",
-                default_integration=apigw_integrations.HttpLambdaIntegration(
+                default_integration=HttpLambdaIntegration(
                     f"{id}-stac-integration",
-                    handler=eostac_function,
+                    eostac_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-stac", value=stac_api.url.strip("/"))
+            CfnOutput(self, "eoAPI-stac", value=stac_api.url.strip("/"))
 
             setup_db.is_required_by(eostac_function)
 
@@ -377,7 +378,7 @@ class eoAPIconstruct(core.Stack):
                 allow_public_subnet=True,
                 handler="handler.handler",
                 memory_size=eovector_settings.memory,
-                timeout=core.Duration.seconds(eovector_settings.timeout),
+                timeout=Duration.seconds(eovector_settings.timeout),
                 environment=env,
                 log_retention=logs.RetentionDays.ONE_WEEK,
             )
@@ -389,17 +390,29 @@ class eoAPIconstruct(core.Stack):
             vector_api = apigw.HttpApi(
                 self,
                 f"{id}-vector-endpoint",
-                default_integration=apigw_integrations.HttpLambdaIntegration(
+                default_integration=HttpLambdaIntegration(
                     f"{id}-vector-integration",
-                    handler=eovector_function,
+                    eovector_function,
                 ),
             )
-            core.CfnOutput(self, "eoAPI-vector", value=vector_api.url.strip("/"))
+            CfnOutput(self, "eoAPI-vector", value=vector_api.url.strip("/"))
 
             setup_db.is_required_by(eovector_function)
 
 
-app = core.App()
+app = App()
+
+
+eoapi_stack = eoAPIconstruct(
+    app,
+    f"{eoapi_settings.name}-{eoapi_settings.stage}",
+    eoapi_settings.name,
+    eoapi_settings.stage,
+    env={
+        "account": os.environ["CDK_DEFAULT_ACCOUNT"],
+        "region": os.environ["CDK_DEFAULT_REGION"],
+    },
+)
 
 # Tag infrastructure
 for key, value in {
@@ -409,18 +422,7 @@ for key, value in {
     "Client": eoapi_settings.client,
 }.items():
     if value:
-        core.Tag.add(app, key, value)
+        Tags.of(eoapi_stack).add(key, value)
 
 
-stackname = f"{eoapi_settings.name}-{eoapi_settings.stage}"
-eoAPIconstruct(
-    app,
-    stackname,
-    eoapi_settings.name,
-    eoapi_settings.stage,
-    env={
-        "account": os.environ["CDK_DEFAULT_ACCOUNT"],
-        "region": os.environ["CDK_DEFAULT_REGION"],
-    },
-)
 app.synth()
