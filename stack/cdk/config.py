@@ -12,7 +12,6 @@ class functionName(str, Enum):
     stac = "stac"
     raster = "raster"
     vector = "vector"
-    features = "features"
 
 
 class eoAPISettings(pydantic.BaseSettings):
@@ -118,18 +117,3 @@ class eoVectorSettings(pydantic.BaseSettings):
 
         env_file = "stack/.env"
         env_prefix = "CDK_EOAPI_VECTOR_"
-
-
-class eoFeaturesSettings(pydantic.BaseSettings):
-    """Application settings"""
-
-    env: Dict = {}
-
-    timeout: int = 10
-    memory: int = 256
-
-    class Config:
-        """model config"""
-
-        env_file = "stack/.env"
-        env_prefix = "CDK_EOAPI_FEATURES_"

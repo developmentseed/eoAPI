@@ -36,7 +36,7 @@ services:
       - database
       - raster
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./scripts:/tmp/scripts
 
@@ -90,7 +90,7 @@ services:
     depends_on:
       - database
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./scripts:/tmp/scripts
 
@@ -120,55 +120,21 @@ services:
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     depends_on:
       - database
-    volumes:
-      - ./scripts:/tmp/scripts
-
-  features:
-    container_name: eoapi.features
-    build:
-      context: .
-      dockerfile: Dockerfile.features
-    ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
-    environment:
-      # Application
-      - HOST=0.0.0.0
-      - PORT=8085
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # - WORKERS_PER_CORE=1
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
-      # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST=database
-      - POSTGRES_PORT=5432
-      - DB_MIN_CONN_SIZE=1
-      - DB_MAX_CONN_SIZE=10
-    depends_on:
-      - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 && /start.sh"
     volumes:
       - ./scripts:/tmp/scripts
 
   database:
     container_name: eoapi.db
-    platform: linux/amd64
-    image: ghcr.io/stac-utils/pgstac:v0.6.11
+    image: ghcr.io/stac-utils/pgstac:v0.7.1
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgis
       - PGUSER=username
       - PGPASSWORD=password
-      - PGHOST=localhost
       - PGDATABASE=postgis
     ports:
       - "5439:5432"

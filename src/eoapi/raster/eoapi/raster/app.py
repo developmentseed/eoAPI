@@ -4,10 +4,9 @@ import logging
 from typing import Dict
 
 import pystac
+from fastapi import Depends, FastAPI, Query
 from psycopg import OperationalError
 from psycopg_pool import PoolTimeout
-
-from fastapi import Depends, FastAPI, Query
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse

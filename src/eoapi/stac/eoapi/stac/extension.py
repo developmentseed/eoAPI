@@ -4,7 +4,6 @@ from typing import Optional
 from urllib.parse import urlencode
 
 import attr
-
 from fastapi import APIRouter, FastAPI, HTTPException, Path, Query
 from fastapi.responses import RedirectResponse
 from stac_fastapi.types.extension import ApiExtension
