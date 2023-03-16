@@ -3,10 +3,10 @@ ARG PYTHON_VERSION=3.9
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
 WORKDIR /tmp
-RUN pip install pip -U
+RUN python -m pip install pip -U
 
 COPY src/eoapi/stac /tmp/stac
-RUN pip install "mangum>=0.14,<0.15" /tmp/stac -t /asset --no-binary pydantic
+RUN python -m pip install "mangum>=0.14,<0.15" /tmp/stac -t /asset --no-binary pydantic
 RUN rm -rf /tmp/stac
 
 # Reduce package size and remove useless files

@@ -7,10 +7,10 @@ WORKDIR /tmp
 ARG PGSTAC_VERSION
 
 WORKDIR /tmp
-RUN pip install pip -U
+RUN python -m pip install pip -U
 
 RUN echo "Using PGSTAC Version ${PGSTAC_VERSION}"
-RUN pip install requests psycopg["binary,pool"] pypgstac==0.6.11 -t /asset
+RUN python -m pip install requests psycopg["binary,pool"] pypgstac==${PGSTAC_VERSION} -t /asset
 
 COPY stack/handlers/db_handler.py /asset/handler.py
 

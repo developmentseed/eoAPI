@@ -2,11 +2,13 @@ ARG PYTHON_VERSION=3.9
 
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
+RUN yum install -y git
+
 WORKDIR /tmp
-RUN pip install pip -U
+RUN python -m pip install pip -U
 
 COPY src/eoapi/vector /tmp/vector
-RUN pip install "mangum>=0.14,<0.15" /tmp/vector -t /asset --no-binary pydantic
+RUN python -m pip install "mangum>=0.14,<0.15" /tmp/vector -t /asset --no-binary pydantic
 RUN rm -rf /tmp/vector
 
 # Reduce package size and remove useless files
