@@ -133,7 +133,28 @@ class eoAPIconstruct(Stack):
         """Define stack."""
         super().__init__(scope, id, **kwargs)
 
-        vpc = ec2.Vpc(self, f"{id}-vpc", nat_gateways=0)
+        vpc = ec2.Vpc(
+            self,
+            f"{id}-vpc",
+            subnet_configuration=[
+                ec2.SubnetConfiguration(
+                    name="ingress",
+                    cidr_mask=24,
+                    subnet_type=ec2.SubnetType.PUBLIC,
+                ),
+                ec2.SubnetConfiguration(
+                    name="application",
+                    cidr_mask=24,
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                ),
+                # ec2.SubnetConfiguration(
+                #     name="rds",
+                #     cidr_mask=28,
+                #     subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
+                # ),
+            ],
+            nat_gateways=1,
+        )
 
         interface_endpoints = [
             (
@@ -162,6 +183,8 @@ class eoAPIconstruct(Stack):
                 ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL
             ),
             database_name="postgres",
+            # should set the subnet to `PRIVATE_ISOLATED` but then we need either a bastion host to connect to the db
+            # or an API to ingest/delete data in the DB
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             backup_retention=Duration.days(7),
             deletion_protection=eoapi_settings.stage.lower() == "production",
@@ -227,6 +250,9 @@ class eoAPIconstruct(Stack):
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
+                vpc_subnets=ec2.SubnetSelection(
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
+                ),
                 allow_public_subnet=True,
                 handler="handler.handler",
                 memory_size=eoraster_settings.memory,
@@ -303,6 +329,9 @@ class eoAPIconstruct(Stack):
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
+                vpc_subnets=ec2.SubnetSelection(
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
+                ),
                 allow_public_subnet=True,
                 handler="handler.handler",
                 memory_size=eostac_settings.memory,
@@ -375,6 +404,9 @@ class eoAPIconstruct(Stack):
                     platform="linux/amd64",
                 ),
                 vpc=vpc,
+                vpc_subnets=ec2.SubnetSelection(
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
+                ),
                 allow_public_subnet=True,
                 handler="handler.handler",
                 memory_size=eovector_settings.memory,
