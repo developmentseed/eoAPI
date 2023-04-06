@@ -19,6 +19,4 @@ RUN find /asset -type d -a -name 'tests' -print0 | xargs -0 rm -rf
 
 COPY stack/handlers/vector_handler.py /asset/handler.py
 
-COPY src/eoapi/vector/custom /asset/eoapi_sql_functions
-
 CMD ["echo", "hello world"]

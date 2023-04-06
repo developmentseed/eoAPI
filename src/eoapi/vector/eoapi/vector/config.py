@@ -23,17 +23,3 @@ class ApiSettings(pydantic.BaseSettings):
 
         env_prefix = "EOAPI_VECTOR_"
         env_file = ".env"
-
-
-class TileSettings(pydantic.BaseSettings):
-    """MVT settings"""
-
-    resolution: int = 4096
-    buffer: int = 256
-    max_feature: int = 10000
-
-    class Config:
-        """model config"""
-
-        env_prefix = "EOAPI_MVT_"
-        env_file = ".env"

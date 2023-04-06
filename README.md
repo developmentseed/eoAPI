@@ -25,9 +25,8 @@
 `EOapi` is a combination of multiple elements:
 - [PgSTAC](https://github.com/stac-utils/pgstac) database
 - **STAC** API built on top of [stac-fastapi](https://github.com/stac-utils/stac-fastapi)
-- **Dynamic Raster Tile** API for STAC Items and Mosaic built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac)
-- **Dynamic Mapbox Vector Tile** API built on top of [timvt](https://github.com/developmentseed/timvt)
-- **OGC Features** API for `PgSTAC` following [Features REST API standard](http://docs.opengeospatial.org/is/17-069r3/17-069r3.html#_api_definition_2)
+- **STAC And Mosaic Raster Tiles** API built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac)
+- **OGC Features and Vector Tiles** API built on top of [tipg](https://github.com/developmentseed/tipg)
 
 The project's goal is to enable a full, but easy to deploy, Earth Observation API for Metadata search (STAC), Raster and Vector services.
 
@@ -63,11 +62,12 @@ The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](http
   <p align="center">TiTiler-PgSTAC workflow</p>
 </p>
 
-## Vector (Optional) [-> /src/eoapi/features](/src/eoapi/features)
+## Features/Vector Tiles (Optional) [-> /src/eoapi/features](/src/eoapi/features)
 
 OGC Features + Tiles API (https://github.com/developmentseed/tipg)
 
 By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions which connect to the PgSTAC schema:
+
 - **pg_temp.pgstac_collections_view**: Simple function which return PgSTAC Collections
 - **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
 - **pg_temp.pgstac_hash_count**: Return the number of items per geometry for a specific searchId (hash)

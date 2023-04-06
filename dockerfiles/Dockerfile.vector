@@ -6,8 +6,5 @@ COPY src/eoapi/vector /tmp/vector
 RUN pip install /tmp/vector
 RUN rm -rf /tmp/vector
 
-COPY src/eoapi/vector/custom /tmp/functions
-
 ENV MODULE_NAME eoapi.vector.app
 ENV VARIABLE_NAME app
-ENV TIPG_CUSTOM_SQL_DIRECTORY /tmp/functions

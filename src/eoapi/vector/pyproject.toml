@@ -19,7 +19,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "tipg @ git+https://github.com/developmentseed/tipg",
+    "tipg @ git+https://github.com/developmentseed/tipg.git@b0b14ce5ce67a7bb3bb7770fe3876937dea41244#egg=tipg",
 ]
 
 [project.optional-dependencies]

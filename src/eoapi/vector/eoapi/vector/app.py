@@ -11,14 +11,22 @@ from tipg.db import close_db_connection, connect_to_db, register_collection_cata
 from tipg.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from tipg.factory import Endpoints as TiPgEndpoints
 from tipg.middleware import CacheControlMiddleware
-from tipg.settings import DatabaseSettings, PostgresSettings
+from tipg.settings import PostgresSettings
 
 from eoapi.vector import __version__ as eoapi_vector_version
 from eoapi.vector.config import ApiSettings
 
+try:
+    from importlib.resources import files as resources_files  # type: ignore
+except ImportError:
+    # Try backported to PY<39 `importlib_resources`.
+    from importlib_resources import files as resources_files  # type: ignore
+
+
+CUSTOM_SQL_DIRECTORY = resources_files(__package__) / "sql"
+
 settings = ApiSettings()
 postgres_settings = PostgresSettings()
-db_settings = DatabaseSettings()
 
 app = FastAPI(
     title=settings.name,
@@ -39,7 +47,9 @@ templates = Jinja2Templates(  # type: ignore
 )
 
 # Register TiPg endpoints.
-endpoints = TiPgEndpoints(title=settings.name, templates=templates)
+endpoints = TiPgEndpoints(
+    title=settings.name, templates=templates, with_tiles_viewer=True
+)
 app.include_router(endpoints.router, tags=["OGC API"])
 
 # Set all CORS enabled origins
@@ -63,13 +73,18 @@ async def startup_event() -> None:
     await connect_to_db(
         app,
         settings=postgres_settings,
-        server_settings={"search_path": "pgstac,public", "application_name": "pgstac"},
+        # We enable both pgstac and public schemas (pgstac will be used by custom functions)
+        schemas=["pgstac", "public"],
+        user_sql_files=list(CUSTOM_SQL_DIRECTORY.glob("*.sql")),  # type: ignore
     )
     await register_collection_catalog(
         app,
+        # For the Tables' Catalog we only use the `public` schema
         schemas=["public"],
-        tables=db_settings.tables,
-        function_schemas=["pg_temp"],
+        # We exclude public functions
+        exclude_function_schemas=["public"],
+        # We allow non-spatial tables
+        spatial=False,
     )
 
 

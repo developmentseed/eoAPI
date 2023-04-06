@@ -5,7 +5,7 @@ services:
     container_name: eoapi.stac
     build:
       context: .
-      dockerfile: Dockerfile.stac
+      dockerfile: dockerfiles/Dockerfile.stac
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
@@ -47,7 +47,7 @@ services:
     platform: linux/amd64
     build:
       context: .
-      dockerfile: Dockerfile.raster
+      dockerfile: dockerfiles/Dockerfile.raster
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
@@ -98,7 +98,7 @@ services:
     container_name: eoapi.vector
     build:
       context: .
-      dockerfile: Dockerfile.vector
+      dockerfile: dockerfiles/Dockerfile.vector
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:

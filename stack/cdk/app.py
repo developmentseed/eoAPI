@@ -359,9 +359,6 @@ class eoAPIconstruct(Stack):
             if "DB_MAX_CONN_SIZE" not in env:
                 env["DB_MAX_CONN_SIZE"] = "1"
 
-            if "TIPG_CUSTOM_SQL_DIRECTORY" not in env:
-                env["TIPG_CUSTOM_SQL_DIRECTORY"] = "/var/task/eoapi_sql_functions"
-
             eovector_function = aws_lambda.Function(
                 self,
                 f"{id}-vector-lambda",
