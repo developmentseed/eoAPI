@@ -62,7 +62,7 @@ The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](http
   <p align="center">TiTiler-PgSTAC workflow</p>
 </p>
 
-## Features/Vector Tiles (Optional) [-> /src/eoapi/features](/src/eoapi/features)
+## Features/Vector Tiles (Optional) [-> /src/eoapi/vector](/src/eoapi/vector)
 
 OGC Features + Tiles API (https://github.com/developmentseed/tipg)
 

@@ -52,11 +52,11 @@ class BootstrappedDb(Construct):
             self,
             "DatabaseBootstrapper",
             handler="handler.handler",
-            runtime=aws_lambda.Runtime.PYTHON_3_9,
+            runtime=aws_lambda.Runtime.PYTHON_3_10,
             code=aws_lambda.Code.from_docker_build(
                 path=os.path.abspath("./"),
                 file="stack/dockerfiles/Dockerfile.db",
-                build_args={"PYTHON_VERSION": "3.9", "PGSTAC_VERSION": pgstac_version},
+                build_args={"PYTHON_VERSION": "3.10", "PGSTAC_VERSION": pgstac_version},
                 platform="linux/amd64",
             ),
             timeout=Duration.minutes(5),
@@ -217,12 +217,12 @@ class eoAPIconstruct(Stack):
             eoraster_function = aws_lambda.Function(
                 self,
                 f"{id}-raster-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_9,
+                runtime=aws_lambda.Runtime.PYTHON_3_10,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.raster",
                     build_args={
-                        "PYTHON_VERSION": "3.9",
+                        "PYTHON_VERSION": "3.10",
                     },
                     platform="linux/amd64",
                 ),
@@ -293,12 +293,12 @@ class eoAPIconstruct(Stack):
             eostac_function = aws_lambda.Function(
                 self,
                 f"{id}-stac-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_9,
+                runtime=aws_lambda.Runtime.PYTHON_3_10,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.stac",
                     build_args={
-                        "PYTHON_VERSION": "3.9",
+                        "PYTHON_VERSION": "3.10",
                     },
                     platform="linux/amd64",
                 ),
@@ -362,12 +362,12 @@ class eoAPIconstruct(Stack):
             eovector_function = aws_lambda.Function(
                 self,
                 f"{id}-vector-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_9,
+                runtime=aws_lambda.Runtime.PYTHON_3_10,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(code_dir),
                     file="stack/dockerfiles/Dockerfile.vector",
                     build_args={
-                        "PYTHON_VERSION": "3.9",
+                        "PYTHON_VERSION": "3.10",
                     },
                     platform="linux/amd64",
                 ),
