@@ -226,6 +226,7 @@
                 <button id='add-metadata' class='btn btn--stroke color-black round mt16 wmax180 w300-ml opacity75-on-hover disabled' title='Add'>
                   + Add Metadata
                 </button>
+                <p><a href="https://stac-utils.github.io/titiler-pgstac/advanced/metadata/" target="_blank"> Mosaic Metadata Specification<a></p>
               </div>
               <div id='mosaic-metadata'></div>
             </div>
@@ -470,7 +471,14 @@ document.getElementById('collection-select').addEventListener('change', () => {
 document.getElementById('btn-query').addEventListener('click', () => {
 
   // CQL2 query
-  body = {limit: scope.limit, 'filter-lang': 'cql2-json'}
+  body = {
+    'filter-lang': 'cql2-json',
+    metadata: {},
+  }
+
+  if (scope.collection_info) {
+    body.metadata.assets = Object.keys(scope.collection_info)
+  }
 
   filter = {op: 'and', args: []}
   // geom filter
@@ -479,8 +487,8 @@ document.getElementById('btn-query').addEventListener('click', () => {
     var feat = draws.features[0];
     filter.args.push({"op": "s_intersects", "args": [{"property": "geometry"}, feat.geometry]})
 
-    // We add the bbox in the query to be used by titiler-pgstac TileJSON endpoint
-    body.bbox = turf.bbox(feat);
+    // We add the bbox in the metadata to be used by titiler-pgstac TileJSON endpoint
+    body.metadata.bounds = turf.bbox(feat);
   }
 
   // date filters
