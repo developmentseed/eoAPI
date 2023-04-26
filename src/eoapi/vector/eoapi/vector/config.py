@@ -1,6 +1,5 @@
 """API settings."""
 
-from functools import lru_cache
 
 import pydantic
 

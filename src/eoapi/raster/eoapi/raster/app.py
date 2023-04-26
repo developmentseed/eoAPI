@@ -4,9 +4,11 @@ import logging
 from typing import Dict
 
 import pystac
-from fastapi import Depends, FastAPI, Query
+from fastapi import Depends, FastAPI, Path, Query
 from psycopg import OperationalError
+from psycopg.types.json import Jsonb
 from psycopg_pool import PoolTimeout
+from rio_tiler.io import STACReader
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
@@ -59,6 +61,55 @@ mosaic = MosaicTilerFactory(
     add_map_viewer=True,
     add_mosaic_list=True,
 )
+
+
+@mosaic.router.get("/builder", response_class=HTMLResponse)
+async def mosaic_builder_ui(request: Request):
+    """Mosaic Builder Viewer."""
+    # TO DO: implement paging
+    with request.app.state.dbpool.connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT * FROM collections;",
+            )
+            collections = [t[2] for t in cursor.fetchall() if t]
+
+    return templates.TemplateResponse(
+        name="mosaic-builder.html",
+        context={
+            "request": request,
+            "register_endpoint": mosaic.url_for(request, "register_search"),
+            "collection_endpoint": str(
+                request.url_for(
+                    "get_asset_collection_info", collectionId="${collection}"
+                )
+            ),
+            "collections": collections,
+        },
+        media_type="text/html",
+    )
+
+
+# `Secret` endpoint for mosaic builder. Do not need to be public (in the OpenAPI docs)
+@app.get("/collections/{collectionId}/assets/metadata", include_in_schema=False)
+async def get_asset_collection_info(request: Request, collectionId: str = Path()):
+    """Collection asset metadata."""
+    with request.app.state.dbpool.connection() as conn:
+        with conn.cursor() as cursor:
+            args = {
+                "collections": [collectionId],
+                "limit": 1,
+            }
+            cursor.execute("SELECT * FROM search(%s);", (Jsonb(args),))
+            items = cursor.fetchone()[0].get("features", [])
+
+    if items:
+        with STACReader(None, items[0]) as stac:
+            return stac.info()
+
+    return {}
+
+
 app.include_router(mosaic.router, tags=["Mosaic"], prefix="/mosaic")
 
 ###############################################################################

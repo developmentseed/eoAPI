@@ -1,6 +1,5 @@
 """tipg app."""
 
-from typing import Any, List
 
 import jinja2
 from fastapi import FastAPI, Request
