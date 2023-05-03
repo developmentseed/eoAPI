@@ -4,6 +4,8 @@ import logging
 from typing import Dict
 
 import pystac
+from eoapi.raster.config import ApiSettings
+from eoapi.raster.version import __version__ as eoapi_raster_version
 from fastapi import Depends, FastAPI, Query
 from psycopg import OperationalError
 from psycopg_pool import PoolTimeout
@@ -21,9 +23,6 @@ from titiler.pgstac.db import close_db_connection, connect_to_db
 from titiler.pgstac.dependencies import ItemPathParams
 from titiler.pgstac.factory import MosaicTilerFactory
 from titiler.pgstac.reader import PgSTACReader
-
-from eoapi.raster.config import ApiSettings
-from eoapi.raster.version import __version__ as eoapi_raster_version
 
 try:
     from importlib.resources import files as resources_files  # type: ignore

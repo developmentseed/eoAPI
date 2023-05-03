@@ -3,6 +3,8 @@
 from typing import Any, List
 
 import jinja2
+from eoapi.vector import __version__ as eoapi_vector_version
+from eoapi.vector.config import ApiSettings
 from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 from starlette.templating import Jinja2Templates
@@ -12,9 +14,6 @@ from tipg.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from tipg.factory import Endpoints as TiPgEndpoints
 from tipg.middleware import CacheControlMiddleware
 from tipg.settings import PostgresSettings
-
-from eoapi.vector import __version__ as eoapi_vector_version
-from eoapi.vector.config import ApiSettings
 
 try:
     from importlib.resources import files as resources_files  # type: ignore

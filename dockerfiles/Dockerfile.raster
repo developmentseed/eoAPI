@@ -6,7 +6,7 @@ ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 RUN pip install psycopg[binary,pool]
 
-COPY src/eoapi/raster /tmp/raster
+COPY runtime/eoapi/raster /tmp/raster
 RUN pip install /tmp/raster
 RUN rm -rf /tmp/raster
 

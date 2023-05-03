@@ -38,7 +38,7 @@ services:
     command:
       bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
-      - ./scripts:/tmp/scripts
+      - ./dockerfiles/scripts:/tmp/scripts
 
   raster:
     container_name: eoapi.raster
@@ -92,7 +92,7 @@ services:
     command:
       bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
-      - ./scripts:/tmp/scripts
+      - ./dockerfiles/scripts:/tmp/scripts
 
   vector:
     container_name: eoapi.vector
@@ -124,7 +124,7 @@ services:
     depends_on:
       - database
     volumes:
-      - ./scripts:/tmp/scripts
+      - ./dockerfiles/scripts:/tmp/scripts
 
   database:
     container_name: eoapi.db

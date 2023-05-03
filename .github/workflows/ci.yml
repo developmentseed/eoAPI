@@ -42,8 +42,8 @@ jobs:
         run: |
           python -m pip install pytest pytest-asyncio httpx pypgstac==0.7.1 psycopg[pool] brotlipy requests boto3 pytest-pgsql psycopg2
 
-      - name: CDK DB Bootstrap tests
-        working-directory: ./stack
+      - name: Test CDK DB Bootstrap
+        working-directory: ./infrastructure/aws
         run: |
           python -m pytest tests/test_bootstrap.py -v -ss
 
@@ -54,6 +54,7 @@ jobs:
           pypgstac load items .github/workflows/data/noaa-eri-nashville2020.json --dsn postgresql://username:password@0.0.0.0:5439/postgis --method insert_ignore
           psql postgresql://username:password@0.0.0.0:5439/postgis -f .github/workflows/data/my_data.sql
 
+      # see https://github.com/developmentseed/tipg/issues/37
       - name: Restart the Vector service
         run: |
           docker-compose stop vector
