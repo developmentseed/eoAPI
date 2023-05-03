@@ -4,7 +4,7 @@ FROM ghcr.io/vincentsarago/uvicorn-gunicorn:${PYTHON_VERSION}
 
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
-COPY src/eoapi/stac /tmp/stac
+COPY runtime/eoapi/stac /tmp/stac
 RUN pip install /tmp/stac
 RUN rm -rf /tmp/stac
 

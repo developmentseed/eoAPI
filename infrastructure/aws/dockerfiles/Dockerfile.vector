@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
@@ -7,7 +7,7 @@ RUN yum install -y git
 WORKDIR /tmp
 RUN python -m pip install pip -U
 
-COPY src/eoapi/vector /tmp/vector
+COPY runtime/eoapi/vector /tmp/vector
 RUN python -m pip install "mangum>=0.14,<0.15" /tmp/vector -t /asset --no-binary pydantic
 RUN rm -rf /tmp/vector
 
@@ -17,6 +17,6 @@ RUN cd /asset && find . -type d -a -name '__pycache__' -print0 | xargs -0 rm -rf
 RUN cd /asset && find . -type f -a -name '*.py' -print0 | xargs -0 rm -f
 RUN find /asset -type d -a -name 'tests' -print0 | xargs -0 rm -rf
 
-COPY stack/handlers/vector_handler.py /asset/handler.py
+COPY infrastructure/aws/handlers/vector_handler.py /asset/handler.py
 
 CMD ["echo", "hello world"]

@@ -4,9 +4,8 @@ import asyncio
 import logging
 import os
 
-from mangum import Mangum
-
 from eoapi.raster.app import app
+from mangum import Mangum
 
 logging.getLogger("mangum.lifespan").setLevel(logging.ERROR)
 logging.getLogger("mangum.http").setLevel(logging.ERROR)

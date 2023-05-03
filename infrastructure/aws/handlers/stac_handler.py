@@ -4,9 +4,8 @@ import asyncio
 import logging
 import os
 
+from eoapi.stac.app import app
 from mangum import Mangum
-
-from eoapi.vector.app import app
 
 logging.getLogger("mangum.lifespan").setLevel(logging.ERROR)
 logging.getLogger("mangum.http").setLevel(logging.ERROR)

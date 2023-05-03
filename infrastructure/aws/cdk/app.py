@@ -43,6 +43,7 @@ class BootstrappedDb(Construct):
         pgstac_version: str,
         enable_context: bool = False,
         enable_mosaic_index: bool = False,
+        context_dir: str = "../../",
     ) -> None:
         """Update RDS database."""
         super().__init__(scope, id)
@@ -54,8 +55,8 @@ class BootstrappedDb(Construct):
             handler="handler.handler",
             runtime=aws_lambda.Runtime.PYTHON_3_10,
             code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath("./"),
-                file="stack/dockerfiles/Dockerfile.db",
+                path=os.path.abspath(context_dir),
+                file="infrastructure/aws/dockerfiles/Dockerfile.db",
                 build_args={"PYTHON_VERSION": "3.10", "PGSTAC_VERSION": pgstac_version},
                 platform="linux/amd64",
             ),
@@ -127,7 +128,7 @@ class eoAPIconstruct(Stack):
         id: str,
         stage: str,
         name: str,
-        code_dir: str = "./",
+        context_dir: str = "../../",
         **kwargs: Any,
     ) -> None:
         """Define stack."""
@@ -180,6 +181,7 @@ class eoAPIconstruct(Stack):
             pgstac_version=eodb_settings.pgstac_version,
             enable_context=eodb_settings.context,
             enable_mosaic_index=eodb_settings.mosaic_index,
+            context_dir=context_dir,
         )
 
         CfnOutput(
@@ -219,8 +221,8 @@ class eoAPIconstruct(Stack):
                 f"{id}-raster-lambda",
                 runtime=aws_lambda.Runtime.PYTHON_3_10,
                 code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(code_dir),
-                    file="stack/dockerfiles/Dockerfile.raster",
+                    path=os.path.abspath(context_dir),
+                    file="infrastructure/aws/dockerfiles/Dockerfile.raster",
                     build_args={
                         "PYTHON_VERSION": "3.10",
                     },
@@ -295,8 +297,8 @@ class eoAPIconstruct(Stack):
                 f"{id}-stac-lambda",
                 runtime=aws_lambda.Runtime.PYTHON_3_10,
                 code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(code_dir),
-                    file="stack/dockerfiles/Dockerfile.stac",
+                    path=os.path.abspath(context_dir),
+                    file="infrastructure/aws/dockerfiles/Dockerfile.stac",
                     build_args={
                         "PYTHON_VERSION": "3.10",
                     },
@@ -364,8 +366,8 @@ class eoAPIconstruct(Stack):
                 f"{id}-vector-lambda",
                 runtime=aws_lambda.Runtime.PYTHON_3_10,
                 code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(code_dir),
-                    file="stack/dockerfiles/Dockerfile.vector",
+                    path=os.path.abspath(context_dir),
+                    file="infrastructure/aws/dockerfiles/Dockerfile.vector",
                     build_args={
                         "PYTHON_VERSION": "3.10",
                     },
