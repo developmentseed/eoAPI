@@ -5,17 +5,23 @@ Issues and pull requests are more than welcome: https://github.com/developmentse
 **dev install**
 
 ```bash
-$ git clone https://github.com/developmentseed/eoAPI.git
-$ cd eoAPI
-$ pip install \
-   pre-commit \
-   -e src/eoapi/stac["test"] \
-   -e src/eoapi/tiler["test"] \
+# Download the code
+git clone https://github.com/developmentseed/eoAPI.git
+cd eoAPI
+
+# Create a virtual environment
+python -m pip install --upgrade virtualenv
+virtualenv .venv
+source .venv/bin/activate
+
+# Install eoapi modules
+python -m pip install "psycopg[binary,pool]"
+python -m pip install -e runtime/eoapi/raster["test"] -e runtime/eoapi/stac["test"] -e runtime/eoapi/vector["test"]
 ```
 
 **pre-commit**
 
-This repo is set to use `pre-commit` to run *isort*, *flake8*, *pydocstring*, *black* ("uncompromising Python code formatter") and mypy when committing new code.
+This repo is set to use `pre-commit` to run *isort*, *ruff*, *pydocstring*, *black* ("uncompromising Python code formatter") and mypy when committing new code.
 
 ```bash
 $ pre-commit install

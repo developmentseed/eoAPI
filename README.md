@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/10407788/129632832-fe6f7d80-4d87-463a-b0cc-305423a8489e.png"/>
+  <img width="500" src="https://user-images.githubusercontent.com/10407788/236027555-028677fd-c146-4b92-b874-a0a4027caaef.png"/>
   <p align="center">Create a full Earth Observation API with Metadata, Raster and Vector services.</p>
 </p>
 
@@ -14,6 +14,8 @@
 </p>
 
 ---
+
+**Documentation**: <a href="https://developmentseed.org/eoapi/" target="_blank">https://developmentseed.org/eoapi/</a>
 
 **Source Code**: <a href="https://github.com/developmentseed/eoAPI" target="_blank">https://github.com/developmentseed/eoAPI</a>
 
@@ -38,9 +40,9 @@ Note: Each service can be used/deployed independently but **eoAPI** also adds in
 
 ## Services
 
-### STAC -> [/src/eoapi/stac](/src/eoapi/stac)
+### STAC Metadata
 
-A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
+A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
 
 - Full **stac-fastapi** implementation
 
@@ -58,9 +60,11 @@ A custom version of [stac-fastapi](https://github.com/stac-utils/stac-fastapi), 
   <p align="center">STAC Search viewer</p>
 </p>
 
+Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/master/runtime/eoapi/stac)
+
 ---
 
-### Raster -> [/src/eoapi/raster](/src/eoapi/raster)
+### Raster Tiles
 
 The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
 
@@ -71,11 +75,13 @@ The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](http
   <p align="center">TiTiler-PgSTAC workflow</p>
 </p>
 
+Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/master/runtime/eoapi/raster)
+
 ---
 
-### OGC Features / Tiles (Optional) [-> /src/eoapi/vector](/src/eoapi/vector)
+### OGC Features / Vector Tiles
 
-OGC Features + Tiles API (https://github.com/developmentseed/tipg)
+OGC Features + Tiles API built on top of [tipg](https://github.com/developmentseed/tipg).
 
 By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions which connect to the pgSTAC schema:
 
@@ -83,7 +89,8 @@ By default, the API will look for tables in the `public` schema of the database.
 - **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
 - **pg_temp.pgstac_hash_count**: Return the number of items per geometry for a specific searchId (hash)
 
----
+Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/master/runtime/eoapi/vector)
+
 ---
 
 ## Project structure
@@ -130,7 +137,7 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 
 ## Deployment
 
-See [DEPLOYMENT.md](/infrastructure/DEPLOYMENT.md)
+See [DEPLOYMENT.md](https://github.com/developmentseed/eoAPI/blob/master/infrastructure/DEPLOYMENT.md)
 
 ## Contribution & Development
 
