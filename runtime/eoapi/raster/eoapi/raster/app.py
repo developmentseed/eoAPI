@@ -4,8 +4,8 @@ import logging
 from typing import Dict
 
 import pystac
+from eoapi.raster import __version__ as eoapi_raster_version
 from eoapi.raster.config import ApiSettings
-from eoapi.raster.version import __version__ as eoapi_raster_version
 from fastapi import Depends, FastAPI, Query
 from psycopg import OperationalError
 from psycopg_pool import PoolTimeout

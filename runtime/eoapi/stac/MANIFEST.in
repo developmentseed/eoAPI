@@ -1,4 +1,0 @@
-include eoapi/stac/templates/*.html
-
-recursive-exclude tests *
-

@@ -107,6 +107,27 @@ docker-compose build
 docker-compose up stac raster
 ```
 
+Or install everything locally
+```
+python -m pip install --upgrade virtualenv
+virtualenv .venv
+source .venv/bin/activate
+
+python -m pip install "psycopg[binary,pool]" uvicorn
+python -m pip install runtime/eoapi/raster runtime/eoapi/stac runtime/eoapi/vector
+
+export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Connect to the database of your choice
+
+# OGC Features/Tiles
+.venv/bin/uvicorn eoapi.vector.app:app --port 8000 --reload
+
+# Raster
+.venv/bin/uvicorn eoapi.raster.app:app --port 8000 --reload
+
+# STAC
+.venv/bin/uvicorn eoapi.stac.app:app --port 8000 --reload
+```
+
 ## Deployment
 
 See [DEPLOYMENT.md](/infrastructure/DEPLOYMENT.md)
