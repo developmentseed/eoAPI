@@ -8,7 +8,7 @@
   <a href="https://github.com/developmentseed/eoAPI/actions?query=workflow%3ACI" target="_blank">
       <img src="https://github.com/developmentseed/eoAPI/workflows/CI/badge.svg" alt="Test">
   </a>
-  <a href="https://github.com/developmentseed/eoAPI/blob/master/LICENSE" target="_blank">
+  <a href="https://github.com/developmentseed/eoAPI/blob/main/LICENSE" target="_blank">
       <img src="https://img.shields.io/github/license/developmentseed/titiler.svg" alt="Downloads">
   </a>
 </p>
@@ -50,7 +50,7 @@ A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fas
 
 - **Proxy** to the Tiler endpoint for STAC Items
 
-  When `TITILER_ENDPOINT` environement is set (pointing the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/master/src/eoapi/stac/eoapi/stac/extension.py)):
+  When `TITILER_ENDPOINT` environement is set (pointing the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/main/src/eoapi/stac/eoapi/stac/extension.py)):
 
   - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an item
   - `/collections/{collectionId}/items/{itemId}/viewer`: Redirect to the `raster` viewer
@@ -60,7 +60,7 @@ A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fas
   <p align="center">STAC Search viewer</p>
 </p>
 
-Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/master/runtime/eoapi/stac)
+Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/stac)
 
 ---
 
@@ -75,7 +75,7 @@ The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](http
   <p align="center">TiTiler-PgSTAC workflow</p>
 </p>
 
-Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/master/runtime/eoapi/raster)
+Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/raster)
 
 ---
 
@@ -89,7 +89,7 @@ By default, the API will look for tables in the `public` schema of the database.
 - **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
 - **pg_temp.pgstac_hash_count**: Return the number of items per geometry for a specific searchId (hash)
 
-Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/master/runtime/eoapi/vector)
+Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/vector)
 
 ---
 
@@ -137,15 +137,15 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 
 ## Deployment
 
-See [DEPLOYMENT.md](https://github.com/developmentseed/eoAPI/blob/master/infrastructure/DEPLOYMENT.md)
+See [DEPLOYMENT.md](https://github.com/developmentseed/eoAPI/blob/main/infrastructure/DEPLOYMENT.md)
 
 ## Contribution & Development
 
-See [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/master/CONTRIBUTING.md)
+See [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md)
 
 ## License
 
-See [LICENSE](https://github.com/developmentseed/eoAPI/blob/master/LICENSE)
+See [LICENSE](https://github.com/developmentseed/eoAPI/blob/main/LICENSE)
 
 ## Authors
 
@@ -155,4 +155,4 @@ See [contributors](https://github.com/developmentseed/eoAPI/graphs/contributors)
 
 ## Changes
 
-See [CHANGES.md](https://github.com/developmentseed/eoAPI/blob/master/CHANGES.md).
+See [CHANGES.md](https://github.com/developmentseed/eoAPI/blob/main/CHANGES.md).
