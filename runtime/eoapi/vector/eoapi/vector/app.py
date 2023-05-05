@@ -1,6 +1,5 @@
 """tipg app."""
 
-from typing import Any, List
 
 import jinja2
 from eoapi.vector import __version__ as eoapi_vector_version
