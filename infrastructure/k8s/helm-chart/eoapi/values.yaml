@@ -50,7 +50,7 @@ stac:
         memory: "256Mi"
 
 vector:
-  enabled: false
+  enabled: true
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
