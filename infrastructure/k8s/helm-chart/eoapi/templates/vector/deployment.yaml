@@ -22,7 +22,7 @@ spec:
         app: vector-{{ .Values.gitSha }}
     spec:
       containers:
-      - image: ghcr.io/vincentsarago/uvicorn-gunicorn:3.11
+      - image: {{ .Values.vector.image.name }}:{{ .Values.vector.image.tag }}
         name: vector
         ports:
           - containerPort: 8080

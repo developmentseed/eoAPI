@@ -64,6 +64,9 @@ vector:
         memory: "256Mi"
     envVars:
       TIPG_CATALOG_TTL: "0"
+  image:
+    name: public.ecr.aws/i8x6m1u9/tipg
+    tag: 2023-05-15
 
 # this feels more IAC related, not sure if we need this
 # crosswalk where `eoAPI/infrastructure/aws/cdk/config.py:eoDBSettings` is used in app
