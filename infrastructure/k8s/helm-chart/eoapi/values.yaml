@@ -1,6 +1,12 @@
 # Default values for eoapi.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+# to pass this in during `helm install` or `helm install` do:
+# $ GIT-SHA=$(git rev-parse HEAD)
+# $ helm install --set git-sha=$GIT-SHA ./eoapi
+gitSha: ""
+
 raster:
   enabled: false
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
@@ -14,9 +20,9 @@ raster:
       requests:
         cpu: "256m"
         memory: "3072Mi"
-    env-vars:
+    envVars:
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
-      GDAL_CACHEMAX: "200",  # 200 mb
+      GDAL_CACHEMAX: "200"  # 200 mb
       GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
       GDAL_INGESTED_BYTES_AT_OPEN: "32768"
       GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: "YES"
@@ -24,7 +30,7 @@ raster:
       GDAL_HTTP_VERSION: "2"
       PYTHONWARNINGS: "ignore"
       VSI_CACHE: "TRUE"
-      VSI_CACHE_SIZE: "5000000",  # 5 MB (per file-handle)
+      VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
       DB_MIN_CONN_SIZE: "1"
       DB_MAX_CONN_SIZE: "1"
 
@@ -56,6 +62,8 @@ vector:
       requests:
         cpu: "256m"
         memory: "256Mi"
+    envVars:
+      TIPG_CATALOG_TTL: "0"
 
 # this feels more IAC related, not sure if we need this
 # crosswalk where `eoAPI/infrastructure/aws/cdk/config.py:eoDBSettings` is used in app

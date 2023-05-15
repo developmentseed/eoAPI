@@ -1,0 +1,39 @@
+{{- if .Values.vector.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: vector-{{ .Values.gitSha }}
+  name: vector-{{ .Values.gitSha }}
+spec:
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: vector-{{ .Values.gitSha }}
+  template:
+    metadata:
+      labels:
+        app: vector-{{ .Values.gitSha }}
+    spec:
+      containers:
+      - image: ghcr.io/vincentsarago/uvicorn-gunicorn:3.11
+        name: vector
+        ports:
+          - containerPort: 8080
+        resources: {{ .Values.vector.settings.resources }}
+        env:
+          {{- range $envKey, $_ := .Values.vector.settings.envVars }}
+          - name: {{ upper $envKey }}
+            valueFrom:
+              configMapKeyRef:
+                name: vector-configmap
+                key: {{ $envKey }}
+          {{- end }}
+status: {}
+{{- end }}
