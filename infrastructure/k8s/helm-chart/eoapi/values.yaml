@@ -14,7 +14,7 @@ raster:
       requests:
         cpu: "256m"
         memory: "3072Mi"
-    env-vars:
+    envVars:
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
       GDAL_CACHEMAX: "200",  # 200 mb
       GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
