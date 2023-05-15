@@ -73,7 +73,7 @@ spec:
             - name: {{ upper $envKey }}
               valueFrom:
                 configMapKeyRef:
-                  name: vector-configmap
+                  name: pgstac-env-configmap
                   key: {{ upper $envKey }}
             {{- end }}
           ports:
