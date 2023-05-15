@@ -1,0 +1,26 @@
+name: build-docker-images
+
+on: workflow_dispatch
+
+jobs:
+  build-images:
+    strategy:
+      fail-fast: false
+      matrix:
+        IMAGE: [ Dockerfile.raster, Dockerfile.stac, Dockerfile.vector ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: github checkout action
+        uses: actions/checkout@main
+
+      - name: login to ghcr.io
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build and push images
+        run: |
+          docker build --tag ghcr.io/ranchodeluxe/${{ matrix.IMAGE }}:latest -f ./dockerfiles/${{ matrix.IMAGE }} .
+          docker push ghcr.io/ranchodeluxe/${{ matrix.IMAGE }}:latest
