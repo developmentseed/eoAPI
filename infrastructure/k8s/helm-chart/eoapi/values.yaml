@@ -63,19 +63,47 @@ vector:
         cpu: "256m"
         memory: "256Mi"
     envVars:
+      ##############
+      # tipg
       TIPG_CATALOG_TTL: "0"
+      ##############
+      # application
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      ##############
+      # uvicorn-gunicorn
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      WEB_CONCURRENCY: "10"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
+      # WORKERS_PER_CORE: "1"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # MAX_WORKERS: "10"
+      ##############
+      # postgresql
+      POSTGRES_USER: "username"
+      POSTGRES_PASS: "password"
+      POSTGRES_DBNAME: "postgis"
+      POSTGRES_HOST: "pgstac"
+      POSTGRES_PORT: "5432"
+      DB_MIN_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
   image:
-    name: public.ecr.aws/i8x6m1u9/tipg
-    tag: 2023-05-15
+    name: ghcr.io/ranchodeluxe/vector
+    tag: latest
 
-# this feels more IAC related, not sure if we need this
-# crosswalk where `eoAPI/infrastructure/aws/cdk/config.py:eoDBSettings` is used in app
 db:
   enabled: true
-
-service:
-  type: ClusterIP
-  port: 80
+  sql:
+    countries: './files/countries.sql'
+  settings:
+    envVars:
+      POSTGRES_DB: "postgis"
+      POSTGRES_USER: "username"
+      POSTGRES_PASSWORD: "password"
+      PGPASSWORD: "password"
+      PGUSER: "username"
+      PGDATABASE: "postgis"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
 
 ingress:
   enabled: false

@@ -5,6 +5,6 @@ metadata:
   name: vector-configmap
 data:
   {{- range $envKey, $envValue := .Values.vector.settings.envVars }}
-  {{ upper $envKey }}: {{ $envValue }}
+  {{ upper $envKey }}: "{{ $envValue }}"
   {{- end }}
 {{- end }}
