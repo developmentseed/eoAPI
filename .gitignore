@@ -106,3 +106,5 @@ cdk.out/
 node_modules/
 
 .pgdata
+
+.idea/
