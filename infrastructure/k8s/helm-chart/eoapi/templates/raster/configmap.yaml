@@ -1,0 +1,10 @@
+{{- if .Values.raster.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: raster-configmap
+data:
+  {{- range $envKey, $envValue := .Values.raster.settings.envVars }}
+  {{ upper $envKey }}: {{ $envValue }}
+  {{- end }}
+{{- end }}

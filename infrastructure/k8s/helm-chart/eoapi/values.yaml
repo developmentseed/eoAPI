@@ -58,6 +58,9 @@ raster:
       VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
       DB_MIN_CONN_SIZE: "1"
       DB_MAX_CONN_SIZE: "1"
+  image:
+    name: ghcr.io/developmentseed/titiler
+    tag: latest
 
 
 stac:
