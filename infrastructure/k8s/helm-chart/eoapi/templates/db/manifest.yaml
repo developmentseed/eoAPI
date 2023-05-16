@@ -1,14 +1,3 @@
-# TODO: let's mount some fixtures this way
-{{- if not (eq .Values.platform_environment "production") -}}
-#apiVersion: v1
-#kind: ConfigMap
-#metadata:
-#  name: pgdata-configmap
-#data:
-#  countries: |
-#  {{- $.Files.Get .Values.db.sql.countries | nindent 4 }}
-{{- end }}
----
 apiVersion: v1
 kind: ConfigMap
 metadata:

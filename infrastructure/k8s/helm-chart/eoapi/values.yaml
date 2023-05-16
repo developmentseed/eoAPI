@@ -161,8 +161,7 @@ vector:
 
 db:
   enabled: true
-  sql:
-    countries: './files/countries.sql'
+  load_sql: true
   settings:
     envVars: *DB_SETTINGS_ANCHOR
 
