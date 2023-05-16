@@ -164,17 +164,10 @@ vector:
 
 db:
   enabled: true
-<<<<<<< HEAD
   sql:
     countries: './files/countries.sql'
   settings:
     envVars: *DB_SETTINGS_ANCHOR
-=======
-
-service:
-  type: NodePort
-  port: 80
->>>>>>> Experimenting
 
 
 
