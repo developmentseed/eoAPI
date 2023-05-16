@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   name: raster-envvar-configmap
 data:
-  {{- range $envKey, $envValue := .Values.stac.settings.envVars }}
+  {{- range $envKey, $envValue := .Values.raster.settings.envVars }}
   {{ upper $envKey }}: "{{ $envValue }}"
   {{- end }}
 ---
@@ -13,8 +13,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: stac-{{ .Values.gitSha }}
-  name: stac-{{ .Values.gitSha }}
+    app: raster-{{ .Values.gitSha }}
+  name: raster-{{ .Values.gitSha }}
 spec:
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 5
