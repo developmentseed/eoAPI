@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+# Default values for eoapi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+>>>>>>> Experimenting
 # default values for eoapi.
 
 # to pass `gitSha` in during `helm template` or `helm install` do:
@@ -10,6 +17,7 @@ gitSha: ""
 # dev-or-sandbox-like environment
 platform_environment: "dev"
 
+<<<<<<< HEAD
 # TODO: secret management for "production"
 POSTGRES_DB: &POSTGRES_DB_ANCHOR "postgis"
 POSTGRES_USER: &POSTGRES_USER_ANCHOR "username"
@@ -32,8 +40,10 @@ DB_SETTINGS: &DB_SETTINGS_ANCHOR
   PGPORT: *POSTGRES_PORT_ANCHOR
 
 
+=======
+>>>>>>> Experimenting
 raster:
-  enabled: false
+  enabled: true
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -41,10 +51,14 @@ raster:
     resources:
       limits:
         cpu: "512m"
-        memory: "4096Mi"
+        memory: "4096M"
       requests:
         cpu: "256m"
+<<<<<<< HEAD
         memory: "3072Mi"
+=======
+        memory: "3072M"
+>>>>>>> Experimenting
     envVars:
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
       GDAL_CACHEMAX: "200"  # 200 mb
@@ -59,7 +73,7 @@ raster:
       DB_MIN_CONN_SIZE: "1"
       DB_MAX_CONN_SIZE: "1"
   image:
-    name: ghcr.io/developmentseed/titiler
+    name: ghcr.io/ranchodeluxe/raster
     tag: latest
 
 
@@ -164,10 +178,19 @@ vector:
 
 db:
   enabled: true
+<<<<<<< HEAD
   sql:
     countries: './files/countries.sql'
   settings:
     envVars: *DB_SETTINGS_ANCHOR
+=======
+
+service:
+  type: NodePort
+  port: 80
+>>>>>>> Experimenting
+
+
 
 ingress:
   enabled: false

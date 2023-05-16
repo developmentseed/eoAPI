@@ -3,8 +3,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: raster-{{ .Values.gitSha }}
-  name: raster-{{ .Values.gitSha }}
+    app: raster-ividito
+  name: raster-ividito
 spec:
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 5
@@ -26,7 +26,13 @@ spec:
         name: raster
         ports:
           - containerPort: 8080
-        resources: {{ .Values.raster.settings.resources }}
+        resources:
+          limits:
+            cpu: "512m"
+            memory: "4096M"
+          requests:
+            cpu: "256m"
+            memory: "3072M"
         env:
           # NOTE: there's no reason we need to use a `ConfigMap` here to get os env vars into the pod.
           # we could just template them out here immediately with `value: $_` but this allows us
