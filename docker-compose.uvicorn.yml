@@ -1,0 +1,105 @@
+version: '3'
+
+services:
+  stac-uvicorn:
+    container_name: eoapi.stac-uvicorn
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.stac-uvicorn
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8081
+      - HOST=0.0.0.0
+      - PORT=8081
+      - ENVIRONMENT=local
+      # Postgres connection
+      - POSTGRES_USER=username
+      - POSTGRES_PASS=password
+      - POSTGRES_DBNAME=postgis
+      - POSTGRES_HOST_READER=database
+      - POSTGRES_HOST_WRITER=database
+      - POSTGRES_PORT=5432
+      - DB_MIN_CONN_SIZE=1
+      - DB_MAX_CONN_SIZE=10
+      # https://github.com/developmentseed/eoAPI/issues/16
+      # - TITILER_ENDPOINT=raster
+      - TITILER_ENDPOINT=http://127.0.0.1:8082
+    depends_on:
+      - database
+      - raster-uvicorn
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.stac.app:app --host 0.0.0.0 --port 8081"
+    volumes:
+      - ./dockerfiles/scripts:/tmp/scripts
+
+  raster-uvicorn:
+    container_name: eoapi.raster-uvicorn
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.raster-uvicorn
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
+    environment:
+      # Application
+      - HOST=0.0.0.0
+      - PORT=8082
+      # Postgres connection
+      - POSTGRES_USER=username
+      - POSTGRES_PASS=password
+      - POSTGRES_DBNAME=postgis
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - DB_MIN_CONN_SIZE=1
+      - DB_MAX_CONN_SIZE=10
+      # GDAL Config
+      - CPL_TMPDIR=/tmp
+      - GDAL_CACHEMAX=75%
+      - GDAL_INGESTED_BYTES_AT_OPEN=32768
+      - GDAL_DISABLE_READDIR_ON_OPEN=EMPTY_DIR
+      - GDAL_HTTP_MERGE_CONSECUTIVE_RANGES=YES
+      - GDAL_HTTP_MULTIPLEX=YES
+      - GDAL_HTTP_VERSION=2
+      - VSI_CACHE=TRUE
+      - VSI_CACHE_SIZE=536870912
+      # TiTiler Config
+      - MOSAIC_CONCURRENCY=1
+      # AWS S3 endpoint config
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # API Config
+      - EOAPI_RASTER_ENABLE_MOSAIC_SEARCH=TRUE
+    depends_on:
+      - database
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.raster.app:app --host 0.0.0.0 --port 8082"
+    volumes:
+      - ./dockerfiles/scripts:/tmp/scripts
+
+  vector-uvicorn:
+    container_name: eoapi.vector-uvicorn
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.vector-uvicorn
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
+    environment:
+      # Application
+      - HOST=0.0.0.0
+      - PORT=8083
+      # Postgres connection
+      - POSTGRES_USER=username
+      - POSTGRES_PASS=password
+      - POSTGRES_DBNAME=postgis
+      - POSTGRES_HOST=database
+      - POSTGRES_PORT=5432
+      - DB_MIN_CONN_SIZE=1
+      - DB_MAX_CONN_SIZE=10
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.vector.app:app --host 0.0.0.0 --port 8083"
+    depends_on:
+      - database
+    volumes:
+      - ./dockerfiles/scripts:/tmp/scripts
