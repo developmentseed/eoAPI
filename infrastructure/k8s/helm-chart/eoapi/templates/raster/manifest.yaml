@@ -1,0 +1,72 @@
+{{- if .Values.raster.enabled -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: raster-envvar-configmap
+data:
+  {{- range $envKey, $envValue := .Values.stac.settings.envVars }}
+  {{ upper $envKey }}: "{{ $envValue }}"
+  {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stac-{{ .Values.gitSha }}
+  name: stac-{{ .Values.gitSha }}
+spec:
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: raster-{{ .Values.gitSha }}
+  template:
+    metadata:
+      labels:
+        app: raster-{{ .Values.gitSha }}
+    spec:
+      containers:
+      - image: {{ .Values.raster.image.name }}:{{ .Values.raster.image.tag }}
+        name: raster
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: "512m"
+            memory: "4096M"
+          requests:
+            cpu: "256m"
+            memory: "3072M"
+        env:
+          # NOTE: there's no reason we need to use a `ConfigMap` here to get os env vars into the pod.
+          # we could just template them out here immediately with `value: $_` but this allows us
+          # to store them in k8s intermediately and change them and then bounce deploys if needed
+          {{- range $envKey, $_ := .Values.raster.settings.envVars }}
+          - name: {{ upper $envKey }}
+            valueFrom:
+              configMapKeyRef:
+                name: raster-envvar-configmap
+                key: {{ $envKey }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: raster-{{ .Values.gitSha }}
+  name: raster
+spec:
+  type: 'NodePort'
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: raster-{{ .Values.gitSha }}
+{{- end }}
