@@ -1,11 +1,32 @@
-# Default values for eoapi.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# default values for eoapi.
 
-# to pass this in during `helm install` or `helm install` do:
-# $ GIT-SHA=$(git rev-parse HEAD)
-# $ helm install --set git-sha=$GIT-SHA ./eoapi
+# to pass `gitSha` in during `helm template` or `helm install` do:
+# $ helm install --set gitSha=$(git rev-parse HEAD) ./eoapi
+# $ helm template . -s template/vector/deployment.yaml -f values.yaml --set gitSha=$(git rev-parse HEAD)
 gitSha: ""
+
+# switches rendering output based on value "production" ONLY
+# otherwise any string will do and spin up a
+# dev-or-sandbox-like environment
+platform_environment: "dev"
+
+# TODO: secret management for "production"
+PGDATA: &PGDATA_ANCHOR "/var/lib/postgresql/data/pgdata"
+POSTGRES_DB: &POSTGRES_DB_ANCHOR "postgis"
+POSTGRES_USER: &POSTGRES_USER_ANCHOR "username"
+POSTGRES_PASSWORD: &POSTGRES_PASSWORD_ANCHOR "password"
+PGPASSWORD: &PGPASSWORD_ANCHOR "password"
+PGUSER: &PGUSER_ANCHOR "username"
+PGDATABASE: &PGDATABASE_ANCHOR "postgis"
+DB_SETTINGS: &DB_SETTINGS_ANCHOR
+  PGDATA: *PGDATA_ANCHOR
+  POSTGRES_DB: *POSTGRES_DB_ANCHOR
+  POSTGRES_USER: *POSTGRES_USER_ANCHOR
+  POSTGRES_PASSWORD: *POSTGRES_PASSWORD_ANCHOR
+  PGPASSWORD: *PGPASSWORD_ANCHOR
+  PGUSER: *PGUSER_ANCHOR
+  PGDATABASE: *PGDATABASE_ANCHOR
+
 
 raster:
   enabled: false
@@ -49,6 +70,7 @@ stac:
         cpu: "256m"
         memory: "256Mi"
 
+
 vector:
   enabled: true
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
@@ -65,13 +87,13 @@ vector:
     envVars:
       ##############
       # tipg
+      ##############
       TIPG_CATALOG_TTL: "0"
       ##############
-      # application
+      # uvicorn-gunicorn
+      ##############
       HOST: "0.0.0.0"
       PORT: "8080"
-      ##############
-      # uvicorn-gunicorn
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
       WEB_CONCURRENCY: "10"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
@@ -80,9 +102,10 @@ vector:
       # MAX_WORKERS: "10"
       ##############
       # postgresql
-      POSTGRES_USER: "username"
-      POSTGRES_PASS: "password"
-      POSTGRES_DBNAME: "postgis"
+      ##############
+      POSTGRES_USER: *POSTGRES_USER_ANCHOR
+      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
+      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
       POSTGRES_HOST: "pgstac"
       POSTGRES_PORT: "5432"
       DB_MIN_CONN_SIZE: "1"
@@ -91,19 +114,13 @@ vector:
     name: ghcr.io/ranchodeluxe/vector
     tag: latest
 
+
 db:
   enabled: true
   sql:
     countries: './files/countries.sql'
   settings:
-    envVars:
-      POSTGRES_DB: "postgis"
-      POSTGRES_USER: "username"
-      POSTGRES_PASSWORD: "password"
-      PGPASSWORD: "password"
-      PGUSER: "username"
-      PGDATABASE: "postgis"
-      PGDATA: "/var/lib/postgresql/data/pgdata"
+    envVars: *DB_SETTINGS_ANCHOR
 
 ingress:
   enabled: false
