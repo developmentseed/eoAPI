@@ -1,14 +1,15 @@
 """Test bootstrap handler."""
 
 import json
+import logging
 from unittest.mock import patch
 
 from handlers import db_handler
 
 
-@patch("handlers.db_handler.requests")
+@patch("handlers.db_handler.httpx")
 @patch("handlers.db_handler.boto3")
-def test_bootstrap(boto3, requests, database_url):
+def test_bootstrap(boto3, httpx, database_url, caplog):
     """Test Bootstrap."""
     boto3.client.return_value.get_secret_value.side_effect = [
         # connection_params
@@ -38,11 +39,12 @@ def test_bootstrap(boto3, requests, database_url):
     ]
 
     class put:
-        """Fake requests.put response."""
+        """Fake httpx.put response."""
 
+        status_code: int = 200
         reason: str = "All Good"
 
-    requests.put.return_value = put()
+    httpx.put.return_value = put()
 
     event = {
         "StackId": "eoapi-test",
@@ -66,4 +68,7 @@ def test_bootstrap(boto3, requests, database_url):
 
     context = ctx()
 
-    db_handler.handler(event, context)
+    with caplog.at_level(logging.DEBUG, logger="eoapi-bootstrap"):
+        db_handler.handler(event, context)
+        for record in caplog.records:
+            assert record.message == "OK - Status code: 200"
