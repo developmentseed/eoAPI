@@ -1,6 +1,37 @@
-# Default values for eoapi.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# default values for eoapi.
+
+# to pass `gitSha` in during `helm template` or `helm install` do:
+# $ helm install --set gitSha=$(git rev-parse HEAD | cut -c1-10) ./eoapi
+# $ helm template . -s template/vector/deployment.yaml -f values.yaml --set gitSha=$(git rev-parse HEAD)
+gitSha: ""
+
+# switches rendering output based on value "production" ONLY
+# otherwise any string will do and spin up a
+# dev-or-sandbox-like environment
+platform_environment: "dev"
+
+# TODO: secret management for "production"
+POSTGRES_DB: &POSTGRES_DB_ANCHOR "postgis"
+POSTGRES_USER: &POSTGRES_USER_ANCHOR "username"
+POSTGRES_PASSWORD: &POSTGRES_PASSWORD_ANCHOR "password"
+POSTGRES_HOST: &POSTGRES_HOST_ANCHOR "pgstac"
+POSTGRES_PORT: &POSTGRES_PORT_ANCHOR "5432"
+# default connect: https://www.postgresql.org/docs/current/libpq-envars.html
+PGDATA: &PGDATA_ANCHOR "/var/lib/postgresql/data/pgdata"
+PGPASSWORD: &PGPASSWORD_ANCHOR "password"
+PGUSER: &PGUSER_ANCHOR "username"
+PGDATABASE: &PGDATABASE_ANCHOR "postgis"
+DB_SETTINGS: &DB_SETTINGS_ANCHOR
+  POSTGRES_DB: *POSTGRES_DB_ANCHOR
+  POSTGRES_USER: *POSTGRES_USER_ANCHOR
+  POSTGRES_PASSWORD: *POSTGRES_PASSWORD_ANCHOR
+  PGDATA: *PGDATA_ANCHOR
+  PGPASSWORD: *PGPASSWORD_ANCHOR
+  PGUSER: *PGUSER_ANCHOR
+  PGDATABASE: *PGDATABASE_ANCHOR
+  PGPORT: *POSTGRES_PORT_ANCHOR
+
+
 raster:
   enabled: false
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
@@ -16,7 +47,7 @@ raster:
         memory: "3072Mi"
     envVars:
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
-      GDAL_CACHEMAX: "200",  # 200 mb
+      GDAL_CACHEMAX: "200"  # 200 mb
       GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
       GDAL_INGESTED_BYTES_AT_OPEN: "32768"
       GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: "YES"
@@ -24,13 +55,16 @@ raster:
       GDAL_HTTP_VERSION: "2"
       PYTHONWARNINGS: "ignore"
       VSI_CACHE: "TRUE"
-      VSI_CACHE_SIZE: "5000000",  # 5 MB (per file-handle)
+      VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
       DB_MIN_CONN_SIZE: "1"
       DB_MAX_CONN_SIZE: "1"
 
 
 stac:
-  enabled: false
+  enabled: true
+  image:
+    name: ghcr.io/ranchodeluxe/stac
+    tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -42,9 +76,50 @@ stac:
       requests:
         cpu: "256m"
         memory: "256Mi"
+    envVars:
+      # where are these used compared to HOST and PORT?
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      ##############
+      # uvicorn-gunicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      WEB_CONCURRENCY: "10"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
+      # WORKERS_PER_CORE: "1"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # MAX_WORKERS: "10"
+      ##############
+      # postgresql
+      ##############
+      POSTGRES_USER: *POSTGRES_USER_ANCHOR
+      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
+      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
+      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
+      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
+      DB_MIN_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
+      ##############
+      # stac
+      ##############
+      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
+      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
+      ##############
+      # titiler
+      ##############
+      # https://github.com/developmentseed/eoAPI/issues/16
+      # TITILER_ENDPOINT: "raster"
+      # TODO: this will probably become an internal service we can reference with internal DNS on i8s
+      TITILER_ENDPOINT: "raster:8080"
+
 
 vector:
-  enabled: false
+  enabled: true
+  image:
+    name: ghcr.io/ranchodeluxe/vector
+    tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -56,15 +131,40 @@ vector:
       requests:
         cpu: "256m"
         memory: "256Mi"
+    envVars:
+      ##############
+      # tipg
+      ##############
+      TIPG_CATALOG_TTL: "0"
+      ##############
+      # uvicorn-gunicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      WEB_CONCURRENCY: "10"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
+      # WORKERS_PER_CORE: "1"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # MAX_WORKERS: "10"
+      ##############
+      # postgresql
+      ##############
+      POSTGRES_USER: *POSTGRES_USER_ANCHOR
+      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
+      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
+      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
+      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
+      DB_MIN_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
 
-# this feels more IAC related, not sure if we need this
-# crosswalk where `eoAPI/infrastructure/aws/cdk/config.py:eoDBSettings` is used in app
+
 db:
   enabled: true
-
-service:
-  type: ClusterIP
-  port: 80
+  sql:
+    countries: './files/countries.sql'
+  settings:
+    envVars: *DB_SETTINGS_ANCHOR
 
 ingress:
   enabled: false
