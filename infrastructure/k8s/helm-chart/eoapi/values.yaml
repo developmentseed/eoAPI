@@ -61,7 +61,10 @@ raster:
 
 
 stac:
-  enabled: false
+  enabled: true
+  image:
+    name: ghcr.io/ranchodeluxe/stac
+    tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -73,10 +76,50 @@ stac:
       requests:
         cpu: "256m"
         memory: "256Mi"
+    envVars:
+      # where are these used compared to HOST and PORT?
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      ##############
+      # uvicorn-gunicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      WEB_CONCURRENCY: "10"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
+      # WORKERS_PER_CORE: "1"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # MAX_WORKERS: "10"
+      ##############
+      # postgresql
+      ##############
+      POSTGRES_USER: *POSTGRES_USER_ANCHOR
+      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
+      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
+      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
+      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
+      DB_MIN_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
+      ##############
+      # stac
+      ##############
+      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
+      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
+      ##############
+      # titiler
+      ##############
+      # https://github.com/developmentseed/eoAPI/issues/16
+      # TITILER_ENDPOINT: "raster"
+      # TODO: this will probably become an internal service we can reference with internal DNS on i8s
+      TITILER_ENDPOINT: "raster:8080"
 
 
 vector:
   enabled: true
+  image:
+    name: ghcr.io/ranchodeluxe/vector
+    tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -114,9 +157,6 @@ vector:
       POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
       DB_MIN_CONN_SIZE: "1"
       DB_MAX_CONN_SIZE: "10"
-  image:
-    name: ghcr.io/ranchodeluxe/vector
-    tag: latest
 
 
 db:
