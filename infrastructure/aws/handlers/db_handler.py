@@ -1,14 +1,17 @@
 """Bootstrap Postgres db."""
 
 import json
+import logging
 
 import boto3
+import httpx
 import psycopg
-import requests
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
 from pypgstac.db import PgstacDB
 from pypgstac.migrate import Migrate
+
+logger = logging.getLogger("eoapi-bootstrap")
 
 
 def send(
@@ -56,10 +59,12 @@ def send(
     headers = {"content-type": "", "content-length": str(len(json_responseBody))}
 
     try:
-        response = requests.put(responseUrl, data=json_responseBody, headers=headers)
-        print("Status code: " + response.reason)
+        response = httpx.put(responseUrl, data=json_responseBody, headers=headers)
+        print(f"Status code: {response.status_code}")
+        logger.debug(f"OK - Status code: {response.status_code}")
     except Exception as e:
-        print("send(..) failed executing requests.put(..): " + str(e))
+        print("send(..) failed executing httpx.put(..): " + str(e))
+        logger.debug(f"NOK - failed executing PUT requests:  {e}")
 
 
 def get_secret(secret_name):

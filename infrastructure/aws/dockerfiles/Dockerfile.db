@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
@@ -10,7 +10,7 @@ WORKDIR /tmp
 RUN python -m pip install pip -U
 
 RUN echo "Using PGSTAC Version ${PGSTAC_VERSION}"
-RUN python -m pip install requests psycopg["binary,pool"] pypgstac==${PGSTAC_VERSION} -t /asset
+RUN python -m pip install httpx psycopg["binary,pool"] pypgstac==${PGSTAC_VERSION} -t /asset
 
 COPY infrastructure/aws/handlers/db_handler.py /asset/handler.py
 
