@@ -115,7 +115,7 @@ jobs:
           file: dockerfiles/Dockerfile.raster-uvicorn
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-raster:latest
+            ghcr.io/developmentseed/eoapi-raster:latest
 
       - name: RASTER - Build and push tags
         if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
@@ -126,7 +126,7 @@ jobs:
           file: dockerfiles/Dockerfile.raster-uvicorn
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-raster:${{ steps.tag.outputs.tag }}
+            ghcr.io/developmentseed/eoapi-raster:${{ steps.tag.outputs.tag }}
 
       #############################################################################
       # STAC
@@ -138,7 +138,7 @@ jobs:
           file: dockerfiles/Dockerfile.stac-uvicorn
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-stac:latest
+            ghcr.io/developmentseed/eoapi-stac:latest
 
       - name: STAC - Build and push tags
         if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
@@ -148,7 +148,7 @@ jobs:
           file: dockerfiles/Dockerfile.stac-uvicorn
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-stac:${{ steps.tag.outputs.tag }}
+            ghcr.io/developmentseed/eoapi-stac:${{ steps.tag.outputs.tag }}
 
       #############################################################################
       # VECTOR
@@ -160,7 +160,7 @@ jobs:
           file: dockerfiles/Dockerfile.vector-uvicorn
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-vector:latest
+            ghcr.io/developmentseed/eoapi-vector:latest
 
       - name: VECTOR - Build and push tags
         if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
@@ -170,5 +170,5 @@ jobs:
           file: dockerfiles/Dockerfile.vector-uvicorn
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}-vector:${{ steps.tag.outputs.tag }}
+            ghcr.io/developmentseed/eoapi-vector:${{ steps.tag.outputs.tag }}
 
