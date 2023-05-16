@@ -11,10 +11,12 @@ gitSha: ""
 platform_environment: "dev"
 
 # TODO: secret management for "production"
-PGDATA: &PGDATA_ANCHOR "/var/lib/postgresql/data/pgdata"
+# USERS
 POSTGRES_DB: &POSTGRES_DB_ANCHOR "postgis"
 POSTGRES_USER: &POSTGRES_USER_ANCHOR "username"
 POSTGRES_PASSWORD: &POSTGRES_PASSWORD_ANCHOR "password"
+# ADMIN
+PGDATA: &PGDATA_ANCHOR "/var/lib/postgresql/data/pgdata"
 PGPASSWORD: &PGPASSWORD_ANCHOR "password"
 PGUSER: &PGUSER_ANCHOR "username"
 PGDATABASE: &PGDATABASE_ANCHOR "postgis"
