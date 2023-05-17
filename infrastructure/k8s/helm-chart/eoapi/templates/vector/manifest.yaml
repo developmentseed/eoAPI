@@ -13,8 +13,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vector-{{ .Values.gitSha }}
-  name: vector-{{ .Values.gitSha }}
+    app: vector
+  name: vector
 spec:
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 5
@@ -35,7 +35,7 @@ spec:
       - image: {{ .Values.vector.image.name }}:{{ .Values.vector.image.tag }}
         name: vector
         ports:
-          - containerPort: 8080
+          - containerPort: {{ .Values.vector.service.port  }}
         resources:
           limits:
             cpu: {{ .Values.vector.settings.resources.limits.cpu }}
@@ -64,9 +64,38 @@ metadata:
 spec:
   type: 'NodePort'
   ports:
-  - name: "8080"
-    port: 8080
-    targetPort: 8080
+  - name: "{{ .Values.vector.service.port }}"
+    port: {{ .Values.vector.service.port }}
+    targetPort: {{ .Values.vector.service.port }}
   selector:
     app: vector-{{ .Values.gitSha }}
+---
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: vector-ingress
+  {{- with .Values.vector.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.vector.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.vector.ingress.className }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: vector
+                port:
+                  number: {{ .Values.vector.service.port  }}
 {{- end }}

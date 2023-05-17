@@ -13,8 +13,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: stac-{{ .Values.gitSha }}
-  name: stac-{{ .Values.gitSha }}
+    app: stac
+  name: stac
 spec:
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 5
