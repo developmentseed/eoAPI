@@ -33,7 +33,7 @@ DB_SETTINGS: &DB_SETTINGS_ANCHOR
 
 
 raster:
-  enabled: false
+  enabled: true
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -41,11 +41,21 @@ raster:
     resources:
       limits:
         cpu: "512m"
-        memory: "4096Mi"
+        memory: "4096M"
       requests:
         cpu: "256m"
-        memory: "3072Mi"
+        memory: "3072M"
     envVars:
+      # where are these used compared to HOST and PORT?
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      ##############
+      # uvicorn-gunicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      WEB_CONCURRENCY: "10"
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
       GDAL_CACHEMAX: "200"  # 200 mb
       GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
@@ -56,8 +66,21 @@ raster:
       PYTHONWARNINGS: "ignore"
       VSI_CACHE: "TRUE"
       VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
+      POSTGRES_USER: *POSTGRES_USER_ANCHOR
+      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
+      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
+      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
+      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
       DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
+      ##############
+      # stac
+      ##############
+      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
+      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
+  image:
+    name: ghcr.io/developmentseed/eoapi-raster
+    tag: latest
 
 
 stac:
@@ -163,6 +186,8 @@ db:
   enabled: true
   settings:
     envVars: *DB_SETTINGS_ANCHOR
+
+
 
 ingress:
   enabled: false

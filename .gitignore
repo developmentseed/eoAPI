@@ -108,3 +108,5 @@ node_modules/
 .pgdata
 
 .idea/
+
+.tmp/

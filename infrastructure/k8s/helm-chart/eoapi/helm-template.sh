@@ -1,5 +1,5 @@
 #!/bin/bash
-MANIFEST=/tmp/eoapi-manfests.yaml
+MANIFEST=./tmp/eoapi-manfests.yaml
 echo "" > $MANIFEST
 MANIFESTS=$(find ./templates/* -name "manifest.yaml")
 while read MFILE; do
