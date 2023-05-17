@@ -1,31 +1,17 @@
 # default values for eoapi
 
-# to pass `gitSha` in during `helm template` or `helm install` do:
-# $ helm install --set gitSha=$(git rev-parse HEAD | cut -c1-10) ./eoapi
-# $ helm template . -s template/vector/deployment.yaml -f values.yaml --set gitSha=$(git rev-parse HEAD | cut -c1-10)
+gitsha_comment: >
+  to pass `gitSha` in during `helm template` or `helm install` do:
+
+  $ helm install
+      --set gitSha=$(git rev-parse HEAD | cut -c1-10)
+      ./eoapi
+
+  $ helm template . \
+      -s template/vector/deployment.yaml \
+      -f values.yaml \
+      --set gitSha=$(git rev-parse HEAD | cut -c1-10)
 gitSha: ""
-
-# TODO: secret management for "production"
-POSTGRES_DB: &POSTGRES_DB_ANCHOR "postgis"
-POSTGRES_USER: &POSTGRES_USER_ANCHOR "username"
-POSTGRES_PASSWORD: &POSTGRES_PASSWORD_ANCHOR "password"
-POSTGRES_HOST: &POSTGRES_HOST_ANCHOR "pgstac"
-POSTGRES_PORT: &POSTGRES_PORT_ANCHOR "5432"
-# default connect: https://www.postgresql.org/docs/current/libpq-envars.html
-PGDATA: &PGDATA_ANCHOR "/var/lib/postgresql/data/pgdata"
-PGPASSWORD: &PGPASSWORD_ANCHOR "password"
-PGUSER: &PGUSER_ANCHOR "username"
-PGDATABASE: &PGDATABASE_ANCHOR "postgis"
-DB_SETTINGS: &DB_SETTINGS_ANCHOR
-  POSTGRES_DB: *POSTGRES_DB_ANCHOR
-  POSTGRES_USER: *POSTGRES_USER_ANCHOR
-  POSTGRES_PASSWORD: *POSTGRES_PASSWORD_ANCHOR
-  PGDATA: *PGDATA_ANCHOR
-  PGPASSWORD: *PGPASSWORD_ANCHOR
-  PGUSER: *PGUSER_ANCHOR
-  PGDATABASE: *PGDATABASE_ANCHOR
-  PGPORT: *POSTGRES_PORT_ANCHOR
-
 
 raster:
   enabled: true
@@ -64,18 +50,6 @@ raster:
       PYTHONWARNINGS: "ignore"
       VSI_CACHE: "TRUE"
       VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
-      POSTGRES_USER: *POSTGRES_USER_ANCHOR
-      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
-      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
-      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
-      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
-      DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "10"
-      ##############
-      # stac
-      ##############
-      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
-      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
   service:
     port: 8080
   ingress:
@@ -86,9 +60,10 @@ raster:
     # GCP GKE:
     # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
     annotations:
+      alb.ingress.kubernetes.io/group.name: shared-ingress
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
-
+    path: "/raster"
 
 stac:
   enabled: true
@@ -121,27 +96,10 @@ stac:
       # WORKERS_PER_CORE: "1"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
       # MAX_WORKERS: "10"
-      ##############
-      # postgresql
-      ##############
-      POSTGRES_USER: *POSTGRES_USER_ANCHOR
-      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
-      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
-      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
-      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
-      DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "10"
-      ##############
-      # stac
-      ##############
-      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
-      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
-      ##############
+      #############
       # titiler
       ##############
       # https://github.com/developmentseed/eoAPI/issues/16
-      # TITILER_ENDPOINT: "raster"
-      # TODO: this will probably become an internal service we can reference with internal DNS on i8s
       TITILER_ENDPOINT: "raster:8080"
   service:
     port: 8080
@@ -153,9 +111,11 @@ stac:
     # GCP GKE:
     # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
     annotations:
+      alb.ingress.kubernetes.io/group.name: shared-ingress
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
-
+    path:
+      "/stac"
 
 vector:
   enabled: true
@@ -189,16 +149,6 @@ vector:
       # WORKERS_PER_CORE: "1"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
       # MAX_WORKERS: "10"
-      ##############
-      # postgresql
-      ##############
-      POSTGRES_USER: *POSTGRES_USER_ANCHOR
-      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
-      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
-      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
-      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
-      DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "10"
   service:
     port: 8080
   ingress:
@@ -209,13 +159,58 @@ vector:
     # GCP GKE:
     # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
     annotations:
+      alb.ingress.kubernetes.io/group.name: shared-ingress
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
+    path: "/vector"
 
+
+###############################
+# DB SETTINGS
+###############################
+postgres_secret_comment: >
+  some postgres variables are basically secrets that should be passed in via os environment variables.
+  for example, to pass `POSTGRES_PASSWORD` during `helm template` or `helm install` do:
+
+  $ export PGUSER_VAR=s00pers3cr3t
+  $ export POSTGRES_USER_VAR=s00pers3cr3t
+  $ export POSTGRES_PASSWORD_VAR=superuserfoobar
+  $ export PGPASSWORD_VAR=foobar
+
+  $ helm install \
+      --namespace eoapi \
+      --create-namespace \
+      --set db.settings.secrets.PGUSER=$PGUSER_VAR \
+      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER_VAR \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD_VAR \
+      --set POSTGRES_PASSWORD=$PGPASSWORD_VAR \
+      ./eoapi
+
+  $ helm template . \
+      -s template/vector/manifest.yaml
+      -f values.yaml \
+      --set PGUSER=$PGUSER_VAR \
+      --set POSTGRES_USER=$POSTGRES_USER_VAR \
+      --set POSTGRES_PASSWORD=$POSTGRES_PASSWORD_VAR \
+      --set POSTGRES_PASSWORD=$PGPASSWORD_VAR
 
 db:
-  # options: "rds" || "k8s"
+  # environment options: "rds" || "k8s"
   environment: "k8s"
   enabled: true
   settings:
-    envVars: *DB_SETTINGS_ANCHOR
+    secrets:
+      POSTGRES_DB: "postgis"
+      POSTGRES_USER: ""
+      POSTGRES_PASSWORD: ""
+      POSTGRES_PORT: "5432"
+      POSTGRES_HOST: "pgstac"
+      POSTGRES_HOST_READER: "pgstac"
+      POSTGRES_HOST_WRITER: "pgstac"
+      DB_MIN_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
+      # default connect: https://www.postgresql.org/docs/current/libpq-envars.html
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      PGUSER: ""
+      PGPASSWORD: ""
+      PGDATABASE: "postgis"
