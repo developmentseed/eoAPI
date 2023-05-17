@@ -79,14 +79,14 @@ raster:
       POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
       POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
   image:
-    name: ghcr.io/ranchodeluxe/raster
+    name: ghcr.io/developmentseed/eoapi-raster
     tag: latest
 
 
 stac:
   enabled: true
   image:
-    name: ghcr.io/ranchodeluxe/stac
+    name: ghcr.io/developmentseed/eoapi-stac
     tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
@@ -141,7 +141,7 @@ stac:
 vector:
   enabled: true
   image:
-    name: ghcr.io/ranchodeluxe/vector
+    name: ghcr.io/developmentseed/eoapi-vector
     tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
