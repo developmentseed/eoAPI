@@ -44,7 +44,7 @@ raster:
         memory: "4096M"
       requests:
         cpu: "256m"
-        memory: "3072Mi"
+        memory: "3072M"
     envVars:
       # where are these used compared to HOST and PORT?
       APP_HOST: "0.0.0.0"
