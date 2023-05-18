@@ -28,7 +28,7 @@ The example commands here will deploy a CloudFormation stack called `eoAPI-stagi
 
 3. Update settings
 
-    Set environment variable or hard code in `infrastructure/aws/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1`).
+    Set environment variable or hard code in `infrastructure/aws/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.7.4`).
 
     **Important**:
 

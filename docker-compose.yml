@@ -15,28 +15,27 @@ services:
       - PORT=8081
       - ENVIRONMENT=local
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
+      - WEB_CONCURRENCY=4
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
       # - WORKERS_PER_CORE=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
+      - MAX_WORKERS=4
       # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST_READER=database
-      - POSTGRES_HOST_WRITER=database
-      - POSTGRES_PORT=5432
+      - POSTGRES_HOST_READER=${POSTGRES_HOST}
+      - POSTGRES_HOST_WRITER=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASS}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - POSTGRES_PORT=${POSTGRES_PORT}
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
       # https://github.com/developmentseed/eoAPI/issues/16
       # - TITILER_ENDPOINT=raster
       - TITILER_ENDPOINT=http://127.0.0.1:8082
     depends_on:
-      - database
+      # - database
       - raster
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command: bash -c "bash /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
@@ -61,11 +60,11 @@ services:
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
       - MAX_WORKERS=10
       # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST=database
-      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASS}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
       # - DB_MAX_QUERIES=10
@@ -87,10 +86,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       # API Config
       - EOAPI_RASTER_ENABLE_MOSAIC_SEARCH=TRUE
-    depends_on:
-      - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    # depends_on:
+    #   - database
+    command: bash -c "/start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
@@ -112,17 +110,16 @@ services:
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
       # - MAX_WORKERS=10
       # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST=database
-      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASS}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
-    depends_on:
-      - database
+    command: bash -c "bash /start.sh"
+    # depends_on:
+    #   - database
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
