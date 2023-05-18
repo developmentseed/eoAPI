@@ -1,7 +1,7 @@
 # default values for eoapi
 
 gitsha_comment: >
-  to pass `gitSha` in during `helm template` or `helm install` do:
+  To pass `gitSha` in during `helm template` or `helm install` do:
 
   $ helm install
       --set gitSha=$(git rev-parse HEAD | cut -c1-10)
@@ -55,6 +55,10 @@ raster:
       VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
   service:
     port: 8080
+    # port_type: "NodePort" || "LoadBalancer"
+    # NodePort: will create an Ingress and ALB
+    # LoadBalancer: will create an NLB
+    port_type: "NodePort"
   ingress:
     enabled: true
     className: "alb"
@@ -66,7 +70,6 @@ raster:
     annotations:
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
-    path: "/raster"
 
 stac:
   enabled: true
@@ -106,6 +109,10 @@ stac:
       TITILER_ENDPOINT: "raster:8080"
   service:
     port: 8080
+    # port_type: "NodePort" || "LoadBalancer"
+    # NodePort: will create an Ingress and ALB
+    # LoadBalancer: will create an NLB
+    port_type: "NodePort"
   ingress:
     enabled: true
     className: "alb"
@@ -117,8 +124,6 @@ stac:
     annotations:
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
-    path:
-      "/stac"
 
 vector:
   enabled: true
@@ -154,6 +159,10 @@ vector:
       # MAX_WORKERS: "10"
   service:
     port: 8080
+    # port_type: "NodePort" || "LoadBalancer"
+    # NodePort: will create an Ingress and ALB
+    # LoadBalancer: will create an NLB
+    port_type: "NodePort"
   ingress:
     enabled: true
     className: "alb"
@@ -165,7 +174,6 @@ vector:
     annotations:
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
-    path: "/vector"
 
 
 ###############################

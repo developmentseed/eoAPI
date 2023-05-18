@@ -70,7 +70,7 @@ metadata:
     app: raster
   name: raster
 spec:
-  type: 'NodePort'
+  type: {{ .Values.raster.service.port_type }}
   ports:
   - name: "8080"
     port: 8080
@@ -78,6 +78,7 @@ spec:
   selector:
     app: raster
 ---
+{{- if (eq .Values.raster.service.port_type "NodePort") }}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -104,7 +105,7 @@ spec:
         paths:
           - pathType: Prefix
             {{- if .Values.raster.enable_shared_ingress }}
-            path: {{ .Values.raster.ingress.path }}
+            path: "/raster"
             {{ else }}
             path: "/"
             {{- end }}
@@ -113,4 +114,5 @@ spec:
                 name: raster
                 port:
                   number: {{ .Values.raster.service.port }}
+{{- end }}
 {{- end }}

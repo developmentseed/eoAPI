@@ -70,7 +70,7 @@ metadata:
     app: vector
   name: vector
 spec:
-  type: 'NodePort'
+  type: {{ .Values.vector.service.port_type }}
   ports:
   - name: "{{ .Values.vector.service.port }}"
     port: {{ .Values.vector.service.port }}
@@ -78,6 +78,7 @@ spec:
   selector:
     app: vector
 ---
+{{- if (eq .Values.vector.service.port_type "NodePort") }}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -104,7 +105,7 @@ spec:
         paths:
           - pathType: Prefix
             {{- if .Values.vector.enable_shared_ingress }}
-            path: {{ .Values.vector.ingress.path }}
+            path: "/vector"
             {{ else }}
             path: "/"
             {{- end }}
@@ -113,4 +114,5 @@ spec:
                 name: vector
                 port:
                   number: {{ .Values.vector.service.port  }}
+{{- end }}
 {{- end }}

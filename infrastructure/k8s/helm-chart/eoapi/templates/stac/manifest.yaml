@@ -70,7 +70,7 @@ metadata:
     app: stac
   name: stac
 spec:
-  type: 'NodePort'
+  type: {{ .Values.stac.service.port_type }}
   ports:
   - name: "8080"
     port: 8080
@@ -78,6 +78,7 @@ spec:
   selector:
     app: stac
 ---
+{{- if (eq .Values.stac.service.port_type "NodePort") }}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -104,7 +105,7 @@ spec:
         paths:
           - pathType: Prefix
             {{- if .Values.stac.enable_shared_ingress }}
-            path: {{ .Values.stac.ingress.path }}
+            path: "/stac"
             {{ else }}
             path: "/"
             {{- end }}
@@ -113,4 +114,5 @@ spec:
                 name: stac
                 port:
                   number: {{ .Values.stac.service.port  }}
+{{- end }}
 {{- end }}
