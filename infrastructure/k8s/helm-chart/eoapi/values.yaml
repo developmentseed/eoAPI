@@ -59,8 +59,8 @@ raster:
     # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
     # GCP GKE:
     # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+    enable_shared_ingress: false
     annotations:
-      alb.ingress.kubernetes.io/group.name: shared-ingress
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
     path: "/raster"
@@ -110,8 +110,8 @@ stac:
     # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
     # GCP GKE:
     # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+    enable_shared_ingress: false
     annotations:
-      alb.ingress.kubernetes.io/group.name: shared-ingress
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
     path:
@@ -158,8 +158,8 @@ vector:
     # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
     # GCP GKE:
     # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+    enable_shared_ingress: false
     annotations:
-      alb.ingress.kubernetes.io/group.name: shared-ingress
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/scheme: internet-facing
     path: "/vector"
@@ -189,10 +189,10 @@ postgres_secret_comment: >
   $ helm template . \
       -s template/vector/manifest.yaml
       -f values.yaml \
-      --set PGUSER=$PGUSER_VAR \
-      --set POSTGRES_USER=$POSTGRES_USER_VAR \
-      --set POSTGRES_PASSWORD=$POSTGRES_PASSWORD_VAR \
-      --set POSTGRES_PASSWORD=$PGPASSWORD_VAR
+      --set db.settings.secrets.PGUSER=$PGUSER_VAR \
+      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER_VAR \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD_VAR \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$PGPASSWORD_VAR
 
 db:
   # environment options: "rds" || "k8s"
@@ -214,3 +214,8 @@ db:
       PGUSER: ""
       PGPASSWORD: ""
       PGDATABASE: "postgis"
+      ####################################
+      # STAC ?!?
+      ####################################
+      POSTGRES_DBNAME: "postgis"
+      POSTGRES_PASS: ""

@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: raster-envvar-configmap
+  name: rasterenvvar-configmap
 data:
   {{- range $envKey, $envValue := .Values.raster.settings.envVars }}
   {{ upper $envKey }}: "{{ $envValue }}"
@@ -14,6 +14,7 @@ kind: Deployment
 metadata:
   labels:
     app: raster
+    gitsha: {{ .Values.gitSha }}
   name: raster
 spec:
   progressDeadlineSeconds: 600
@@ -25,11 +26,11 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: raster-{{ .Values.gitSha }}
+      app: raster
   template:
     metadata:
       labels:
-        app: raster-{{ .Values.gitSha }}
+        app: raster
     spec:
       containers:
       - image: {{ .Values.raster.image.name }}:{{ .Values.raster.image.tag }}
@@ -58,7 +59,7 @@ spec:
           - name: {{ upper $envKey }}
             valueFrom:
               configMapKeyRef:
-                name: raster-envvar-configmap
+                name: rasterenvvar-configmap
                 key: {{ $envKey }}
           {{- end }}
 ---
@@ -75,7 +76,7 @@ spec:
     port: 8080
     targetPort: 8080
   selector:
-    app: raster-{{ .Values.gitSha }}
+    app: raster
 ---
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
@@ -91,6 +92,9 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- if .Values.raster.enable_shared_ingress }}
+    alb.ingress.kubernetes.io/group.name: shared-ingress
+  {{- end }}
 spec:
   {{- if and .Values.raster.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName: {{ .Values.raster.ingress.className }}
@@ -99,7 +103,11 @@ spec:
     - http:
         paths:
           - pathType: Prefix
+            {{- if .Values.raster.enable_shared_ingress }}
             path: {{ .Values.raster.ingress.path }}
+            {{ else }}
+            path: "/"
+            {{- end }}
             backend:
               service:
                 name: raster

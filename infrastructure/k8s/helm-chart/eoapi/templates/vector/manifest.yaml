@@ -14,6 +14,7 @@ kind: Deployment
 metadata:
   labels:
     app: vector
+    gitsha: {{ .Values.gitSha }}
   name: vector
 spec:
   progressDeadlineSeconds: 600
@@ -25,11 +26,11 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: vector-{{ .Values.gitSha }}
+      app: vector
   template:
     metadata:
       labels:
-        app: vector-{{ .Values.gitSha }}
+        app: vector
     spec:
       containers:
       - image: {{ .Values.vector.image.name }}:{{ .Values.vector.image.tag }}
@@ -75,7 +76,7 @@ spec:
     port: {{ .Values.vector.service.port }}
     targetPort: {{ .Values.vector.service.port }}
   selector:
-    app: vector-{{ .Values.gitSha }}
+    app: vector
 ---
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
@@ -91,6 +92,9 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- if .Values.vector.enable_shared_ingress }}
+    alb.ingress.kubernetes.io/group.name: shared-ingress
+  {{- end }}
 spec:
   {{- if and .Values.vector.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName: {{ .Values.vector.ingress.className }}
@@ -99,7 +103,11 @@ spec:
     - http:
         paths:
           - pathType: Prefix
+            {{- if .Values.vector.enable_shared_ingress }}
             path: {{ .Values.vector.ingress.path }}
+            {{ else }}
+            path: "/"
+            {{- end }}
             backend:
               service:
                 name: vector

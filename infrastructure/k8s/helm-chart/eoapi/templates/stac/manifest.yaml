@@ -25,11 +25,12 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: stac-{{ .Values.gitSha }}
+      app: stac
   template:
     metadata:
       labels:
-        app: stac-{{ .Values.gitSha }}
+        app: stac
+        gitsha: {{ .Values.gitSha }}
     spec:
       containers:
       - image: {{ .Values.stac.image.name }}:{{ .Values.stac.image.tag }}
@@ -75,7 +76,7 @@ spec:
     port: 8080
     targetPort: 8080
   selector:
-    app: stac-{{ .Values.gitSha }}
+    app: stac
 ---
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
@@ -91,6 +92,9 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- if .Values.stac.enable_shared_ingress }}
+    alb.ingress.kubernetes.io/group.name: shared-ingress
+  {{- end }}
 spec:
   {{- if and .Values.stac.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName: {{ .Values.stac.ingress.className }}
@@ -99,7 +103,11 @@ spec:
     - http:
         paths:
           - pathType: Prefix
+            {{- if .Values.stac.enable_shared_ingress }}
             path: {{ .Values.stac.ingress.path }}
+            {{ else }}
+            path: "/"
+            {{- end }}
             backend:
               service:
                 name: stac
