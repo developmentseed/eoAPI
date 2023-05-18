@@ -34,12 +34,15 @@ raster:
       APP_HOST: "0.0.0.0"
       APP_PORT: "8080"
       ##############
-      # uvicorn-gunicorn
+      # uvicorn
       ##############
       HOST: "0.0.0.0"
       PORT: "8080"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
       WEB_CONCURRENCY: "10"
+      ##############
+      # titiler and gdal
+      ##############
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
       GDAL_CACHEMAX: "200"  # 200 mb
       GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
@@ -86,7 +89,7 @@ stac:
       APP_HOST: "0.0.0.0"
       APP_PORT: "8080"
       ##############
-      # uvicorn-gunicorn
+      # uvicorn
       ##############
       HOST: "0.0.0.0"
       PORT: "8080"
@@ -94,7 +97,7 @@ stac:
       WEB_CONCURRENCY: "10"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
       # WORKERS_PER_CORE: "1"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # https://github.com/tiangolo/uvicorn-docker#max_workers
       # MAX_WORKERS: "10"
       #############
       # titiler
@@ -139,7 +142,7 @@ vector:
       ##############
       TIPG_CATALOG_TTL: "0"
       ##############
-      # uvicorn-gunicorn
+      # uvicorn
       ##############
       HOST: "0.0.0.0"
       PORT: "8080"
@@ -169,8 +172,8 @@ vector:
 # DB SETTINGS
 ###############################
 postgres_secret_comment: >
-  some postgres variables are basically secrets that should be passed in via os environment variables.
-  for example, to pass `POSTGRES_PASSWORD` during `helm template` or `helm install` do:
+  Some postgres variables are basically secrets that should be passed in via os environment variables.
+  For example, to pass `POSTGRES_PASSWORD` during `helm template` or `helm install` do:
 
   $ export GITSHA=$(git rev-parse HEAD | cut -c1-10)
   $ export PGUSER_VAR=s00pers3cr3t
@@ -187,10 +190,11 @@ postgres_secret_comment: >
       --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
       --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
       --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+      eoapi \
       ./eoapi
 
   $ helm template . \
-      -s template/vector/manifest.yaml
+      -s template/db/manifest.yaml
       -f values.yaml \
       --set gitSha=$GITSHA \
       --set db.settings.secrets.PGUSER=$PGUSER \
