@@ -13,8 +13,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: stac-{{ .Values.gitSha }}
-  name: stac-{{ .Values.gitSha }}
+    app: stac
+  name: stac
 spec:
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 5
@@ -25,11 +25,12 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: stac-{{ .Values.gitSha }}
+      app: stac
   template:
     metadata:
       labels:
-        app: stac-{{ .Values.gitSha }}
+        app: stac
+        gitsha: {{ .Values.gitSha }}
     spec:
       containers:
       - image: {{ .Values.stac.image.name }}:{{ .Values.stac.image.tag }}
@@ -44,9 +45,16 @@ spec:
             cpu: {{ .Values.stac.settings.resources.requests.cpu }}
             memory: {{ .Values.stac.settings.resources.requests.memory }}
         env:
-          # NOTE: there's no reason we need to use a `ConfigMap` here to get os env vars into the pod.
+          # NOTE: there's no reason we need to use a `ConfigMap` or `Secret` here to get os env vars into the pod.
           # we could just template them out here immediately with `value: $_` but this allows us
           # to store them in k8s intermediately and change them and then bounce deploys if needed
+          {{- range $envKey, $_ := .Values.db.settings.secrets }}
+          - name: {{ upper $envKey }}
+            valueFrom:
+              secretKeyRef:
+                name: pgstac-secrets
+                key: {{ upper $envKey }}
+          {{- end }}
           {{- range $envKey, $_ := .Values.stac.settings.envVars }}
           - name: {{ upper $envKey }}
             valueFrom:
@@ -59,14 +67,52 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: stac-{{ .Values.gitSha }}
+    app: stac
   name: stac
 spec:
-  type: 'NodePort'
+  type: {{ .Values.stac.service.port_type }}
   ports:
   - name: "8080"
     port: 8080
     targetPort: 8080
   selector:
-    app: stac-{{ .Values.gitSha }}
+    app: stac
+---
+{{- if (eq .Values.stac.service.port_type "NodePort") }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: stac
+  {{- with .Values.stac.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.stac.enable_shared_ingress }}
+    alb.ingress.kubernetes.io/group.name: shared-ingress
+  {{- end }}
+spec:
+  {{- if and .Values.stac.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.stac.ingress.className }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            {{- if .Values.stac.enable_shared_ingress }}
+            path: "/stac"
+            {{ else }}
+            path: "/"
+            {{- end }}
+            backend:
+              service:
+                name: stac
+                port:
+                  number: {{ .Values.stac.service.port  }}
+{{- end }}
 {{- end }}

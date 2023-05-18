@@ -1,39 +1,23 @@
-# default values for eoapi.
+# default values for eoapi
 
-# to pass `gitSha` in during `helm template` or `helm install` do:
-# $ helm install --set gitSha=$(git rev-parse HEAD | cut -c1-10) ./eoapi
-# $ helm template . -s template/vector/deployment.yaml -f values.yaml --set gitSha=$(git rev-parse HEAD)
+gitsha_comment: >
+  To pass `gitSha` in during `helm template` or `helm install` do:
+
+  $ helm install
+      --set gitSha=$(git rev-parse HEAD | cut -c1-10)
+      ./eoapi
+
+  $ helm template . \
+      -s template/vector/deployment.yaml \
+      -f values.yaml \
+      --set gitSha=$(git rev-parse HEAD | cut -c1-10)
 gitSha: ""
-
-# switches rendering output based on value "production" ONLY
-# otherwise any string will do and spin up a
-# dev-or-sandbox-like environment
-platform_environment: "dev"
-
-# TODO: secret management for "production"
-POSTGRES_DB: &POSTGRES_DB_ANCHOR "postgis"
-POSTGRES_USER: &POSTGRES_USER_ANCHOR "username"
-POSTGRES_PASSWORD: &POSTGRES_PASSWORD_ANCHOR "password"
-POSTGRES_HOST: &POSTGRES_HOST_ANCHOR "pgstac"
-POSTGRES_PORT: &POSTGRES_PORT_ANCHOR "5432"
-# default connect: https://www.postgresql.org/docs/current/libpq-envars.html
-PGDATA: &PGDATA_ANCHOR "/var/lib/postgresql/data/pgdata"
-PGPASSWORD: &PGPASSWORD_ANCHOR "password"
-PGUSER: &PGUSER_ANCHOR "username"
-PGDATABASE: &PGDATABASE_ANCHOR "postgis"
-DB_SETTINGS: &DB_SETTINGS_ANCHOR
-  POSTGRES_DB: *POSTGRES_DB_ANCHOR
-  POSTGRES_USER: *POSTGRES_USER_ANCHOR
-  POSTGRES_PASSWORD: *POSTGRES_PASSWORD_ANCHOR
-  PGDATA: *PGDATA_ANCHOR
-  PGPASSWORD: *PGPASSWORD_ANCHOR
-  PGUSER: *PGUSER_ANCHOR
-  PGDATABASE: *PGDATABASE_ANCHOR
-  PGPORT: *POSTGRES_PORT_ANCHOR
-
 
 raster:
   enabled: true
+  image:
+    name: ghcr.io/developmentseed/eoapi-raster
+    tag: latest
   # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
   settings:
     timeout: 10
@@ -50,12 +34,15 @@ raster:
       APP_HOST: "0.0.0.0"
       APP_PORT: "8080"
       ##############
-      # uvicorn-gunicorn
+      # uvicorn
       ##############
       HOST: "0.0.0.0"
       PORT: "8080"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
       WEB_CONCURRENCY: "10"
+      ##############
+      # titiler and gdal
+      ##############
       CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
       GDAL_CACHEMAX: "200"  # 200 mb
       GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
@@ -66,22 +53,23 @@ raster:
       PYTHONWARNINGS: "ignore"
       VSI_CACHE: "TRUE"
       VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
-      POSTGRES_USER: *POSTGRES_USER_ANCHOR
-      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
-      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
-      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
-      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
-      DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "10"
-      ##############
-      # stac
-      ##############
-      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
-      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
-  image:
-    name: ghcr.io/developmentseed/eoapi-raster
-    tag: latest
-
+  service:
+    port: 8080
+    # port_type: "NodePort" || "LoadBalancer"
+    # NodePort: will create an Ingress and ALB
+    # LoadBalancer: will create an NLB
+    port_type: "NodePort"
+  ingress:
+    enabled: true
+    className: "alb"
+    # AWS EKS:
+    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
+    # GCP GKE:
+    # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+    enable_shared_ingress: false
+    annotations:
+      alb.ingress.kubernetes.io/target-type: instance
+      alb.ingress.kubernetes.io/scheme: internet-facing
 
 stac:
   enabled: true
@@ -104,7 +92,7 @@ stac:
       APP_HOST: "0.0.0.0"
       APP_PORT: "8080"
       ##############
-      # uvicorn-gunicorn
+      # uvicorn
       ##############
       HOST: "0.0.0.0"
       PORT: "8080"
@@ -112,31 +100,30 @@ stac:
       WEB_CONCURRENCY: "10"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
       # WORKERS_PER_CORE: "1"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # https://github.com/tiangolo/uvicorn-docker#max_workers
       # MAX_WORKERS: "10"
-      ##############
-      # postgresql
-      ##############
-      POSTGRES_USER: *POSTGRES_USER_ANCHOR
-      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
-      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
-      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
-      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
-      DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "10"
-      ##############
-      # stac
-      ##############
-      POSTGRES_HOST_READER: *POSTGRES_HOST_ANCHOR
-      POSTGRES_HOST_WRITER: *POSTGRES_HOST_ANCHOR
-      ##############
+      #############
       # titiler
       ##############
       # https://github.com/developmentseed/eoAPI/issues/16
-      # TITILER_ENDPOINT: "raster"
-      # TODO: this will probably become an internal service we can reference with internal DNS on i8s
       TITILER_ENDPOINT: "raster:8080"
-
+  service:
+    port: 8080
+    # port_type: "NodePort" || "LoadBalancer"
+    # NodePort: will create an Ingress and ALB
+    # LoadBalancer: will create an NLB
+    port_type: "NodePort"
+  ingress:
+    enabled: true
+    className: "alb"
+    # AWS EKS:
+    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
+    # GCP GKE:
+    # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+    enable_shared_ingress: false
+    annotations:
+      alb.ingress.kubernetes.io/target-type: instance
+      alb.ingress.kubernetes.io/scheme: internet-facing
 
 vector:
   enabled: true
@@ -160,7 +147,7 @@ vector:
       ##############
       TIPG_CATALOG_TTL: "0"
       ##############
-      # uvicorn-gunicorn
+      # uvicorn
       ##############
       HOST: "0.0.0.0"
       PORT: "8080"
@@ -170,38 +157,81 @@ vector:
       # WORKERS_PER_CORE: "1"
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
       # MAX_WORKERS: "10"
-      ##############
-      # postgresql
-      ##############
-      POSTGRES_USER: *POSTGRES_USER_ANCHOR
-      POSTGRES_PASS: *POSTGRES_PASSWORD_ANCHOR
-      POSTGRES_DBNAME: *POSTGRES_DB_ANCHOR
-      POSTGRES_HOST: *POSTGRES_HOST_ANCHOR
-      POSTGRES_PORT: *POSTGRES_PORT_ANCHOR
-      DB_MIN_CONN_SIZE: "1"
-      DB_MAX_CONN_SIZE: "10"
+  service:
+    port: 8080
+    # port_type: "NodePort" || "LoadBalancer"
+    # NodePort: will create an Ingress and ALB
+    # LoadBalancer: will create an NLB
+    port_type: "NodePort"
+  ingress:
+    enabled: true
+    className: "alb"
+    # AWS EKS:
+    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
+    # GCP GKE:
+    # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+    enable_shared_ingress: false
+    annotations:
+      alb.ingress.kubernetes.io/target-type: instance
+      alb.ingress.kubernetes.io/scheme: internet-facing
 
 
+###############################
+# DB SETTINGS
+###############################
+postgres_secret_comment: >
+  Some postgres variables are basically secrets that should be passed in via os environment variables.
+  For example, to pass `POSTGRES_PASSWORD` during `helm template` or `helm install` do:
+
+  $ export GITSHA=$(git rev-parse HEAD | cut -c1-10)
+  $ export PGUSER_VAR=s00pers3cr3t
+  $ export POSTGRES_USER_VAR=s00pers3cr3t
+  $ export POSTGRES_PASSWORD_VAR=superuserfoobar
+  $ export PGPASSWORD_VAR=foobar
+
+  $ helm install \
+      --namespace eoapi \
+      --create-namespace \
+      --set gitSha=$GITSHA \
+      --set db.settings.secrets.PGUSER=$PGUSER \
+      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
+      --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
+      --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+      eoapi \
+      ./eoapi
+
+  $ helm template . \
+      -s template/db/manifest.yaml
+      -f values.yaml \
+      --set gitSha=$GITSHA \
+      --set db.settings.secrets.PGUSER=$PGUSER \
+      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
+      --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
+      --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
 db:
+  # environment options: "rds" || "k8s"
+  environment: "k8s"
   enabled: true
   settings:
-    envVars: *DB_SETTINGS_ANCHOR
-
-
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
+    secrets:
+      POSTGRES_DB: "postgis"
+      POSTGRES_USER: ""
+      POSTGRES_PASSWORD: ""
+      POSTGRES_PORT: "5432"
+      POSTGRES_HOST: "pgstac"
+      POSTGRES_HOST_READER: "pgstac"
+      POSTGRES_HOST_WRITER: "pgstac"
+      DB_MIN_CONN_SIZE: "1"
+      DB_MAX_CONN_SIZE: "10"
+      # default connect: https://www.postgresql.org/docs/current/libpq-envars.html
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      PGUSER: ""
+      PGPASSWORD: ""
+      PGDATABASE: "postgis"
+      ####################################
+      # STAC wants different names :disappointed:
+      ####################################
+      POSTGRES_DBNAME: "postgis"
+      POSTGRES_PASS: ""
