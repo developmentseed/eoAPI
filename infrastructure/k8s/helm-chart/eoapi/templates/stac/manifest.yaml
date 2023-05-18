@@ -87,7 +87,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: stac-ingress
+  name: stac
   {{- with .Values.stac.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

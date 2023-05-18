@@ -87,7 +87,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: vector-ingress
+  name: vector
   {{- with .Values.vector.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

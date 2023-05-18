@@ -87,7 +87,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: raster-ingress
+  name: raster
   {{- with .Values.raster.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

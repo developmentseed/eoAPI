@@ -172,6 +172,7 @@ postgres_secret_comment: >
   some postgres variables are basically secrets that should be passed in via os environment variables.
   for example, to pass `POSTGRES_PASSWORD` during `helm template` or `helm install` do:
 
+  $ export GITSHA=$(git rev-parse HEAD | cut -c1-10)
   $ export PGUSER_VAR=s00pers3cr3t
   $ export POSTGRES_USER_VAR=s00pers3cr3t
   $ export POSTGRES_PASSWORD_VAR=superuserfoobar
@@ -180,20 +181,23 @@ postgres_secret_comment: >
   $ helm install \
       --namespace eoapi \
       --create-namespace \
-      --set db.settings.secrets.PGUSER=$PGUSER_VAR \
-      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER_VAR \
-      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD_VAR \
-      --set POSTGRES_PASSWORD=$PGPASSWORD_VAR \
+      --set gitSha=$GITSHA \
+      --set db.settings.secrets.PGUSER=$PGUSER \
+      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
+      --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
+      --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
       ./eoapi
 
   $ helm template . \
       -s template/vector/manifest.yaml
       -f values.yaml \
-      --set db.settings.secrets.PGUSER=$PGUSER_VAR \
-      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER_VAR \
-      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD_VAR \
-      --set db.settings.secrets.POSTGRES_PASSWORD=$PGPASSWORD_VAR
-
+      --set gitSha=$GITSHA \
+      --set db.settings.secrets.PGUSER=$PGUSER \
+      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
+      --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
+      --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
+      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
 db:
   # environment options: "rds" || "k8s"
   environment: "k8s"
@@ -215,7 +219,7 @@ db:
       PGPASSWORD: ""
       PGDATABASE: "postgis"
       ####################################
-      # STAC ?!?
+      # STAC wants different names :disappointed:
       ####################################
       POSTGRES_DBNAME: "postgis"
       POSTGRES_PASS: ""
