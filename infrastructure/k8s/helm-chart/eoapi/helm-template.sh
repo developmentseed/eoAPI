@@ -3,7 +3,6 @@ export PGUSER=username
 export POSTGRES_USER=username
 export PGPASSWORD=password
 export POSTGRES_PASSWORD=password
-export POSTGRES_PASS=password
 export GITSHA=$(git rev-parse HEAD | cut -c1-10)
 
 MANIFEST=./tmp/eoapi-manfests.yaml
@@ -18,7 +17,6 @@ while read MFILE; do
     --set gitSha=$GITSHA \
     --set db.settings.secrets.PGUSER=$PGUSER \
     --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
-    --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
     --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
     --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
     -f values.yaml >> $MANIFEST

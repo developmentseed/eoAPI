@@ -8,6 +8,14 @@ type: "Opaque"
 stringData:
   {{- range $envKey, $envValue := .Values.db.settings.secrets }}
   {{ upper $envKey }}: "{{ $envValue }}"
+  {{- /* stac-utils seems to require different environment variable for postgres so handle here via if/else to
+      avoid having to pass more arg secrets passed */ -}}
+  {{- if eq $envKey "PGPASSWORD" }}
+  POSTGRES_PASS: "{{ $envValue }}"
+  {{- end }}
+  {{- if eq $envKey "PGDATABASE" }}
+  POSTGRES_DBNAME: "{{ $envValue }}"
+  {{- end }}
   {{- end }}
 ---
 apiVersion: v1

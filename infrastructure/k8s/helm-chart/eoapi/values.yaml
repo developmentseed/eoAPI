@@ -14,12 +14,10 @@ comment: >
       --namespace eoapi \
       --create-namespace \
       --set gitSha=$GITSHA \
-      --set db.settings.secrets.PGUSER=$PGUSER \
-      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
-      --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
-      --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
-      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-      --set db.settings.secrets.POSTGRES_PASS=$PGPASSWORD \
+    --set db.settings.secrets.PGUSER=$PGUSER \
+    --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
+    --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
+    --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
       eoapi \
       ./eoapi
 
@@ -27,12 +25,10 @@ comment: >
       -s template/db/manifest.yaml
       -f values.yaml \
       --set gitSha=$GITSHA \
-      --set db.settings.secrets.PGUSER=$PGUSER \
-      --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
-      --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
-      --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
-      --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-      --set db.settings.secrets.POSTGRES_PASS=$PGPASSWORD \
+    --set db.settings.secrets.PGUSER=$PGUSER \
+    --set db.settings.secrets.POSTGRES_USER=$POSTGRES_USER \
+    --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
+    --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
 db:
   # environment options: "rds" || "k8s"
   environment: "k8s"
