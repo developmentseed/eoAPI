@@ -52,11 +52,6 @@ db:
       PGUSER: ""
       PGPASSWORD: ""
       PGDATABASE: "postgis"
-      ####################################
-      # STAC requires different names :disappointed:
-      ####################################
-      POSTGRES_DBNAME: "postgis"
-      POSTGRES_PASS: ""
 
 gitSha: ""
 
