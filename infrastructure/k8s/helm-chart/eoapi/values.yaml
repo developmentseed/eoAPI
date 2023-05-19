@@ -5,10 +5,10 @@ comment: >
   For example, to pass username or password information during `helm template` or `helm install` do:
 
   $ export GITSHA=$(git rev-parse HEAD | cut -c1-10)
-  $ export PGUSER_VAR=s00pers3cr3t
-  $ export POSTGRES_USER_VAR=s00pers3cr3t
-  $ export POSTGRES_PASSWORD_VAR=superuserfoobar
-  $ export PGPASSWORD_VAR=foobar
+  $ export PGUSER=s00pers3cr3t
+  $ export POSTGRES_USER=s00pers3cr3t
+  $ export POSTGRES_PASSWORD=superuserfoobar
+  $ export PGPASSWORD=foobar
 
   $ helm install \
       --namespace eoapi \
