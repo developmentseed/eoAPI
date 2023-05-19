@@ -19,6 +19,7 @@ comment: >
       --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
       --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
       --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+      --set db.settings.secrets.POSTGRES_PASS=$PGPASSWORD \
       eoapi \
       ./eoapi
 
@@ -31,6 +32,7 @@ comment: >
       --set db.settings.secrets.POSTGRES_PASS=$POSTGRES_PASS \
       --set db.settings.secrets.PGPASSWORD=$PGPASSWORD \
       --set db.settings.secrets.POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+      --set db.settings.secrets.POSTGRES_PASS=$PGPASSWORD \
 db:
   # environment options: "rds" || "k8s"
   environment: "k8s"
