@@ -72,7 +72,6 @@ service:
   port_type: "NodePort"
 
 ingress:
-  enabled: true
   className: "alb"
   # AWS EKS:
   # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
