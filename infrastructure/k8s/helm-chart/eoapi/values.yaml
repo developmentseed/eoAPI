@@ -1,187 +1,8 @@
 # default values for eoapi
 
-gitsha_comment: >
-  To pass `gitSha` in during `helm template` or `helm install` do:
-
-  $ helm install
-      --set gitSha=$(git rev-parse HEAD | cut -c1-10)
-      ./eoapi
-
-  $ helm template . \
-      -s template/vector/deployment.yaml \
-      -f values.yaml \
-      --set gitSha=$(git rev-parse HEAD | cut -c1-10)
-gitSha: ""
-
-raster:
-  enabled: true
-  image:
-    name: ghcr.io/developmentseed/eoapi-raster
-    tag: latest
-  # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
-  settings:
-    timeout: 10
-    # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    resources:
-      limits:
-        cpu: "512m"
-        memory: "4096M"
-      requests:
-        cpu: "256m"
-        memory: "3072M"
-    envVars:
-      # where are these used compared to HOST and PORT?
-      APP_HOST: "0.0.0.0"
-      APP_PORT: "8080"
-      ##############
-      # uvicorn
-      ##############
-      HOST: "0.0.0.0"
-      PORT: "8080"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      WEB_CONCURRENCY: "10"
-      ##############
-      # titiler and gdal
-      ##############
-      CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
-      GDAL_CACHEMAX: "200"  # 200 mb
-      GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
-      GDAL_INGESTED_BYTES_AT_OPEN: "32768"
-      GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: "YES"
-      GDAL_HTTP_MULTIPLEX: "YES"
-      GDAL_HTTP_VERSION: "2"
-      PYTHONWARNINGS: "ignore"
-      VSI_CACHE: "TRUE"
-      VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
-  service:
-    port: 8080
-    # port_type: "NodePort" || "LoadBalancer"
-    # NodePort: will create an Ingress and ALB
-    # LoadBalancer: will create an NLB
-    port_type: "NodePort"
-  ingress:
-    enabled: true
-    className: "alb"
-    # AWS EKS:
-    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
-    # GCP GKE:
-    # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
-    enable_shared_ingress: false
-    annotations:
-      alb.ingress.kubernetes.io/target-type: instance
-      alb.ingress.kubernetes.io/scheme: internet-facing
-
-stac:
-  enabled: true
-  image:
-    name: ghcr.io/developmentseed/eoapi-stac
-    tag: latest
-  # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
-  settings:
-    timeout: 10
-    # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    resources:
-      limits:
-        cpu: "512m"
-        memory: "1024Mi"
-      requests:
-        cpu: "256m"
-        memory: "256Mi"
-    envVars:
-      # where are these used compared to HOST and PORT?
-      APP_HOST: "0.0.0.0"
-      APP_PORT: "8080"
-      ##############
-      # uvicorn
-      ##############
-      HOST: "0.0.0.0"
-      PORT: "8080"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      WEB_CONCURRENCY: "10"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # WORKERS_PER_CORE: "1"
-      # https://github.com/tiangolo/uvicorn-docker#max_workers
-      # MAX_WORKERS: "10"
-      #############
-      # titiler
-      ##############
-      # https://github.com/developmentseed/eoAPI/issues/16
-      TITILER_ENDPOINT: "raster:8080"
-  service:
-    port: 8080
-    # port_type: "NodePort" || "LoadBalancer"
-    # NodePort: will create an Ingress and ALB
-    # LoadBalancer: will create an NLB
-    port_type: "NodePort"
-  ingress:
-    enabled: true
-    className: "alb"
-    # AWS EKS:
-    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
-    # GCP GKE:
-    # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
-    enable_shared_ingress: false
-    annotations:
-      alb.ingress.kubernetes.io/target-type: instance
-      alb.ingress.kubernetes.io/scheme: internet-facing
-
-vector:
-  enabled: true
-  image:
-    name: ghcr.io/developmentseed/eoapi-vector
-    tag: latest
-  # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
-  settings:
-    timeout: 10
-    # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    resources:
-      limits:
-        cpu: "512m"
-        memory: "1024Mi"
-      requests:
-        cpu: "256m"
-        memory: "256Mi"
-    envVars:
-      ##############
-      # tipg
-      ##############
-      TIPG_CATALOG_TTL: "0"
-      ##############
-      # uvicorn
-      ##############
-      HOST: "0.0.0.0"
-      PORT: "8080"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      WEB_CONCURRENCY: "10"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # WORKERS_PER_CORE: "1"
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # MAX_WORKERS: "10"
-  service:
-    port: 8080
-    # port_type: "NodePort" || "LoadBalancer"
-    # NodePort: will create an Ingress and ALB
-    # LoadBalancer: will create an NLB
-    port_type: "NodePort"
-  ingress:
-    enabled: true
-    className: "alb"
-    # AWS EKS:
-    # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
-    # GCP GKE:
-    # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
-    enable_shared_ingress: false
-    annotations:
-      alb.ingress.kubernetes.io/target-type: instance
-      alb.ingress.kubernetes.io/scheme: internet-facing
-
-
-###############################
-# DB SETTINGS
-###############################
-postgres_secret_comment: >
-  Some postgres variables are basically secrets that should be passed in via os environment variables.
-  For example, to pass `POSTGRES_PASSWORD` during `helm template` or `helm install` do:
+comment: >
+  some postgres variables are basically secrets that should be passed in via os environment variables.
+  For example, to pass username or password information during `helm template` or `helm install` do:
 
   $ export GITSHA=$(git rev-parse HEAD | cut -c1-10)
   $ export PGUSER_VAR=s00pers3cr3t
@@ -215,6 +36,9 @@ db:
   environment: "k8s"
   enabled: true
   settings:
+    resources:
+      requests:
+        storage: "100Mi"
     secrets:
       POSTGRES_DB: "postgis"
       POSTGRES_USER: ""
@@ -231,7 +55,129 @@ db:
       PGPASSWORD: ""
       PGDATABASE: "postgis"
       ####################################
-      # STAC wants different names :disappointed:
+      # STAC requires different names :disappointed:
       ####################################
       POSTGRES_DBNAME: "postgis"
       POSTGRES_PASS: ""
+
+gitSha: ""
+
+service:
+  port: 8080
+  # port_type: "NodePort" || "LoadBalancer"
+  # NodePort: will create an Ingress and ALB
+  # LoadBalancer: will create an NLB
+  port_type: "NodePort"
+
+ingress:
+  enabled: true
+  className: "alb"
+  # AWS EKS:
+  # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/ingress/annotations/
+  # GCP GKE:
+  # https://cloud.google.com/kubernetes-engine/docs/concepts/ingress
+  enable_shared_ingress: false
+  annotations:
+    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+raster:
+  enabled: true
+  image:
+    name: ghcr.io/developmentseed/eoapi-raster
+    tag: latest
+  # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
+  settings:
+    timeout: 10
+    # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources:
+      limits:
+        cpu: "512m"
+        memory: "4096M"
+      requests:
+        cpu: "256m"
+        memory: "3072M"
+    envVars:
+      ##############
+      # uvicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://www.uvicorn.org/settings/#production
+      WEB_CONCURRENCY: "10"
+      ##############
+      # titiler
+      ##############
+      CPL_VSIL_CURL_ALLOWED_EXTENSIONS: ".tif,.TIF,.tiff"
+      GDAL_CACHEMAX: "200"  # 200 mb
+      GDAL_DISABLE_READDIR_ON_OPEN: "EMPTY_DIR"
+      GDAL_INGESTED_BYTES_AT_OPEN: "32768"
+      GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: "YES"
+      GDAL_HTTP_MULTIPLEX: "YES"
+      GDAL_HTTP_VERSION: "2"
+      PYTHONWARNINGS: "ignore"
+      VSI_CACHE: "TRUE"
+      VSI_CACHE_SIZE: "5000000"  # 5 MB (per file-handle)
+
+stac:
+  enabled: true
+  image:
+    name: ghcr.io/developmentseed/eoapi-stac
+    tag: latest
+  # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
+  settings:
+    timeout: 10
+    # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources:
+      limits:
+        cpu: "512m"
+        memory: "1024Mi"
+      requests:
+        cpu: "256m"
+        memory: "256Mi"
+    envVars:
+      ##############
+      # uvicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://www.uvicorn.org/settings/#production
+      WEB_CONCURRENCY: "10"
+      #############
+      # titiler
+      ##############
+      # https://github.com/developmentseed/eoAPI/issues/16
+      TITILER_ENDPOINT: "raster:8080"
+
+vector:
+  enabled: true
+  image:
+    name: ghcr.io/developmentseed/eoapi-vector
+    tag: latest
+  # nothing definitive about this, just plumbed in after quick survey of `eoAPI/infrastructure/aws/cdk/config.py`
+  settings:
+    timeout: 10
+    # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources:
+      limits:
+        cpu: "512m"
+        memory: "1024Mi"
+      requests:
+        cpu: "256m"
+        memory: "256Mi"
+    envVars:
+      ##############
+      # tipg
+      ##############
+      TIPG_CATALOG_TTL: "0"
+      ##############
+      # uvicorn
+      ##############
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      # https://www.uvicorn.org/settings/#production
+      WEB_CONCURRENCY: "10"
+
+
+
+

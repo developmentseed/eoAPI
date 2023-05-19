@@ -38,7 +38,7 @@ spec:
       - image: {{ index $v "image" "name" }}:{{ index $v "image" "tag" }}
         name: vector
         ports:
-          - containerPort: {{ index $v "service" "port" }}
+          - containerPort: {{ $.Values.service.port }}
         resources:
           limits:
             cpu: {{ index $v "settings" "resources" "limits" "cpu" }}
@@ -62,15 +62,15 @@ metadata:
     app: {{ $serviceName }}
   name: {{ $serviceName }}
 spec:
-  type: {{ index $v "service" "port_type" }}
+  type: {{ $.Values.service.port_type }}
   ports:
-  - name: '{{ index $v "service" "port" }}'
-    port: {{ index $v "service" "port" }}
-    targetPort: {{ index $v "service" "port" }}
+  - name: '{{ $.Values.service.port }}'
+    port: {{ $.Values.service.port }}
+    targetPort: {{ $.Values.service.port }}
   selector:
     app: {{ $serviceName }}
 ---
-{{- if (eq (index $v "service" "port_type") "NodePort") }}
+{{- if (eq $.Values.service.port_type "NodePort") }}
 {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion -}}
@@ -81,22 +81,22 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $serviceName }}
-  {{- with (index $v "ingress" "annotations") }}
+  {{- with $.Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- if index $v "ingress" "enable_shared_ingress" }}
+  {{- if $.Values.ingress.enable_shared_ingress }}
     alb.ingress.kubernetes.io/group.name: shared-ingress
   {{- end }}
 spec:
-  {{- if (and (index $v "ingress" "className") (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion)) }}
-  ingressClassName: {{ index $v "ingress" "className" }}
+  {{- if (and ($.Values.ingress.className) (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion)) }}
+  ingressClassName: {{ $.Values.ingress.className }}
   {{- end }}
   rules:
     - http:
         paths:
           - pathType: Prefix
-            {{- if index $v "ingress" "enable_shared_ingress" }}
+            {{- if $.Values.ingress.enable_shared_ingress }}
             path: "/vector"
             {{ else }}
             path: "/"
@@ -105,7 +105,7 @@ spec:
               service:
                 name: {{ $serviceName }}
                 port:
-                  number: {{ index $v "service" "port" }}
+                  number: {{ $.Values.service.port }}
 ---
 {{- end }}
 {{- end }}
