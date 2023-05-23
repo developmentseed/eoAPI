@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "required": [
+    "db",
+    "service",
+    "gitSha"
+  ],
+  "properties": {
+    "db": {
+      "type": "object",
+      "required": [
+        "settings",
+        "environment"
+      ],
+      "properties": {
+        "settings": {
+          "type": "object",
+          "required": [
+            "secrets"
+          ],
+          "properties": {
+            "secrets": {
+              "type": "object",
+              "required": [
+                "PGPASSWORD",
+                "PGUSER",
+                "POSTGRES_PASSWORD",
+                "POSTGRES_USER"
+              ],
+              "properties": {
+                "PGPASSWORD": {
+                  "type": "string",
+                  "pattern": "^.+$"
+                },
+                "PGUSER": {
+                  "type": "string",
+                  "pattern": "^.+$"
+                },
+                "POSTGRES_PASSWORD": {
+                  "type": "string",
+                  "pattern": "^.+$"
+                },
+                "POSTGRES_USER": {
+                  "type": "string",
+                  "pattern": "^.+$"
+                }
+              }
+            }
+          }
+        },
+        "environment": {
+          "type": "string",
+          "pattern": "^(k8s|rds)$"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "required": [
+        "port",
+        "port_type"
+      ],
+      "properties": {
+        "port": {
+          "type": "integer",
+          "pattern": "^[0-9]{4}$"
+        },
+        "port_type": {
+          "type": "string",
+          "pattern": "^(NodePort|LoadBalancer)$"
+        }
+      }
+    },
+    "gitSha": {
+      "type": "string",
+      "pattern": "^.+$"
+    }
+  }
+}

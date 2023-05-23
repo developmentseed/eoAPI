@@ -1,4 +1,3 @@
-{{- include "eoapi.validateValues" . }}
 ---
 apiVersion: v1
 kind: Secret
