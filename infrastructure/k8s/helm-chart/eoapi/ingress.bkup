@@ -1,3 +1,4 @@
+{{/* ORIGINAL INGRESS TEMPLATE FROM `helm create` */}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "eoapi.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}

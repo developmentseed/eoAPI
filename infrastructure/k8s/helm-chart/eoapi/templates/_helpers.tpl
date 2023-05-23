@@ -91,33 +91,41 @@ db:
 
 {{- define "eoapi.validateValues.pgpassword" -}}
 {{- if not (and .Values.db.settings.secrets.PGPASSWORD (kindIs "string" .Values.db.settings.secrets.PGPASSWORD)) -}}
-DB_SETTINGS:
-  PGPASSWORD: "{{ .Values.db.settings.secrets.PGPASSWORD }}" <<<
-  `PGPASSWORD` is required and should be a non-empty string
+db:
+  settings:
+    secrets:
+      PGPASSWORD: "{{ .Values.db.settings.secrets.PGPASSWORD }}" <<<
+      `PGPASSWORD` is required and should be a non-empty string
 {{- end -}}
 {{- end -}}
 
 {{- define "eoapi.validateValues.pguser" -}}
 {{- if not (and .Values.db.settings.secrets.PGUSER (kindIs "string" .Values.db.settings.secrets.PGUSER)) -}}
-DB_SETTINGS:
-  PGUSER: "{{ .Values.db.settings.secrets.PGUSER }}" <<<
-  `PGUSER` is required and should be a non-empty string
+db:
+  settings:
+    secrets:
+      PGUSER: "{{ .Values.db.settings.secrets.PGUSER }}" <<<
+      `PGUSER` is required and should be a non-empty string
 {{- end -}}
 {{- end -}}
 
 {{- define "eoapi.validateValues.postgres_password" -}}
 {{- if not (and .Values.db.settings.secrets.POSTGRES_PASSWORD (kindIs "string" .Values.db.settings.secrets.POSTGRES_PASSWORD)) -}}
-DB_SETTINGS:
-  POSTGRES_PASSWORD: "{{ .Values.db.settings.secrets.POSTGRES_PASSWORD }}" <<<
-  `POSTGRES_PASSWORD` is required and should be a non-empty string
+db:
+  settings:
+    secrets:
+      POSTGRES_PASSWORD: "{{ .Values.db.settings.secrets.POSTGRES_PASSWORD }}" <<<
+      `POSTGRES_PASSWORD` is required and should be a non-empty string
 {{- end -}}
 {{- end -}}
 
 {{- define "eoapi.validateValues.postgres_user" -}}
 {{- if not (and .Values.db.settings.secrets.POSTGRES_USER (kindIs "string" .Values.db.settings.secrets.POSTGRES_USER)) -}}
-DB_SETTINGS:
-  POSTGRES_USER: "{{ .Values.db.settings.secrets.POSTGRES_USER }}" <<<
-  `POSTGRES_USER` is required and should be a non-empty string
+db:
+  settings:
+    secrets:
+      POSTGRES_USER: "{{ .Values.db.settings.secrets.POSTGRES_USER }}" <<<
+      `POSTGRES_USER` is required and should be a non-empty string
 {{- end -}}
 {{- end -}}
 
