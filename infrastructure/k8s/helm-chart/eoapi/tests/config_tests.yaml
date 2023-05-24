@@ -1,0 +1,46 @@
+suite: service defaults configmap
+templates:
+  - templates/services/configmap.yaml
+tests:
+  - it: "vector configmap defaults"
+    set:
+      raster.enabled: false
+      stac.enabled: false
+      vector.enabled: true
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchRegex:
+          path: metadata.name
+          pattern: ^vector-envvar-configmap$
+      - equal:
+          path: data.TIPG_CATALOG_TTL
+          value: "0"
+  - it: "raster configmap defaults"
+    set:
+      raster.enabled: true
+      stac.enabled: false
+      vector.enabled: false
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchRegex:
+          path: metadata.name
+          pattern: ^raster-envvar-configmap$
+      - equal:
+          path: data.GDAL_HTTP_MULTIPLEX
+          value: "YES"
+  - it: "stac configmap defaults"
+    set:
+      raster.enabled: false
+      stac.enabled: true
+      vector.enabled: false
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchRegex:
+          path: metadata.name
+          pattern: ^stac-envvar-configmap$
+      - equal:
+          path: data.TITILER_ENDPOINT
+          value: "raster:8080"

@@ -1,0 +1,94 @@
+suite: service defaults deployment
+templates:
+  - templates/services/deployment.yaml
+tests:
+  - it: "vector deploy defaults"
+    set:
+      raster.enabled: false
+      stac.enabled: false
+      vector.enabled: true
+      gitSha: "ABC123"
+    asserts:
+      - isKind:
+          of: Deployment
+      - matchRegex:
+          path: metadata.name
+          pattern: ^vector$
+      - equal:
+          path: spec.strategy.type
+          value: "RollingUpdate"
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: "512m"
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: "256m"
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: "1024Mi"
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: "256Mi"
+      - equal:
+          path: metadata.labels.gitsha
+          value: "ABC123"
+  - it: "raster deploy defaults"
+    set:
+      raster.enabled: true
+      stac.enabled: false
+      vector.enabled: false
+      gitSha: "ABC123"
+    asserts:
+      - isKind:
+          of: Deployment
+      - matchRegex:
+          path: metadata.name
+          pattern: ^raster$
+      - equal:
+          path: spec.strategy.type
+          value: "RollingUpdate"
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: "512m"
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: "256m"
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: "4096Mi"
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: "3072Mi"
+      - equal:
+          path: metadata.labels.gitsha
+          value: "ABC123"
+  - it: "stac deploy defaults"
+    set:
+      raster.enabled: false
+      stac.enabled: true
+      vector.enabled: false
+      gitSha: "ABC123"
+    asserts:
+      - isKind:
+          of: Deployment
+      - matchRegex:
+          path: metadata.name
+          pattern: ^stac$
+      - equal:
+          path: spec.strategy.type
+          value: "RollingUpdate"
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: "512m"
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: "256m"
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: "1024Mi"
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: "256Mi"
+      - equal:
+          path: metadata.labels.gitsha
+          value: "ABC123"

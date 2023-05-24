@@ -1,0 +1,24 @@
+{{- range $serviceName, $v := .Values -}}
+{{- if (or (eq $serviceName "raster") (eq $serviceName "stac") (eq $serviceName "vector")) }}
+{{- if index $v "enabled" }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ $serviceName }}
+  name: {{ $serviceName }}
+spec:
+  type: {{ $.Values.service.port_type }}
+  ports:
+  - name: '{{ $.Values.service.port }}'
+    port: {{ $.Values.service.port }}
+    targetPort: {{ $.Values.service.port }}
+  selector:
+    app: {{ $serviceName }}
+---
+{{/* END: if index $v "enabled" */}}
+{{- end }}
+{{/* END: if (or (eq $serviceName "raster") (eq $serviceName "stac") (eq $serviceName "vector")) */}}
+{{- end }}
+{{/* END: range $serviceName, $v := .Values*/}}
+{{- end }}
