@@ -1,0 +1,11 @@
+# this file is used with `helm-tests` job in CI
+
+db:
+  settings:
+    secrets:
+      PGUSER: 'foobar'
+      POSTGRES_USER: 'superfoobar'
+      PGPASSWORD: 's3cr3t'
+      POSTGRES_PASSWORD: 's00p3rs3cr3t'
+
+gitSha: 'ABC123'
