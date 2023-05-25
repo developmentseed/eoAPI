@@ -1,0 +1,27 @@
+suite: db defaults secrets
+templates:
+  - templates/db/secrets.yaml
+tests:
+  - it: "db secrets defaults"
+    set:
+      db.settings.secrets.PGPASSWORD: "foobar"
+      db.settings.secrets.PGDATABASE: "dbar"
+    asserts:
+      - isKind:
+          of: Secret
+      - matchRegex:
+          path: metadata.name
+          pattern: ^pgstac-secrets$
+      - equal:
+          path: stringData.PGPASSWORD
+          value: "foobar"
+      - equal:
+          path: stringData.PGDATABASE
+          value: "dbar"
+      # make sure the if/else switch adds our stac-specific ones
+      - equal:
+          path: stringData.POSTGRES_PASS
+          value: "foobar"
+      - equal:
+          path: stringData.POSTGRES_DBNAME
+          value: "dbar"

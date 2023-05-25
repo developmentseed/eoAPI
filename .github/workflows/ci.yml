@@ -5,6 +5,7 @@ on:
   push:
     branches:
     - main
+    - iac/helm-unittest
     tags:
     - '*'
   pull_request:
@@ -69,6 +70,19 @@ jobs:
 
       - name: Stop services
         run: docker-compose stop
+
+
+  helm-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: d3adb5/helm-unittest-action@v2
+        with:
+          helm-version: v3.8.2
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          cd infrastructure/k8s/helm-chart
+          helm unittest eoapi -f 'tests/*.yaml'
 
 
   publish-docker:

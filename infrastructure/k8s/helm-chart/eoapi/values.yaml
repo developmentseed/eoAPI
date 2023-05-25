@@ -85,10 +85,10 @@ raster:
     resources:
       limits:
         cpu: "512m"
-        memory: "4096M"
+        memory: "4096Mi"
       requests:
         cpu: "256m"
-        memory: "3072M"
+        memory: "3072Mi"
     envVars:
       ##############
       # uvicorn

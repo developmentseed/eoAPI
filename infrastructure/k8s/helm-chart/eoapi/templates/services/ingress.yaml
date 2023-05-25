@@ -1,0 +1,48 @@
+{{- range $serviceName, $v := .Values -}}
+{{- if (or (eq $serviceName "raster") (eq $serviceName "stac") (eq $serviceName "vector")) }}
+{{- if index $v "enabled" }}
+{{- if (eq $.Values.service.port_type "NodePort") }}
+{{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $serviceName }}
+  {{- with $.Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if $.Values.ingress.enable_shared_ingress }}
+    alb.ingress.kubernetes.io/group.name: shared-ingress
+  {{- end }}
+spec:
+  {{- if (and ($.Values.ingress.className) (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion)) }}
+  ingressClassName: {{ $.Values.ingress.className }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            {{- if $.Values.ingress.enable_shared_ingress }}
+            path: "/{{ $serviceName }}"
+            {{ else }}
+            path: "/"
+            {{- end }}
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $.Values.service.port }}
+---
+{{/* END: if .Values.service.port_type */}}
+{{- end }}
+{{/* END: if index $v "enabled" */}}
+{{- end }}
+{{/* END: if (or (eq $serviceName "raster") (eq $serviceName "stac") (eq $serviceName "vector")) */}}
+{{- end }}
+{{/* END: range $serviceName, $v := .Values*/}}
+{{- end }}

@@ -1,0 +1,53 @@
+{{- range $serviceName, $v := .Values -}}
+{{- if (or (eq $serviceName "raster") (eq $serviceName "stac") (eq $serviceName "vector")) }}
+{{- if index $v "enabled" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ $serviceName }}
+    gitsha: {{ $.Values.gitSha }}
+  name: {{ $serviceName }}
+spec:
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $serviceName }}
+    spec:
+      containers:
+      - image: {{ index $v "image" "name" }}:{{ index $v "image" "tag" }}
+        name: {{ $serviceName }}
+        ports:
+          - containerPort: {{ $.Values.service.port }}
+        resources:
+          limits:
+            cpu: {{ index $v "settings" "resources" "limits" "cpu" }}
+            memory: {{ index $v "settings" "resources" "limits" "memory" }}
+          requests:
+            cpu: {{ index $v "settings" "resources" "requests" "cpu" }}
+            memory: {{ index $v "settings" "resources" "requests" "memory" }}
+        envFrom:
+          # NOTE: there's no reason we need to use a `ConfigMap` or `Secret` here to get os env vars into the pod.
+          # we could just template them out here immediately with `value: $_` but this allows us
+          # to store them in k8s intermediately and change them and then bounce deploys if needed
+        - secretRef:
+            name: pgstac-secrets
+        - configMapRef:
+            name: {{ $serviceName }}-envvar-configmap
+---
+{{/* END: if index $v "enabled" */}}
+{{- end }}
+{{/* END: if (or (eq $serviceName "raster") (eq $serviceName "stac") (eq $serviceName "vector")) */}}
+{{- end }}
+{{/* END: range $serviceName, $v := .Values*/}}
+{{- end }}
