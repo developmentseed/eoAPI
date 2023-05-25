@@ -82,7 +82,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           cd infrastructure/k8s/helm-chart
-          helm unittest eoapi -f 'tests/*.yaml'
+          helm unittest eoapi -f 'tests/*.yaml' -v eoapi/required-test-values.yaml
 
 
   publish-docker:
