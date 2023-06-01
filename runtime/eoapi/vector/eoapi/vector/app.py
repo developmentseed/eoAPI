@@ -48,7 +48,7 @@ templates = Jinja2Templates(  # type: ignore
 endpoints = TiPgEndpoints(
     title=settings.name, templates=templates, with_tiles_viewer=True
 )
-app.include_router(endpoints.router, tags=["OGC API"])
+app.include_router(endpoints.router)
 
 # Set all CORS enabled origins
 if settings.cors_origins:
