@@ -58,29 +58,17 @@ See [service details](./docs/src/services-details.md) for more information.
 *Note: The documentation links reference require lauching the application with `docker-compose` or another deployment*.
 
 ---
-## Project structure
 
-```
- ├──demo/                  - items/collections and notebook
- ├──infrastructure/        - Deployment options (e.g AWS CDK application)
- └──runtime/eoapi/
-    ├── raster/            - "eoapi.raster" python package
-    ├── stac/              - "eoapi.stac" python package
-    └── vector/            - "eoapi.vector" (OGC features + OGC tiles) python package
-```
+## Getting started
 
-## Launch application locally
+- Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
+- Navigate to project: `cd eoAPI`
+- Run services with `docker-compose up`
+- Follow or get inspired by the instructions under [demo](./demo/) to load some data into eoAPI
+- Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
-You can launch the APIs locally using docker. This will start 3 services: database, eoapi.stac, eoapi.raster
-```
-git clone https://github.com/developmentseed/eoAPI.git
-cd eoAPI
-docker-compose build
-docker-compose up stac raster
-```
-
-Or install everything locally
-```
+Alternatively, you may launch the application locally:
+```bash
 python -m pip install --upgrade virtualenv
 virtualenv .venv
 source .venv/bin/activate
@@ -99,7 +87,7 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 # STAC
 .venv/bin/uvicorn eoapi.stac.app:app --port 8000 --reload
 ```
-
+---
 ## Deployment
 
 See [DEPLOYMENT.md](https://github.com/developmentseed/eoAPI/blob/main/infrastructure/DEPLOYMENT.md)
