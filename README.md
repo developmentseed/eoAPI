@@ -23,7 +23,7 @@
 
 ## **E**arth **O**bservation **API**
 
-The objective of `eoAPI` is to combine *state of the art* project to create a full Earth Observation API for Metadata search (STAC), Raster and Feature/Vector services:
+`eoAPI` combines several *state-of-the-art* projects to create a full Earth Observation API. Each service can be used and deployed independently but `eoAPI` creates the interconnections between each service:
 
 - **pgSTAC** database [https://github.com/stac-utils/pgstac](https://github.com/stac-utils/pgstac)
 
@@ -33,8 +33,23 @@ The objective of `eoAPI` is to combine *state of the art* project to create a fu
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
 
+---
 
-Note: Each service can be used/deployed independently but **eoAPI** also adds interconnection between them.
+## Why should you use `eoAPI`
+
+- **Focus on your use case:** `eoAPI` is used for large-scale data processing, building geographic information systems (GIS), creating real-time data applications, climate research and environmental monitoring, machine learning model training, and much more. 
+
+- **Unified Interface:** `eoAPI` provides a single, unified interface to several state-of-the-art Earth Observation (EO) data services, including Metadata search (STAC), Raster, and Vector services. This can simplify the process of accessing and working with these services.
+
+- **Interoperability:** `eoAPI` is designed to enable interoperability among its included services. This can make it easier to build complex applications that leverage different types of EO data.
+
+- **Open Source and Community Support:** As an open-source project, `eoAPI` allows developers to inspect its code, contribute to its development, and even use it as a base for custom solutions. It also benefits from the support and innovation of a community of developers and EO data users.
+
+- **Scalability and Flexibility:** Each service in `eoAPI` can be used or deployed independently, which provides a lot of flexibility. If a developer's application only requires one or two of the services eoAPI offers, they don't need to deploy the entire suite.
+
+- **Facilitate Earth Observation Tasks:** `eoAPI` includes specialized tools for working with EO data, such as dynamic tiling, metadata searching, and features/vector tiles API. These can greatly facilitate the processing, analysis, and visualization of EO data.
+
+- **Ease of Deployment:** `eoAPI` supports containerized deployment using Docker, which can make it easier to set up, scale, and maintain applications built on it. Spin up the demo locally and start experimenting in minutes.
 
 ---
 
