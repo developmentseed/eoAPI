@@ -20,6 +20,7 @@ nav:
   - Readme: "index.md"
   - Development - Contributing: "contributing.md"
   - Release Notes: "release-notes.md"
+  - Services Details: "services-details.md"
 
 plugins:
   - search
