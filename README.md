@@ -37,7 +37,7 @@
 
 ## Why should you use `eoAPI`
 - **Focus on your use case:** `eoAPI` is used for large-scale data processing, building geographic information systems (GIS), creating real-time data applications, climate research and environmental monitoring, machine learning model training, and more.
-- **Unified Interface:** `eoAPI` provides a single, unified interface to several state-of-the-art Earth Observation (EO) data services, including Metadata search (STAC), Raster, and Vector services. This can simplify the process of accessing and working with these services.
+- **Unified Repository:** `eoAPI` provides a single, unified repository to several state-of-the-art Earth Observation (EO) data services, including Metadata search (STAC), Raster, and Vector services. This can simplify the process of accessing and working with these services.
 - **Interoperability:** `eoAPI` is designed to enable interoperability among its included services. This can make building complex applications that leverage different types of EO data easier.
 - **Open Source and Community Support:** As an open-source project, `eoAPI` allows developers to inspect its code, contribute to its development, and use it as a base for custom solutions. It also benefits from the support and innovation of a community of developers and EO data users.
 - **Scalability and Flexibility:** Each service in `eoAPI` can be used or deployed independently, which provides a lot of flexibility. If a developer's application only requires one or two of eoAPI's services, they don't need to deploy the entire suite.
@@ -55,14 +55,14 @@
 
 See [service details](./docs/src/services-details.md) for more information. 
 
-*Note: The documentation links reference require lauching the application with `docker-compose` or another deployment*.
+*Note: The documentation links referenced require lauching the application with `docker-compose` or another deployment*.
 
 ---
 
 ## Getting started
 
 - Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
-- Navigate to project: `cd eoAPI`
+- Navigate to the project: `cd eoAPI`
 - Run services with `docker-compose up`
 - Follow or get inspired by the instructions under [demo](./demo/) to load some data into eoAPI
 - Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
