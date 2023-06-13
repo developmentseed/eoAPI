@@ -23,7 +23,7 @@
 
 ## **E**arth **O**bservation **API**
 
-The objective of `eoAPI` is to combine *state of the art* project to create a full Earth Observation API for Metadata search (STAC), Raster and Feature/Vector services:
+`eoAPI` combines several *state-of-the-art* projects to create a full Earth Observation API. Each service can be used and deployed independently but `eoAPI` creates the interconnections between each service:
 
 - **pgSTAC** database [https://github.com/stac-utils/pgstac](https://github.com/stac-utils/pgstac)
 
@@ -33,89 +33,42 @@ The objective of `eoAPI` is to combine *state of the art* project to create a fu
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
 
+---
 
-Note: Each service can be used/deployed independently but **eoAPI** also adds interconnection between them.
+## Why should you use `eoAPI`
+- **Focus on your use case:** `eoAPI` is used for large-scale data processing, building geographic information systems (GIS), creating real-time data applications, climate research and environmental monitoring, machine learning model training, and more.
+- **Unified Repository:** `eoAPI` provides a single, unified repository to several state-of-the-art Earth Observation (EO) data services, including Metadata search (STAC), Raster, and Vector services. This can simplify the process of accessing and working with these services.
+- **Interoperability:** `eoAPI` is designed to enable interoperability among its included services. This can make building complex applications that leverage different types of EO data easier.
+- **Open Source and Community Support:** As an open-source project, `eoAPI` allows developers to inspect its code, contribute to its development, and use it as a base for custom solutions. It also benefits from the support and innovation of a community of developers and EO data users.
+- **Scalability and Flexibility:** Each service in `eoAPI` can be used or deployed independently, which provides a lot of flexibility. If a developer's application only requires one or two of eoAPI's services, they don't need to deploy the entire suite.
+- **Facilitate Earth Observation Tasks:** `eoAPI` includes specialized tools for working with EO data, such as dynamic tiling, metadata searching, and features/vector tiles API. These can significantly facilitate EO data processing, analysis, and visualization.
+- **Ease of Deployment:** `eoAPI` supports containerized deployment using Docker, making it easier to set up, scale, and maintain applications built on it. Spin up the demo locally and start experimenting in minutes.
 
 ---
 
-## Services
+## Services Overview
 
-### STAC Metadata
 
-A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
+- **STAC Metadata**: Built with [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) and extended with a custom extension to connect it to **`TiTiler`** and a **[Search Viewer](http://localhost:8081/index.html)**. See [docs](http://localhost:8081/docs) for API details.
+- **Raster Tiles**: Built with [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac) to enable large scale mosaic based on results of STAC searches queries. See [docs](http://localhost:8082/docs) for API details.
+- **OGC Features & Vector Tiles**: Built with [tipg](https://github.com/developmentseed/tipg) to create a lightweight OGC Features and Tiles API with a PostGIS database. See [docs](http://localhost:8083/api.html) for API details.
 
-- Full **stac-fastapi** implementation
+See [service details](./docs/src/services-details.md) for more information. 
 
-- Simple STAC Search **viewer**
-
-- **Proxy** to the Tiler endpoint for STAC Items
-
-  When `TITILER_ENDPOINT` environement is set (pointing the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/main/src/eoapi/stac/eoapi/stac/extension.py)):
-
-  - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an item
-  - `/collections/{collectionId}/items/{itemId}/viewer`: Redirect to the `raster` viewer
-
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/10407788/146790933-e439893c-ef2e-4d78-a372-f2f18694836c.png"/>
-  <p align="center">STAC Search viewer</p>
-</p>
-
-Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/stac)
+*Note: The documentation links referenced require lauching the application with `docker-compose` or another deployment*.
 
 ---
 
-### Raster Tiles
+## Getting started
 
-The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries:
+- Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
+- Navigate to the project: `cd eoAPI`
+- Run services with `docker-compose up`
+- Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](./demo/)) to load some data into eoAPI
+- Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
-- Full **titiler-pgstac** implementation
-
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/10407788/129632282-f71e9f45-264c-4882-af28-7062c4e56f25.png"/>
-  <p align="center">TiTiler-PgSTAC workflow</p>
-</p>
-
-Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/raster)
-
----
-
-### OGC Features / Vector Tiles
-
-OGC Features + Tiles API built on top of [tipg](https://github.com/developmentseed/tipg).
-
-By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions which connect to the pgSTAC schema:
-
-- **pg_temp.pgstac_collections_view**: Simple function which return PgSTAC Collections
-- **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
-- **pg_temp.pgstac_hash_count**: Return the number of items per geometry for a specific searchId (hash)
-
-Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/vector)
-
----
-
-## Project structure
-
-```
- ├──demo/                  - items/collections and notebook
- ├──infrastructure/        - Deployment options (e.g AWS CDK application)
- └──runtime/eoapi/
-    ├── raster/            - "eoapi.raster" python package
-    ├── stac/              - "eoapi.stac" python package
-    └── vector/            - "eoapi.vector" (OGC features + OGC tiles) python package
-```
-
-## Launch application locally
-
-You can launch the APIs locally using docker. This will start 3 services: database, eoapi.stac, eoapi.raster
-```
-git clone https://github.com/developmentseed/eoAPI.git
-cd eoAPI
-docker-compose build
-docker-compose up stac raster
-```
-
-Or install everything locally
-```
+Alternatively, you may launch the application locally:
+```bash
 python -m pip install --upgrade virtualenv
 virtualenv .venv
 source .venv/bin/activate
@@ -134,7 +87,7 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 # STAC
 .venv/bin/uvicorn eoapi.stac.app:app --port 8000 --reload
 ```
-
+---
 ## Deployment
 
 See [DEPLOYMENT.md](https://github.com/developmentseed/eoAPI/blob/main/infrastructure/DEPLOYMENT.md)
