@@ -137,7 +137,7 @@ services:
       - PGPASSWORD=password
       - PGDATABASE=postgis
     ports:
-      - "5439:5432"
+      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
