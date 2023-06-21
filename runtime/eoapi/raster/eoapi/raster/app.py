@@ -122,6 +122,94 @@ def ping(
         return {"database_online": False}
 
 
+###############################################################################
+# Landing page Endpoint
+@app.get(
+    "/",
+    response_class=HTMLResponse,
+)
+def landing(request: Request):
+    """Get landing page."""
+    data = {
+        "title": "eoAPI-Raster",
+        "links": [
+            {
+                "title": "Landing page",
+                "href": str(request.url_for("landing")),
+                "type": "text/html",
+                "rel": "self",
+            },
+            {
+                "title": "the API definition (JSON)",
+                "href": str(request.url_for("openapi")),
+                "type": "application/vnd.oai.openapi+json;version=3.0",
+                "rel": "service-desc",
+            },
+            {
+                "title": "the API documentation",
+                "href": str(request.url_for("swagger_ui_html")),
+                "type": "text/html",
+                "rel": "service-doc",
+            },
+            {
+                "title": "Mosaic List (JSON)",
+                "href": mosaic.url_for(request, "list_mosaic"),
+                "type": "application/json",
+                "rel": "data",
+            },
+            {
+                "title": "Mosaic Metadata (template URL)",
+                "href": mosaic.url_for(request, "info_search", searchid="{searchid}"),
+                "type": "application/json",
+                "rel": "data",
+            },
+            {
+                "title": "Mosaic viewer (template URL)",
+                "href": mosaic.url_for(request, "map_viewer", searchid="{searchid}"),
+                "type": "text/html",
+                "rel": "data",
+            },
+            {
+                "title": "TiTiler-pgSTAC Documentation (external link)",
+                "href": "https://stac-utils.github.io/titiler-pgstac/",
+                "type": "text/html",
+                "rel": "doc",
+            },
+        ],
+    }
+
+    urlpath = request.url.path
+    crumbs = []
+    baseurl = str(request.base_url).rstrip("/")
+
+    crumbpath = str(baseurl)
+    for crumb in urlpath.split("/"):
+        crumbpath = crumbpath.rstrip("/")
+        part = crumb
+        if part is None or part == "":
+            part = "Home"
+        crumbpath += f"/{crumb}"
+        crumbs.append({"url": crumbpath.rstrip("/"), "part": part.capitalize()})
+
+    return templates.TemplateResponse(
+        "landing.html",
+        {
+            "request": request,
+            "response": data,
+            "template": {
+                "api_root": baseurl,
+                "params": request.query_params,
+                "title": "",
+            },
+            "crumbs": crumbs,
+            "url": str(request.url),
+            "baseurl": baseurl,
+            "urlpath": str(request.url.path),
+            "urlparams": str(request.url.query),
+        },
+    )
+
+
 if settings.cors_origins:
     app.add_middleware(
         CORSMiddleware,
