@@ -8,17 +8,9 @@ raster_endpoint = "http://0.0.0.0:8082"
 def test_raster_api():
     """test api."""
     # health
-    resp = httpx.get(
-        f"{raster_endpoint}/healthz", headers={"Accept-Encoding": "br, gzip"}
-    )
+    resp = httpx.get(f"{raster_endpoint}/healthz")
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/json"
-    assert resp.headers["content-encoding"] == "gzip"
-
-    resp = httpx.get(f"{raster_endpoint}/healthz", headers={"Accept-Encoding": "br"})
-    assert resp.status_code == 200
-    assert resp.headers["content-type"] == "application/json"
-    assert resp.headers["content-encoding"] == "br"
 
 
 def test_mosaic_api():

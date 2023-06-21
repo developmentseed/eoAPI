@@ -55,7 +55,9 @@ mosaic = MosaicTilerFactory(
     optional_headers=optional_headers,
     router_prefix="/mosaic",
     add_statistics=True,
-    add_map_viewer=True,
+    # add /map viewer
+    add_viewer=True,
+    # add /mosaic/list endpoint
     add_mosaic_list=True,
 )
 app.include_router(mosaic.router, tags=["Mosaic"], prefix="/mosaic")
@@ -67,12 +69,17 @@ stac = MultiBaseTilerFactory(
     path_dependency=ItemPathParams,
     optional_headers=optional_headers,
     router_prefix="/collections/{collection_id}/items/{item_id}",
+    # add /map viewer
+    add_viewer=True,
 )
 
 
 @stac.router.get("/viewer", response_class=HTMLResponse)
 def viewer(request: Request, item: pystac.Item = Depends(stac.path_dependency)):
-    """STAC Viewer."""
+    """STAC Viewer
+
+    Simplified version of https://github.com/developmentseed/titiler/blob/main/src/titiler/extensions/titiler/extensions/templates/stac_viewer.html
+    """
     return templates.TemplateResponse(
         name="stac-viewer.html",
         context={
