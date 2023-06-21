@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img width="700" src="https://user-images.githubusercontent.com/10407788/236044449-f7d21e6c-c196-4f9e-b4b6-59c945e92644.png"/>
+  <img width="700" src="https://github.com/developmentseed/eoAPI/assets/10407788/2a12d3ea-2fff-4f15-979b-7d1f0be795f7"/>
   <p align="center">Create a full Earth Observation API with Metadata, Raster and Vector services.</p>
 </p>
 
