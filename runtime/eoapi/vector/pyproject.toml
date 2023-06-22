@@ -19,7 +19,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "tipg==0.1.0",
+    "tipg==0.2.0",
 ]
 
 [project.optional-dependencies]

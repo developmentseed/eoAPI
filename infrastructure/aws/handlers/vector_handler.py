@@ -6,7 +6,8 @@ import os
 
 from eoapi.vector.app import app
 from mangum import Mangum
-from tipg.db import connect_to_db, register_collection_catalog
+from tipg.collections import register_collection_catalog
+from tipg.database import connect_to_db
 from tipg.settings import PostgresSettings
 
 logging.getLogger("mangum.lifespan").setLevel(logging.ERROR)
