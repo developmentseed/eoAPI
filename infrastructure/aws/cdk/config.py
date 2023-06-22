@@ -110,7 +110,7 @@ class eoVectorSettings(pydantic.BaseSettings):
     env: Dict = {}
 
     timeout: int = 10
-    memory: int = 256
+    memory: int = 512
 
     class Config:
         """model config"""

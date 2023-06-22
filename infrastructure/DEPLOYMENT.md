@@ -26,37 +26,54 @@ The example commands here will deploy a CloudFormation stack called `eoAPI-stagi
     npm --prefix infrastructure/aws install
     ```
 
-3. Install CDK and connect to your AWS account. This step is only necessary once per AWS account. The environment variable `CDK_EOAPI_STAGE` determines the name of the stack
-(e.g. eoAPI-staging or eoAPI-production)
-    ```bash
-    # Deploy the CDK toolkit stack into an AWS environment.
-    CDK_EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 npm --prefix infrastructure/aws run cdk -- bootstrap
-
-    # or to a specific region
-    AWS_DEFAULT_REGION=us-west-2 AWS_REGION=us-west-2 CDK_EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 npm --prefix infrastructure/aws run cdk -- bootstrap
-    ```
-
-4. Update settings
+3. Update settings
 
     Set environment variable or hard code in `infrastructure/aws/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1`).
 
     **Important**:
-      - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env
+
+      - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env (see https://github.com/stac-utils/pgstac/tags for the latest version)
+
       - You can choose which functions to deploy by setting `CDK_EOAPI_FUNCTIONS` env (e.g `CDK_EOAPI_FUNCTIONS='["stac","raster","vector"]'`)
+
+
+4. Install CDK and connect to your AWS account. This step is only necessary once per AWS account. The environment variable `CDK_EOAPI_STAGE` determines the name of the stack
+(e.g. eoAPI-staging or eoAPI-production)
+    ```bash
+    # Deploy the CDK toolkit stack into an AWS environment.
+    CDK_EOAPI_STAGE=staging \
+    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
+    npm --prefix infrastructure/aws run cdk -- bootstrap
+
+    # or to a specific region
+    AWS_DEFAULT_REGION=us-west-2 \
+    AWS_REGION=us-west-2 \
+    CDK_EOAPI_STAGE=staging \
+    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
+    npm --prefix infrastructure/aws run cdk -- bootstrap
+    ```
 
 5. Pre-Generate CFN template
 
     ```bash
-    CDK_EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 npm --prefix infrastructure/aws run cdk -- synth  # Synthesizes and prints the CloudFormation template for this stack
+    CDK_EOAPI_STAGE=staging \
+    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
+    npm --prefix infrastructure/aws run cdk -- synth  # Synthesizes and prints the CloudFormation template for this stack
     ```
 
 6. Deploy
 
     ```bash
-    CDK_EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 npm --prefix infrastructure/aws run cdk -- deploy eoAPI-${CDK_EOAPI_STAGE}
+    CDK_EOAPI_STAGE=staging \
+    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
+    npm --prefix infrastructure/aws run cdk -- deploy eoAPI-staging
 
     # Deploy in specific region
-    AWS_DEFAULT_REGION=eu-central-1 AWS_REGION=eu-central-1 CDK_EOAPI_STAGE=staging CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 npm --prefix infrastructure/aws run cdk -- deploy eoapi-${CDK_EOAPI_STAGE} --profile {my-aws-profile}
+    AWS_DEFAULT_REGION=eu-central-1 \
+    AWS_REGION=eu-central-1 \
+    CDK_EOAPI_STAGE=staging \
+    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
+    npm --prefix infrastructure/aws run cdk -- deploy eoapi-staging --profile {my-aws-profile}
     ```
 
 If you get an error saying that the max VPC's has been reached, this means that you have hit the limit for the amount of VPCs per unique AWS account and region combination. You can change the AWS region to a region that has less VPCs and deploy again to fix this.
