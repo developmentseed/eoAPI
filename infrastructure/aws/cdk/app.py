@@ -158,6 +158,10 @@ class eoAPIconstruct(Stack):
             ],
             nat_gateways=1,
         )
+        print(
+            """The eoAPI stack use AWS NatGateway for the Raster service so it can reach the internet.
+This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)."""
+        )
 
         interface_endpoints = [
             (
