@@ -60,6 +60,32 @@ mosaic = MosaicTilerFactory(
     # add /mosaic/list endpoint
     add_mosaic_list=True,
 )
+
+
+@mosaic.router.get("/builder", response_class=HTMLResponse)
+async def mosaic_builder(request: Request):
+    """Mosaic Builder Viewer."""
+    return templates.TemplateResponse(
+        name="mosaic-builder.html",
+        context={
+            "request": request,
+            "register_endpoint": mosaic.url_for(request, "register_search"),
+            "collections_endpoint": str(request.url_for("list_collection")),
+        },
+        media_type="text/html",
+    )
+
+
+# `Secret` endpoint for mosaic builder. Do not need to be public (in the OpenAPI docs)
+@app.get("/collections", include_in_schema=False)
+async def list_collection(request: Request):
+    """list collections."""
+    with request.app.state.dbpool.connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT * FROM collections;")
+            return [t[2] for t in cursor.fetchall() if t]
+
+
 app.include_router(mosaic.router, tags=["Mosaic"], prefix="/mosaic")
 
 ###############################################################################
@@ -155,6 +181,12 @@ def landing(request: Request):
                 "title": "Mosaic List (JSON)",
                 "href": mosaic.url_for(request, "list_mosaic"),
                 "type": "application/json",
+                "rel": "data",
+            },
+            {
+                "title": "Mosaic Builder",
+                "href": mosaic.url_for(request, "mosaic_builder"),
+                "type": "text/html",
                 "rel": "data",
             },
             {
