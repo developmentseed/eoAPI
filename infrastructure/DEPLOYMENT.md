@@ -1,5 +1,5 @@
 
-## AWS
+## AWS (Lambda)
 
 An example of Cloud Stack is available for AWS (RDS for the database and Lambda for the APIs)
 
@@ -77,3 +77,7 @@ The example commands here will deploy a CloudFormation stack called `eoAPI-stagi
     ```
 
 If you get an error saying that the max VPC's has been reached, this means that you have hit the limit for the amount of VPCs per unique AWS account and region combination. You can change the AWS region to a region that has less VPCs and deploy again to fix this.
+
+## K8S
+
+A Kubernetes chart is currently being developed at https://github.com/developmentseed/k8s-eoapi
