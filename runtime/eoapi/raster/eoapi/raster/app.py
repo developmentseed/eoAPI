@@ -154,7 +154,7 @@ class mosaicViewerExtension(FactoryExtension):
 
             tms = factory.supported_tms.get(TileMatrixSetId)
             return templates.TemplateResponse(
-                name="map.html",
+                name="mosaic-browser.html",
                 context={
                     "request": request,
                     "tilejson_url": tilejson_url,

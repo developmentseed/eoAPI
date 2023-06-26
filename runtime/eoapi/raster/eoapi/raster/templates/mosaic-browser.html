@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>eoAPI mosaic browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css' rel='stylesheet' />
+
+    <link href='https://api.mapbox.com/mapbox-assembly/v0.23.2/assembly.min.css' rel='stylesheet'>
+    <script src='https://api.mapbox.com/mapbox-assembly/v0.23.2/assembly.js'></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #menu {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        #coordinates {
+            z-index: 10;
+            position: absolute;
+            bottom: 17px;
+            right: 0;
+            padding: 5px;
+            width: auto;
+            height: auto;
+            font-size: 12px;
+            color: #000;
+        }
+
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        .tab-buttons {
+            margin-bottom: 10px;
+        }
+
+        .tab-button {
+            display: inline-block;
+            margin-right: 10px;
+            background-color: #ccc;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background-color: #999;
+            color: #fff;
+        }
+
+        .dropdown-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+        }
+
+        .button {
+            display: inline-block;
+            margin-right: 10px;
+            background-color: #ccc;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div id="map"></div>
+        <div id="coordinates"></div>
+    </div>
+    <div id="menu">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="single-band-tab">single-band</button>
+            <button class="tab-button" data-tab="three-band-tab">three-band</button>
+        </div>
+
+        <!-- single-band visualization -->
+        <div class="tab active" id="single-band-tab">
+            <div>
+                <h3>layer</h3>
+            </div>
+            <div class="dropdown-container wmax-full">
+                <select id="layer-selector" class="select select--s select--stroke wmax-full color-black"></select>
+                <div class="select-arrow color-black"></div>
+            </div>
+            <!-- Color Map -->
+            <div id="colormap-section">
+                <div>
+                    <h3>color ramp</h3>
+                </div>
+                <div class="dropdown-container wmax-full">
+                    <select id="colormap-selector" class="select select--s select--stroke wmax-full color-black">
+                        <option value="b&w">Internal</option>
+                        <option value=cfastie>CFastie</option>
+                        <option value=rplumbo>RPlumbo</option>
+                        <option value=schwarzwald>Schwarzwald (elevation)</option>
+                        <option value=viridis>Viridis</option>
+                        <option value=rdbu_r>Blue-Red</option>
+                        <option value=bugn>Blue-Green</option>
+                        <option value=ylgn>Yellow-Green</option>
+                        <option value=magma>Magma</option>
+                        <option value=gist_earth>Earth</option>
+                        <option value=ocean>Ocean</option>
+                        <option value=terrain>Terrain</option>
+                    </select>
+                    <div class="select-arrow color-black"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- three-band visualization -->
+        <div class="tab" id="three-band-tab">
+            <div id="rgb-buttons" class="align-center px6 py6">
+                <div>
+                    <h3>layers</h3>
+                </div>
+                <div class="dropdown-container">
+                    <label for="r-selector">red:</label>
+                    <select id="r-selector" class="select select--s select--stroke wmax-full"></select>
+                    <div class="select-arrow color-black"></div>
+                </div>
+
+                <div class="dropdown-container">
+                    <label for="g-selector">green:</label>
+                    <select id="g-selector" class="select select--s select--stroke wmax-full color-green"></select>
+                    <div class="select-arrow color-black"></div>
+                </div>
+
+                <div class="dropdown-container">
+                    <label for="b-selector">blue:</label>
+                    <select id="b-selector" class="select select--s select--stroke wmax-full color-blue"></select>
+                    <div class="select-arrow color-black"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Min/Max -->
+        <div>
+            <h3>display value range</h2>
+        </div>
+        <div id="minmax-data">
+            <label for="min-value">min:</label>
+            <input type="number" id="min-value" name="min-value" min="0" step="0.1" style="margin-top: 20px;" />
+            <label for="max-value">max:</label>
+            <input type="number" id="max-value" name="max-value" min="0" step="0.1" style="margin-top: 20px;" />
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button id="applyViz" class="button">Apply</button>
+        </div>
+    </div>
+    <script>
+        var scope = { assets: undefined, info: undefined }
+
+        mapboxgl.accessToken = ''
+        const map = new mapboxgl.Map({
+            container: "map",
+            style: {
+                "version": 8,
+                "sources": {
+                    "raster-tiles": {
+                        "type": "raster",
+                        "tiles": [
+                            "https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png",
+                            "https://stamen-tiles-b.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png",
+                            "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png",
+                            "https://stamen-tiles-d.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png"
+                        ],
+                        "tileSize": 256,
+                        "attribution": "Map tiles by <a target='_top' rel='noopener' href='http://stamen.com'>Stamen Design</a>, under <a target='_top' rel='noopener' href='http://creativecommons.org/licenses/by/3.0'>CC BY 3.0</a>. Data by <a target='_top' rel='noopener' href='http://openstreetmap.org'>OpenStreetMap</a>, under <a target='_top' rel='noopener' href='http://creativecommons.org/licenses/by-sa/3.0'>CC BY SA</a>"
+                    }
+                },
+                "layers": [
+                    {
+                        "id": "simple-tiles",
+                        "type": "raster",
+                        "source": "raster-tiles",
+                        "minzoom": 0,
+                        "maxzoom": 22
+                    }
+                ]
+            },
+            center: [-74.5, 40],
+            zoom: 2
+        });
+
+        const bboxPolygon = (bounds) => {
+            return {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [[
+                        [bounds[0], bounds[1]],
+                        [bounds[2], bounds[1]],
+                        [bounds[2], bounds[3]],
+                        [bounds[0], bounds[3]],
+                        [bounds[0], bounds[1]]
+                    ]]
+                },
+                'properties': {}
+            }
+        }
+
+        const addAOI = (bounds) => {
+            if (map.getLayer('aoi-polygon')) map.removeLayer('aoi-polygon')
+            if (map.getSource('aoi')) map.removeSource('aoi')
+
+
+            const geojson = {
+                "type": "FeatureCollection",
+                "features": [bboxPolygon(bounds)]
+            }
+
+            map.addSource('aoi', {
+                'type': 'geojson',
+                'data': geojson
+            })
+
+            map.addLayer({
+                id: 'aoi-polygon',
+                type: 'line',
+                source: 'aoi',
+                layout: {
+                    'line-cap': 'round',
+                    'line-join': 'round'
+                },
+                paint: {
+                    'line-color': '#3bb2d0',
+                    'line-width': 1
+                }
+            })
+            return
+        }
+
+        const truncate_lnglat = (lng, lat) => {
+            if (lng > 180.0) {
+                lng = 180.0
+            } else if (lng < -180.0) {
+                lng = -180.0
+            }
+            if (lat > 90.0) {
+                lat = 90.0
+            } else if (lat < -90.0) {
+                lat = -90.0
+            }
+            return [lng, lat]
+        }
+
+        var tabButtons = document.querySelectorAll(".tab-button");
+        tabButtons.forEach(function (button) {
+            button.addEventListener("click", function (e) {
+                var targetTabId = e.target.getAttribute("data-tab");
+                var targetTab = document.getElementById(targetTabId);
+                var activeTab = document.querySelector(".tab.active");
+                var activeButton = document.querySelector(".tab-button.active");
+
+                activeTab.classList.remove("active");
+                activeButton.classList.remove("active");
+                targetTab.classList.add("active");
+                e.target.classList.add("active");
+            });
+        });
+
+        const setSingleBandViz = () => {
+            let url = `{{ tilejson_url }}?`
+
+            // add assets parameter
+            const asset = document.getElementById('layer-selector').selectedOptions[0].getAttribute("bname")
+            url += `assets=${asset}`
+
+            // add rescale parameter
+            url += `&rescale=${document.getElementById('min-value').value},${document.getElementById('max-value').value}`
+
+            // add colormap_name parameter
+            const cmap = document.getElementById('colormap-selector')[document.getElementById('colormap-selector').selectedIndex].value
+            if (cmap !== 'b&w') url += `&colormap_name=${cmap}`
+
+            map.addSource('raster', { type: 'raster', url: url, tileSize: 256 })
+            map.addLayer({ id: 'raster', type: 'raster', source: 'raster' })
+        }
+
+
+        const setThreeBandViz = () => {
+            const r = document.getElementById('r-selector').selectedOptions[0].getAttribute("bname")
+            const g = document.getElementById('g-selector').selectedOptions[0].getAttribute("bname")
+            const b = document.getElementById('b-selector').selectedOptions[0].getAttribute("bname")
+
+            let url = `{{ tilejson_url }}?`
+
+            // add assets parameters
+            url += [r, g, b].map(i => `assets=${i}`).join('&')
+
+            // add rescale parameters
+            url += `&rescale=${document.getElementById('min-value').value},${document.getElementById('max-value').value}`
+
+            // load 
+            map.addSource('raster', { type: 'raster', url: url, tileSize: 256 })
+            map.addLayer({ id: 'raster', type: 'raster', source: 'raster' })
+        }
+
+        const applyViz = () => {
+            if (map.getLayer('raster')) map.removeLayer('raster')
+            if (map.getSource('raster')) map.removeSource('raster')
+
+            const tabs = document.querySelectorAll('.tab');
+
+            tabs.forEach(tab => {
+                if (tab.classList.contains('active')) {
+                    const tabId = tab.id;
+                    if (tabId === 'single-band-tab') {
+                        setSingleBandViz();
+                    } else if (tabId === 'three-band-tab') {
+                        setThreeBandViz();
+                    }
+                }
+            });
+        }
+
+        document.getElementById('applyViz').addEventListener('click', () => {
+            applyViz()
+        })
+
+        var coordinatesContainer = document.getElementById('coordinates');
+
+        function showCoordinates(e) {
+            var tileCoordinates = getTileCoordinates(e.lngLat.lat, e.lngLat.lng, map.getZoom());
+            coordinatesContainer.innerHTML = 'X: ' + tileCoordinates.x + ' Y: ' + tileCoordinates.y + ' Z: ' + tileCoordinates.z;
+        }
+
+        function getTileCoordinates(latitude, longitude, zoom) {
+            const tileSize = 512;
+            const earthRadius = 6378137;
+            const pi = Math.PI;
+
+            const latRad = latitude * pi / 180;
+            const n = Math.pow(2, zoom);
+            const x = Math.floor((longitude + 180) / 360 * n);
+            const y = Math.floor(
+                (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / pi) / 2 * n
+            );
+
+            return {
+                x: x,
+                y: y,
+                z: zoom
+            };
+        }
+
+        map.on('mousemove', function (e) {
+            showCoordinates(e);
+        })
+
+        map.on('load', () => {
+            fetch('{{ info_url }}')
+                .then(res => {
+                    if (res.ok) return res.json()
+                    throw new Error('Network response was not ok.')
+                })
+                .then(info => {
+                    // set view window
+                    const ll = truncate_lnglat(info.search.search.bbox[0], info.search.search.bbox[1])
+                    const ur = truncate_lnglat(info.search.search.bbox[2], info.search.search.bbox[3])
+                    map.fitBounds([ll, ur], { padding: 100, duration: 0 })
+
+                    // add mosaic bounding box rectangle to map
+                    addAOI(info.search.search.bbox)
+
+                    // query assets endpoint
+                    var center = map.getCenter()
+                    var zoom = Math.ceil(map.getZoom())
+                    var tileCoordinates = getTileCoordinates(center.lat, center.lng, zoom)
+
+
+                    var assets_url = '{{ assets_url }}'.replace(
+                        /{\w+}/g,
+                        placeholderWithDelimiters => {
+                            const placeholderWithoutDelimiters = placeholderWithDelimiters.substring(
+                                1,
+                                placeholderWithDelimiters.length - 1,
+                            );
+                            const stringReplacement = tileCoordinates[placeholderWithoutDelimiters] || placeholderWithDelimiters;
+                            return stringReplacement;
+                        },
+                    );
+                    return fetch(assets_url)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // use first item listed in assets endpoint results to get list of layers
+                    const item = data[0]
+                    scope.assets = item.assets
+                    scope.info = data
+
+                    const assetList = document.getElementById('layer-selector')
+                    const rList = document.getElementById('r-selector')
+                    const gList = document.getElementById('g-selector')
+                    const bList = document.getElementById('b-selector')
+                    assetList.innerHTML = ''
+                    rList.innerHTML = ''
+                    gList.innerHTML = ''
+                    bList.innerHTML = ''
+                    for (var key in scope.assets) {
+                        let l = document.createElement('option')
+                        l.value = key
+                        l.text = key
+                        l.setAttribute('bname', key)
+                        assetList.appendChild(l.cloneNode(true))
+                        rList.appendChild(l.cloneNode(true))
+                        gList.appendChild(l.cloneNode(true))
+                        bList.appendChild(l.cloneNode(true))
+                    }
+                })
+                .catch(err => {
+                    console.warn(err)
+                })
+        });
+    </script>
+</body>
+
+</html>
