@@ -1,22 +1,14 @@
 version: '3'
 
 services:
-  stac:
+  stac-fastapi:
     image: ghcr.io/stac-utils/stac-fastapi-pgstac:latest
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
       - APP_HOST=0.0.0.0
       - APP_PORT=8081
-      - HOST=0.0.0.0
-      - PORT=8081
       - ENVIRONMENT=local
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # - WORKERS_PER_CORE=1
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -29,11 +21,11 @@ services:
     depends_on:
       - database
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && python -m stac_fastapi.pgstac.app"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-  raster:
+  titiler-pgstac:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
@@ -82,8 +74,8 @@ services:
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-  vector:
-    image: ghcr.io/developementseed/tipg:latest
+  tipg:
+    image: ghcr.io/developmentseed/tipg:latest
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
@@ -110,3 +102,23 @@ services:
       - database
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
+
+  database:
+    container_name: eoapi.db
+    image: ghcr.io/stac-utils/pgstac:v0.7.10
+    environment:
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgis
+      - PGUSER=username
+      - PGPASSWORD=password
+      - PGDATABASE=postgis
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
+    command: postgres -N 500
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
+
+networks:
+  default:
+    name: eoapi-network
