@@ -459,12 +459,24 @@ document.getElementById('collection-select').addEventListener('change', () => {
       cell1.innerHTML = "Asset";
       cell2.innerHTML = "Type"
 
-      for (let asset_name in collection_metadata.item_assets) {
+      const rio_types = [
+        "image/tiff; application=geotiff",
+        "image/tiff; application=geotiff; profile=cloud-optimized",
+        "image/tiff; profile=cloud-optimized; application=geotiff",
+        "image/vnd.stac.geotiff; cloud-optimized=true",
+        "image/tiff",
+        "image/x.geotiff",
+        "image/jp2",
+        "application/x-hdf5",
+        "application/x-hdf",
+      ]
+      const assets = Object.keys(collection_metadata.item_assets).filter(key => rio_types.includes(collection_metadata.item_assets[key].type))
+      for (var i = 0; i < assets.length; i++) {
         var row = tbl.insertRow(-1);
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
-        cell1.innerHTML = asset_name;
-        cell2.innerHTML = collection_metadata.item_assets[asset_name].type;
+        cell1.innerHTML = assets[i];
+        cell2.innerHTML = collection_metadata.item_assets[assets[i]].type;
       }
       collection_meta.appendChild(tbl)
     }
@@ -494,6 +506,24 @@ document.getElementById('btn-query').addEventListener('click', () => {
   } else if (collection_metadata && collection_metadata.extent.spatial.bbox) {
     // if not user bbox we use the collection bbox
     body.metadata.bounds = collection_metadata.extent.spatial.bbox[0];
+  }
+
+  if (collection_metadata && collection_metadata.item_assets) {
+    // if item_assets is found in the collection we set the mosaic `assets` in the metadata
+    // collection_metadata.item_assets
+
+    const rio_types = [
+      "image/tiff; application=geotiff",
+      "image/tiff; application=geotiff; profile=cloud-optimized",
+      "image/tiff; profile=cloud-optimized; application=geotiff",
+      "image/vnd.stac.geotiff; cloud-optimized=true",
+      "image/tiff",
+      "image/x.geotiff",
+      "image/jp2",
+      "application/x-hdf5",
+      "application/x-hdf",
+    ]
+    body.metadata.assets = Object.keys(collection_metadata.item_assets).filter(key => rio_types.includes(collection_metadata.item_assets[key].type))
   }
 
   // date filters
