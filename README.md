@@ -87,7 +87,7 @@ python -m pip install -e runtime/eoapi/{SERVICE}  # SERVICE should be one of `ra
 
 export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Connect to the database of your choice
 
-.venv/bin/uvicorn eoapi.{SERVICE}.app:app --port 8000 --reload --reload-include *.html
+.venv/bin/uvicorn eoapi.${SERVICE}.app:app --port 8000 --reload --reload-include *.html
 ```
 
 Note: services might have incompatible dependencies which you can resolve by using virtual environement per service
