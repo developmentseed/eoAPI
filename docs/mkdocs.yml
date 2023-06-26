@@ -21,6 +21,7 @@ nav:
   - Development - Contributing: "contributing.md"
   - Release Notes: "release-notes.md"
   - Services Details: "services-details.md"
+  - Deployment: "deployment.md"
 
 plugins:
   - search
