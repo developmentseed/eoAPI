@@ -1,6 +1,11 @@
-## Services Details
+---
+hide:
+  - navigation
+---
 
-### STAC Metadata
+The `eoAPI` is composed of four services built on top of `state-of-the-art` projects: [**pgstac**](https://github.com/stac-utils/pgstac), [**stac-fastapi**](https://github.com/stac-utils/stac-fastapi), [**titiler-pgstac**](https://github.com/stac-utils/titiler-pgstac) and [**tipg**](https://github.com/developmentseed/tipg). While those offert a great baseline, we choose to customize them to demo how they could work together, not only be used in parallel.
+
+## Metadata
 
 A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
 
@@ -26,11 +31,9 @@ Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/main/r
 
 ---
 
-### Raster Tiles
+## Raster
 
 The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries.
-
-See [docs](http://localhost:8082/docs) if using the `docker-compose` configuration.
 
 The service includes:
 
@@ -45,13 +48,11 @@ Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/main
 
 ---
 
-### OGC Features / Vector Tiles
+## Vector
 
 OGC Features + Tiles API built on top of [tipg](https://github.com/developmentseed/tipg).
 
 By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions which connect to the pgSTAC schema.
-
-See [docs](http://localhost:8083/api.html) if using the `docker-compose` configuration.
 
 - **pg_temp.pgstac_collections_view**: Simple function which return PgSTAC Collections
 - **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
