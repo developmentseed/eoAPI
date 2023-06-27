@@ -72,7 +72,7 @@
     }
 
     .feature-item h2 svg {
-        height: 30px;
+        height: 20px;
         float: left;
         margin-right: 10px;
         transform: translateY(10%);
@@ -93,7 +93,7 @@
     .feature-item h2 {
         color: #333;
         font-weight: 300;
-        font-size: 25px;
+        font-size: 16px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -104,8 +104,8 @@
     }
 
     .feature-item p {
-        font-size: 16px;
-        line-height: 1.8em;
+        font-size: 10px;
+        line-height: 1.5em;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         color: #111;
@@ -121,7 +121,19 @@
 
     @media screen and (min-width:60em) {
         .tx-container {
-            height: 450px;
+            height: 500px;
+        }
+
+        .feature-item h2 {
+            font-size: 20px;
+        }
+
+        .feature-item p {
+            font-size: 12px;
+        }
+
+        .feature-item h2 svg {
+            height: 25px;
         }
 
         .md-sidebar--secondary {
