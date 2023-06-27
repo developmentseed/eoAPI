@@ -14,10 +14,12 @@ python -m pip install --upgrade virtualenv
 virtualenv .venv
 source .venv/bin/activate
 
-# Install eoapi modules
+# Install eoapi module
 python -m pip install "psycopg[binary,pool]"
-python -m pip install -e runtime/eoapi/raster["test"] -e runtime/eoapi/stac["test"] -e runtime/eoapi/vector["test"]
+python -m pip install -e runtime/eoapi/raster["test"] # or -e runtime/eoapi/stac["test"]  | -e runtime/eoapi/vector["test"]
 ```
+
+Note: services might have incompatible dependencies which you can resolve by using virtual environnement per service
 
 **pre-commit**
 

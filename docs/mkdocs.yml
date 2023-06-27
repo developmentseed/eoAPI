@@ -1,4 +1,4 @@
-site_name: eoAPI
+site_name: The Earth Observation API
 site_description: Create a full Earth Observation API with Metadata, Raster and Vector services.
 
 docs_dir: 'src'
@@ -17,10 +17,10 @@ extra:
       link: "https://medium.com/devseed"
 
 nav:
-  - Readme: "index.md"
+  - Home: "index.md"
+  - Intro: "intro.md"
+  - Services: "services.md"
   - Development - Contributing: "contributing.md"
-  - Release Notes: "release-notes.md"
-  - Services Details: "services-details.md"
   - Deployment: "deployment.md"
 
 plugins:
@@ -28,9 +28,13 @@ plugins:
 
 theme:
   name: material
+  custom_dir: src/overrides/
   palette:
-    primary: indigo
+    primary: black
     scheme: default
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
   favicon: img/favicon.ico
   logo: img/logo.png
 
