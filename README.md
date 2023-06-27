@@ -15,7 +15,7 @@
 
 ---
 
-**Documentation**: <a href="https://developmentseed.org/eoAPI/" target="_blank">https://developmentseed.org/eoAPI/</a>
+**Documentation**: <a href="https://eoapi.dev" target="_blank">https://eoapi.dev</a>
 
 **Source Code**: <a href="https://github.com/developmentseed/eoAPI" target="_blank">https://github.com/developmentseed/eoAPI</a>
 
