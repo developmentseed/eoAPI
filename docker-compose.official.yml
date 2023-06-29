@@ -2,13 +2,24 @@ version: '3'
 
 services:
   stac-fastapi:
-    image: ghcr.io/stac-utils/stac-fastapi-pgstac:latest
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.stac
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8081
-      - ENVIRONMENT=local
+      # Application
+      - HOST=0.0.0.0
+      - PORT=8081
+      - MODULE_NAME=stac_fastapi.pgstac.app
+      - VARIABLE_NAME=app
+      # gunicorn
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
+      - WEB_CONCURRENCY=10
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
+      # - WORKERS_PER_CORE=1
+      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
+      # - MAX_WORKERS=10
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -21,7 +32,7 @@ services:
     depends_on:
       - database
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && python -m stac_fastapi.pgstac.app"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
