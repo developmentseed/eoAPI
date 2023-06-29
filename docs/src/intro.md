@@ -5,7 +5,7 @@ hide:
 
 
 <p align="center">
-  <img width="700" src="https://github.com/developmentseed/tipg/assets/10407788/ff12e504-393c-4c65-b7ed-f077e8d28e8c"/>
+  <img width="700" src="../img/eoAPI.png"/>
   <p align="center">Create a full Earth Observation API with Metadata, Raster and Vector services.</p>
 </p>
 
