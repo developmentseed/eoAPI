@@ -8,7 +8,7 @@ from jinja2 import ChoiceLoader, PackageLoader
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-from titiler.core.dependencies import RescalingParams
+from titiler.core.dependencies import AssetsBidxExprParamsOptional, RescalingParams
 from titiler.core.factory import FactoryExtension
 from titiler.core.resources.enums import ImageType
 from titiler.mosaic.resources.enums import PixelSelectionMethod
@@ -55,7 +55,7 @@ class mosaicViewerExtension(FactoryExtension):
             maxzoom: Optional[int] = Query(
                 None, description="Overwrite default maxzoom."
             ),  # noqa
-            layer_params=Depends(factory.layer_dependency),  # noqa
+            layer_params=AssetsBidxExprParamsOptional,  # noqa
             dataset_params=Depends(factory.dataset_dependency),  # noqa
             pixel_selection: PixelSelectionMethod = Query(
                 PixelSelectionMethod.first, description="Pixel selection method."
