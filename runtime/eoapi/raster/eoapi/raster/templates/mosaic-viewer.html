@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>eoAPI mosaic browser</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css' rel='stylesheet' />
 
@@ -14,6 +14,8 @@
         body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
         }
 
         #map {
@@ -24,13 +26,13 @@
         }
 
         #menu {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 1;
+            left: 0;
+            top: 0;
+            -o-transition: all .5s ease;
+            -webkit-transition: all .5s ease;
+            -moz-transition: all .5s ease;
+            -ms-transition: all .5s ease;
+            transition: all ease .5s;
         }
 
         #coordinates {
@@ -43,6 +45,165 @@
             height: auto;
             font-size: 12px;
             color: #000;
+        }
+
+        #toolbar {
+            height: 35px;
+        }
+
+        #toolbar li {
+            display: block;
+            color: #fff;
+            background-color: #556671;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 5px;
+            height: 100%;
+            width: 100%;
+            text-transform: uppercase;
+            text-align: center;
+            text-decoration: none;
+            outline: 0;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #toolbar li svg {
+            font-size: 25px;
+            line-height: 25px;
+            padding-bottom: 0;
+        }
+
+        #toolbar li:hover {
+            background-color: #28333b;
+        }
+
+        #toolbar li.active {
+            color: #000;
+            background-color: #fff;
+        }
+
+        #toolbar li.disabled {
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        #menu-content section {
+            display: none;
+        }
+
+        #menu-content section.active {
+            display: inherit;
+        }
+
+        #hide-arrow {
+            -o-transition: all .5s ease;
+            -webkit-transition: all .5s ease;
+            -moz-transition: all .5s ease;
+            -ms-transition: all .5s ease;
+            transition: all ease .5s;
+        }
+
+        #hide-arrow.off {
+            transform: rotate(-180deg);
+        }
+
+        input:checked+.toggle {
+            background: #fff;
+            border: #000;
+        }
+
+        #btn-hide {
+            position: absolute;
+            top: 0;
+            height: 35px;
+            font-size: 35px;
+            line-height: 35px;
+            vertical-align: middle;
+            right: -35px;
+            color: #28333b;
+            background-color: #fff;
+        }
+
+        #btn-hide:hover {
+            color: #fff;
+            background-color: #28333b;
+            cursor: pointer;
+        }
+
+        .line-red {
+            fill: none;
+            stroke: red;
+            stroke-width: 1.5px;
+        }
+
+        .line-green {
+            fill: none;
+            stroke: green;
+            stroke-width: 1.5px;
+        }
+
+        .line-blue {
+            fill: none;
+            stroke: blue;
+            stroke-width: 1.5px;
+        }
+
+        #histogram-table td {
+            min-width: 60px;
+        }
+
+        @media(max-width: 767px) {
+
+            #menu.off {
+                left: -240px;
+                -o-transition: all .5s ease;
+                -webkit-transition: all .5s ease;
+                -moz-transition: all .5s ease;
+                -ms-transition: all .5s ease;
+                transition: all ease .5s;
+            }
+
+            .mapboxgl-ctrl-attrib {
+                font-size: 10px;
+            }
+        }
+
+        .loading-map {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            color: #FFF;
+            background-color: #000;
+            text-align: center;
+            opacity: 0.5;
+            font-size: 45px;
+        }
+
+        .loading-map.off {
+            opacity: 0;
+            -o-transition: all .5s ease;
+            -webkit-transition: all .5s ease;
+            -moz-transition: all .5s ease;
+            -ms-transition: all .5s ease;
+            transition: all ease .5s;
+            visibility: hidden;
+        }
+
+        .middle-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .middle-center * {
+            display: block;
+            padding: 5px;
         }
 
         .tab {
@@ -96,7 +257,7 @@
         <div id="map"></div>
         <div id="coordinates"></div>
     </div>
-    <div id="menu">
+    <div id="menu" class='flex-child w240 w360-ml absolute bg-gray-faint z2 off'>
         <div class="tab-buttons">
             <button class="tab-button active" data-tab="single-band-tab">single-band</button>
             <button class="tab-button" data-tab="three-band-tab">three-band</button>
@@ -107,7 +268,7 @@
             <div>
                 <h3>layer</h3>
             </div>
-            <div class="dropdown-container wmax-full">
+            <div class="select-container wmax-full">
                 <select id="layer-selector" class="select select--s select--stroke wmax-full color-black"></select>
                 <div class="select-arrow color-black"></div>
             </div>
@@ -116,7 +277,7 @@
                 <div>
                     <h3>color ramp</h3>
                 </div>
-                <div class="dropdown-container wmax-full">
+                <div class="select-container wmax-full">
                     <select id="colormap-selector" class="select select--s select--stroke wmax-full color-black">
                         <option value="b&w">Internal</option>
                         <option value=cfastie>CFastie</option>
@@ -140,22 +301,19 @@
         <div class="tab" id="three-band-tab">
             <div id="rgb-buttons" class="align-center px6 py6">
                 <div>
-                    <h3>layers</h3>
+                    <h3>red/green/blue layers</h3>
                 </div>
-                <div class="dropdown-container">
-                    <label for="r-selector">red:</label>
-                    <select id="r-selector" class="select select--s select--stroke wmax-full"></select>
+                <div class="select-container">
+                    <select id="r-selector" class="select select--s select--stroke wmax-full color-red"></select>
                     <div class="select-arrow color-black"></div>
                 </div>
 
-                <div class="dropdown-container">
-                    <label for="g-selector">green:</label>
+                <div class="select-container">
                     <select id="g-selector" class="select select--s select--stroke wmax-full color-green"></select>
                     <div class="select-arrow color-black"></div>
                 </div>
 
-                <div class="dropdown-container">
-                    <label for="b-selector">blue:</label>
+                <div class="select-container">
                     <select id="b-selector" class="select select--s select--stroke wmax-full color-blue"></select>
                     <div class="select-arrow color-black"></div>
                 </div>
@@ -163,18 +321,21 @@
         </div>
         <!-- Min/Max -->
         <div>
-            <h3>display value range</h2>
+            <h3>rescale</h2>
         </div>
         <div id="minmax-data">
             <label for="min-value">min:</label>
-            <input type="number" id="min-value" name="min-value" min="0" step="0.1" style="margin-top: 20px;" />
+            <input type="number" id="min-value" name="min-value" min="0" step="0.1"
+                class='input input--s w120-ml w30 inline-block align-center color-black' />
             <label for="max-value">max:</label>
-            <input type="number" id="max-value" name="max-value" min="0" step="0.1" style="margin-top: 20px;" />
+            <input type="number" id="max-value" name="max-value" min="0" step="0.1"
+                class='input input--s w120-ml w30 inline-block align-center color-black' />
+            <button id="applyViz"
+                class='btn bts--xs btn--stroke bg-darken25-on-hover inline-block txt-s color-black mt6'>Apply</button>
         </div>
-
-        <div style="margin-top: 20px;">
-            <button id="applyViz" class="button">Apply</button>
-        </div>
+        <button id='btn-hide'><svg id='hide-arrow' class='icon'>
+                <use xlink:href='#icon-arrow-right' />
+            </svg></button>
     </div>
     <script>
         var scope = { assets: undefined, info: undefined }
@@ -288,6 +449,11 @@
             });
         });
 
+        document.getElementById('btn-hide').addEventListener('click', () => {
+            document.getElementById('hide-arrow').classList.toggle('off')
+            document.getElementById('menu').classList.toggle('off')
+        })
+
         const setSingleBandViz = () => {
             let url = `{{ tilejson_url }}?`
 
@@ -385,36 +551,30 @@
                 })
                 .then(info => {
                     // set view window
-                    const ll = truncate_lnglat(info.search.search.bbox[0], info.search.search.bbox[1])
-                    const ur = truncate_lnglat(info.search.search.bbox[2], info.search.search.bbox[3])
+                    const ll = truncate_lnglat(info.search.metadata.bounds[0], info.search.metadata.bounds[1])
+                    const ur = truncate_lnglat(info.search.metadata.bounds[2], info.search.metadata.bounds[3])
                     map.fitBounds([ll, ur], { padding: 100, duration: 0 })
 
                     // add mosaic bounding box rectangle to map
-                    addAOI(info.search.search.bbox)
+                    addAOI(info.search.metadata.bounds)
 
-                    // query assets endpoint
+                    // get x/y/z tile coordinates
                     var center = map.getCenter()
                     var zoom = Math.ceil(map.getZoom())
                     var tileCoordinates = getTileCoordinates(center.lat, center.lng, zoom)
 
+                    // populate assets_url with those parameters
+                    const assets_url = '{{ assets_url }}';
+                    const assets_url_formatted = eval('`' + `${assets_url}` + '`')
 
-                    var assets_url = '{{ assets_url }}'.replace(
-                        /{\w+}/g,
-                        placeholderWithDelimiters => {
-                            const placeholderWithoutDelimiters = placeholderWithDelimiters.substring(
-                                1,
-                                placeholderWithDelimiters.length - 1,
-                            );
-                            const stringReplacement = tileCoordinates[placeholderWithoutDelimiters] || placeholderWithDelimiters;
-                            return stringReplacement;
-                        },
-                    );
-                    return fetch(assets_url)
+                    // query assets endpoint
+                    return fetch(assets_url_formatted)
                 })
                 .then(response => response.json())
                 .then(data => {
                     // use first item listed in assets endpoint results to get list of layers
                     const item = data[0]
+                    console.log(item.assets)
                     scope.assets = item.assets
                     scope.info = data
 
