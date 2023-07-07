@@ -66,7 +66,7 @@ mosaic = MosaicTilerFactory(
     optional_headers=optional_headers,
     router_prefix="/mosaic",
     add_statistics=True,
-    add_viewer=False,
+    add_viewer=True,
     add_mosaic_list=True,
     extensions=[
         mosaicViewerExtension(),
