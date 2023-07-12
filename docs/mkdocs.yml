@@ -15,7 +15,7 @@ extra:
       link: "https://twitter.com/developmentseed"
     - icon: "fontawesome/brands/linkedin"
       link: "https://www.linkedin.com/company/development-seed"
-    - icon: "fontawesome/brands/rss"
+    - icon: "fontawesome/solid/rss"
       link: "https://developmentseed.org/blog"
 
 nav:
