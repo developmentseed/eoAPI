@@ -40,7 +40,7 @@
 - Navigate to the project: `cd eoAPI`
 - Run services with `docker-compose up`
 - Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](./demo/)) to load some data into eoAPI
-- Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
+- Check out the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
 Alternatively, you may launch the application locally:
 ```bash
@@ -56,9 +56,15 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 .venv/bin/uvicorn eoapi.{SERVICE}.app:app --port 8000 --reload
 ```
 
-Note: services might have incompatible dependencies which you can resolve by using virtual environnement per service
+Note: services might have incompatible dependencies which you can resolve by using a virtual environment for each service
 
 ---
+
+## Deployment
+
+This repository has the demonstration runtimes that are consistently updated with new functionality.
+
+The default runtimes are available through separate repositories ([eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) and [k8s-eoapi](https://github.com/developmentseed/k8s-eoapi)). 
 
 ## Contribution & Development
 
