@@ -22,8 +22,9 @@ nav:
   - Home: "index.md"
   - Intro: "intro.md"
   - Services: "services.md"
-  - Development - Contributing: "contributing.md"
   - Deployment: "deployment.md"
+  - Development - Contributing: "contributing.md"
+
 
 plugins:
   - search
