@@ -66,6 +66,8 @@ This repository has the demonstration runtimes that are consistently updated wit
 
 The default runtimes are available through separate repositories ([eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) and [k8s-eoapi](https://github.com/developmentseed/k8s-eoapi)). 
 
+A demonstration application is accessible with the repository [eoapi-template](https://github.com/developmentseed/eoapi-template).
+
 ## Contribution & Development
 
 See [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md)
