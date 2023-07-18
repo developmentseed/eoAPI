@@ -7,6 +7,16 @@ on:
     - main
     tags:
     - '*'
+    paths:
+      # Only rebuild website when docs have changed
+      - 'runtime/**'
+      - 'dockerfiles/**'
+      - 'docker-compose.*'
+      - '.github/workflows/ci.yml'
+      - '.isort.cfg'
+      - '.mypy.ini'
+      - 'ruff.toml'
+      - '.pre-commit-config.yaml'
   pull_request:
 
 jobs:
