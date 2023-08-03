@@ -1,5 +1,7 @@
 """FastAPI application using PGStac."""
 
+from contextlib import asynccontextmanager
+
 from eoapi.stac.config import ApiSettings, TilesApiSettings
 from eoapi.stac.config import extensions as PgStacExtensions
 from eoapi.stac.config import get_request_model as GETModel
@@ -31,8 +33,18 @@ tiles_settings = TilesApiSettings()
 settings = Settings()
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """FastAPI Lifespan."""
+    # Create Connection Pool
+    await connect_to_db(app)
+    yield
+    # Close the Connection Pool
+    await close_db_connection(app)
+
+
 api = StacApi(
-    app=FastAPI(title=api_settings.name),
+    app=FastAPI(title=api_settings.name, lifespan=lifespan),
     title=api_settings.name,
     description=api_settings.name,
     settings=settings,
@@ -69,15 +81,3 @@ async def viewer_page(request: Request):
         {"request": request, "endpoint": str(request.url).replace("/index.html", "")},
         media_type="text/html",
     )
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Connect to database on startup."""
-    await connect_to_db(app)
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Close database connection."""
-    await close_db_connection(app)

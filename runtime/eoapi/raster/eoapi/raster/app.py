@@ -1,6 +1,7 @@
 """TiTiler+PgSTAC FastAPI application."""
 
 import logging
+from contextlib import asynccontextmanager
 from typing import Dict
 
 import pystac
@@ -17,7 +18,6 @@ from starlette_cramjam.middleware import CompressionMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.factory import AlgorithmFactory, MultiBaseTilerFactory, TMSFactory
 from titiler.core.middleware import CacheControlMiddleware
-from titiler.core.resources.enums import OptionalHeader
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.pgstac.db import close_db_connection, connect_to_db
 from titiler.pgstac.dependencies import ItemPathParams
@@ -40,19 +40,53 @@ settings = ApiSettings()
 templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))  # type: ignore
 
 
-if settings.debug:
-    optional_headers = [OptionalHeader.server_timing, OptionalHeader.x_assets]
-else:
-    optional_headers = []
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """FastAPI Lifespan."""
+    # Create Connection Pool
+    await connect_to_db(app)
+    yield
+    # Close the Connection Pool
+    await close_db_connection(app)
 
-app = FastAPI(title=settings.name, version=eoapi_raster_version)
+
+app = FastAPI(
+    title=settings.name,
+    version=eoapi_raster_version,
+    root_path=settings.root_path,
+    lifespan=lifespan,
+)
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 add_exception_handlers(app, MOSAIC_STATUS_CODES)
+
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+    )
+
+app.add_middleware(
+    CacheControlMiddleware,
+    cachecontrol=settings.cachecontrol,
+    exclude_path={r"/healthz"},
+)
+app.add_middleware(
+    CompressionMiddleware,
+    exclude_mediatype={
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/jp2",
+        "image/webp",
+    },
+)
 
 ###############################################################################
 # MOSAIC Endpoints
 mosaic = MosaicTilerFactory(
-    optional_headers=optional_headers,
     router_prefix="/mosaic",
     add_statistics=True,
     # add /map viewer
@@ -93,7 +127,6 @@ app.include_router(mosaic.router, tags=["Mosaic"], prefix="/mosaic")
 stac = MultiBaseTilerFactory(
     reader=PgSTACReader,
     path_dependency=ItemPathParams,
-    optional_headers=optional_headers,
     router_prefix="/collections/{collection_id}/items/{item_id}",
     # add /map viewer
     add_viewer=True,
@@ -178,25 +211,37 @@ def landing(request: Request):
                 "rel": "service-doc",
             },
             {
-                "title": "Mosaic List (JSON)",
+                "title": "STAC Item Asset's Info (template URL)",
+                "href": stac.url_for(request, "info"),
+                "type": "application/json",
+                "rel": "data",
+            },
+            {
+                "title": "STAC Item Viewer (template URL)",
+                "href": stac.url_for(request, "viewer"),
+                "type": "text/html",
+                "rel": "data",
+            },
+            {
+                "title": "STAC Mosaic List (JSON)",
                 "href": mosaic.url_for(request, "list_mosaic"),
                 "type": "application/json",
                 "rel": "data",
             },
             {
-                "title": "Mosaic Builder",
+                "title": "STAC Mosaic Builder",
                 "href": mosaic.url_for(request, "mosaic_builder"),
                 "type": "text/html",
                 "rel": "data",
             },
             {
-                "title": "Mosaic Metadata (template URL)",
+                "title": "STAC Mosaic Metadata (template URL)",
                 "href": mosaic.url_for(request, "info_search", searchid="{searchid}"),
                 "type": "application/json",
                 "rel": "data",
             },
             {
-                "title": "Mosaic viewer (template URL)",
+                "title": "STAC Mosaic viewer (template URL)",
                 "href": mosaic.url_for(request, "map_viewer", searchid="{searchid}"),
                 "type": "text/html",
                 "rel": "data",
@@ -240,41 +285,3 @@ def landing(request: Request):
             "urlparams": str(request.url.query),
         },
     )
-
-
-if settings.cors_origins:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["*"],
-    )
-
-app.add_middleware(
-    CacheControlMiddleware,
-    cachecontrol=settings.cachecontrol,
-    exclude_path={r"/healthz"},
-)
-app.add_middleware(
-    CompressionMiddleware,
-    exclude_mediatype={
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/jp2",
-        "image/webp",
-    },
-)
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Connect to database on startup."""
-    await connect_to_db(app)
-
-
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    """Close database connection."""
-    await close_db_connection(app)
