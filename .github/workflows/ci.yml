@@ -38,7 +38,7 @@ jobs:
           pre-commit run --all-files
 
       - name: Launch services
-        run: docker-compose up -d stac raster vector
+        run: docker compose up -d stac raster vector
 
       - name: install lib postgres
         run: |
@@ -67,8 +67,8 @@ jobs:
       # see https://github.com/developmentseed/tipg/issues/37
       - name: Restart the Vector service
         run: |
-          docker-compose stop vector
-          docker-compose up -d vector
+          docker compose stop vector
+          docker compose up -d vector
 
       - name: Sleep for 10 seconds
         run: sleep 10s
@@ -78,7 +78,7 @@ jobs:
         run: python -m pytest .github/workflows/tests/
 
       - name: Stop services
-        run: docker-compose stop
+        run: docker compose stop
 
 
   publish-docker:
