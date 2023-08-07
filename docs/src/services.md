@@ -11,9 +11,9 @@ A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fas
 
 The service includes:
 
-- Full **stac-fastapi** implementation - see [docs](http://localhost:8081/docs) if using the `docker-compose` configuration.
+- Full **stac-fastapi** implementation - see [docs](http://localhost:8081/docs) if using the `docker compose` configuration.
 
-- Simple STAC Search **viewer** - see [viewer](http://localhost:8081/index.html) if using the `docker-compose` configuration.
+- Simple STAC Search **viewer** - see [viewer](http://localhost:8081/index.html) if using the `docker compose` configuration.
 
 - **Proxy** to the Tiler endpoint for STAC Items
 
