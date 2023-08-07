@@ -62,11 +62,15 @@ Note: services might have incompatible dependencies which you can resolve by usi
 
 ## Deployment
 
-This repository has the demonstration runtimes that are consistently updated with new functionality.
+This repository has current runtimes that are consistently updated with new functionality. 
 
-The default runtimes are available through separate repositories ([eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) and [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s)). 
+The services can be deployed locally via docker with `docker-compose up`. The official runtimes can be launched with `docker-compose -f docker-compose.yml -f docker-compose.official.yml up stac-fastapi titiler-pgstac tipg`. 
 
-A demonstration application is accessible with the repository [eoapi-template](https://github.com/developmentseed/eoapi-template).
+Two Infrastructure as Code (IaC) repositories are available:
+- [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk): A set of AWS CDK constructs to deploy eoAPI services
+- [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s): IaC and Helm charts for deploying eoAPI services on AWS and GCP
+
+Finally, [eoapi-template](https://github.com/developmentseed/eoapi-template) is an AWS CDK app that shows how to configure the eoapi-cdk constructs.
 
 ## Contribution & Development
 
