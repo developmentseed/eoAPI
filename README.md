@@ -15,13 +15,6 @@
 
 ---
 
-## 🌍 eoAPI: An Open-Source Community Project
-
-`eoAPI` is proudly open-source and driven by a dedicated community of contributors. We believe in the power of open collaboration and welcome anyone to contribute, discuss, and grow this tool with us. Join the conversations on [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions) and make a difference in the Earth Observation realm.
-
-
----
-
 **Documentation**: <a href="https://eoapi.dev" target="_blank">https://eoapi.dev</a>
 
 **Source Code**: <a href="https://github.com/developmentseed/eoAPI" target="_blank">https://github.com/developmentseed/eoAPI</a>
@@ -40,6 +33,14 @@
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
 
+---
+
+## 🌍 eoAPI: An Open-Source Community Project
+
+`eoAPI` is proudly open-source and driven by a dedicated community of contributors. We believe in the power of open collaboration and welcome anyone to contribute, discuss, and grow this tool with us. Join the conversations on [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions) and make a difference in the Earth Observation realm.
+
+
+---
 
 ## Getting started
 
@@ -90,7 +91,7 @@ We highly value and rely on our community! Whether you're an expert or just gett
 ---
 ## License
 
-At Development Seed, we believe in open collaboration and making tools and data more accessible. In line with this ethos, we've explicitly chosen a less restrictive license for `eoAPI`.
+At Development Seed, we believe in open collaboration and making tools and data more accessible. In line with this ethos, we've explicitly chosen a MIT license for `eoAPI`.
 
 For full license details, see [LICENSE](https://github.com/developmentseed/eoAPI/blob/main/LICENSE).
 
