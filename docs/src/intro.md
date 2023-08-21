@@ -9,6 +9,9 @@ hide:
   <p align="center">Create a full Earth Observation API with Metadata, Raster and Vector services.</p>
 </p>
 
+
+---
+
 ## **E**arth **O**bservation **API**
 
 `eoAPI` combines several *state-of-the-art* projects to create a full Earth Observation API. Each service can be used and deployed independently but `eoAPI` creates the interconnections between each service:
@@ -20,6 +23,12 @@ hide:
 - **STAC Items And Mosaic Raster Tiles** API built on top of [https://github.com/stac-utils/titiler-pgstac](https://github.com/stac-utils/titiler-pgstac)
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
+
+---
+
+## 🌍 eoAPI: An Open-Source Community Project
+
+`eoAPI` is proudly open-source and driven by a dedicated community of contributors. We believe in the power of open collaboration and welcome anyone to contribute, discuss, and grow this tool with us. Join the conversations on [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions) and make a difference in the Earth Observation realm.
 
 ---
 
