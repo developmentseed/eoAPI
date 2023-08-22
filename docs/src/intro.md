@@ -70,7 +70,7 @@ See [service details](./services.md) for more information.
 - Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
 - Navigate to the project: `cd eoAPI`
 - Run services with `docker compose up`
-- Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](./demo/)) to load some data into eoAPI
+- Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)) to load some data into eoAPI
 - Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
 Alternatively, you may launch the application locally:
