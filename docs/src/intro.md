@@ -9,6 +9,9 @@ hide:
   <p align="center">Create a full Earth Observation API with Metadata, Raster and Vector services.</p>
 </p>
 
+
+---
+
 ## **E**arth **O**bservation **API**
 
 `eoAPI` combines several *state-of-the-art* projects to create a full Earth Observation API. Each service can be used and deployed independently but `eoAPI` creates the interconnections between each service:
@@ -20,6 +23,12 @@ hide:
 - **STAC Items And Mosaic Raster Tiles** API built on top of [https://github.com/stac-utils/titiler-pgstac](https://github.com/stac-utils/titiler-pgstac)
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
+
+---
+
+## 🌍 eoAPI: An Open-Source Community Project
+
+`eoAPI` is proudly open-source and driven by a dedicated community of contributors. We believe in the power of open collaboration and welcome anyone to contribute, discuss, and grow this tool with us. Join the conversations on [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions) and make a difference in the Earth Observation realm.
 
 ---
 
@@ -52,7 +61,7 @@ hide:
 
 See [service details](./services.md) for more information.
 
-*Note: The documentation links referenced require lauching the application with `docker-compose` or another deployment*.
+*Note: The documentation links referenced require lauching the application with `docker compose` or another deployment*.
 
 ---
 
@@ -60,8 +69,8 @@ See [service details](./services.md) for more information.
 
 - Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
 - Navigate to the project: `cd eoAPI`
-- Run services with `docker-compose up`
-- Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](./demo/)) to load some data into eoAPI
+- Run services with `docker compose up`
+- Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)) to load some data into eoAPI
 - Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
 Alternatively, you may launch the application locally:

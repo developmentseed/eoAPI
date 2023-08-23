@@ -33,12 +33,20 @@
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
 
+---
+
+## 🌍 eoAPI: An Open-Source Community Project
+
+`eoAPI` is proudly open-source and driven by a dedicated community of contributors. We believe in the power of open collaboration and welcome anyone to contribute, discuss, and grow this tool with us. Join the conversations on [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions) and make a difference in the Earth Observation realm.
+
+
+---
 
 ## Getting started
 
 - Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
 - Navigate to the project: `cd eoAPI`
-- Run services with `docker-compose up`
+- Run services with `docker compose up`
 - Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](./demo/)) to load some data into eoAPI
 - Check out the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
@@ -62,23 +70,34 @@ Note: services might have incompatible dependencies which you can resolve by usi
 
 ## Deployment
 
-This repository has the demonstration runtimes that are consistently updated with new functionality.
+This repository has current runtimes that are consistently updated with new functionality. 
 
-The default runtimes are available through separate repositories ([eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) and [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s)). 
+The services can be deployed locally via docker with `docker-compose up`. The official runtimes can be launched with `docker-compose -f docker-compose.yml -f docker-compose.official.yml up stac-fastapi titiler-pgstac tipg`. 
 
-A demonstration application is accessible with the repository [eoapi-template](https://github.com/developmentseed/eoapi-template).
+Two Infrastructure as Code (IaC) repositories are available:
+- [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk): A set of AWS CDK constructs to deploy eoAPI services
+- [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s): IaC and Helm charts for deploying eoAPI services on AWS and GCP
+
+Finally, [eoapi-template](https://github.com/developmentseed/eoapi-template) is an AWS CDK app that shows how to configure the eoapi-cdk constructs.
 
 ## Contribution & Development
 
-See [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md)
+We highly value and rely on our community! Whether you're an expert or just getting started, you can make a difference. Here's how:
 
+- **Contribute**: Check out our [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md) guide to understand how you can contribute.
+- **Engage in Discussions**: Share your ideas, ask questions, or provide feedback through [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions). This is where most of our project conversations take place.
+- **Report Issues**: Found a bug or have a feature request? Raise it on our [issues page](https://github.com/developmentseed/eoAPI/issues).
+
+---
 ## License
 
-See [LICENSE](https://github.com/developmentseed/eoAPI/blob/main/LICENSE)
+At Development Seed, we believe in open collaboration and making tools and data more accessible. In line with this ethos, we've explicitly chosen a MIT license for `eoAPI`.
+
+For full license details, see [LICENSE](https://github.com/developmentseed/eoAPI/blob/main/LICENSE).
 
 ## Authors
 
-Created by [Development Seed](<http://developmentseed.org>)
+Nurtured by [Development Seed](<http://developmentseed.org>)
 
 See [contributors](https://github.com/developmentseed/eoAPI/graphs/contributors) for a listing of individual contributors.
 
