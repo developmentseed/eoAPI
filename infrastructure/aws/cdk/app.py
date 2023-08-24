@@ -160,7 +160,8 @@ class eoAPIconstruct(Stack):
             vpc=vpc,
             engine=rds.DatabaseInstanceEngine.POSTGRES,
             instance_type=ec2.InstanceType.of(
-                ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL
+                ec2.InstanceClass.BURSTABLE3,
+                ec2.InstanceSize(eodb_settings.instance_size),
             ),
             database_name="postgres",
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
