@@ -40,6 +40,9 @@ The example commands here will deploy a CloudFormation stack called `eoAPI-stagi
 
     Set environment variable or hard code in `infrastructure/aws/.env` file (e.g `CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1`).
 
+    To modify the size of the burstable database instance, modify `CDK_EOAPI_DB_INSTANCE_SIZE` to one of the values of [`aws_cdk.aws_ec2.InstanceSize`](https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_ec2/InstanceSize.html#instancesize).
+    The default size is `SMALL`.
+
     **Important**:
 
       - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env (see https://github.com/stac-utils/pgstac/tags for the latest version)
