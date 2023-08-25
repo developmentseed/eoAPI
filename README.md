@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img width="700" src="https://github.com/developmentseed/eoAPI/assets/10407788/2a12d3ea-2fff-4f15-979b-7d1f0be795f7"/>
+  <img width="700" src="docs/logos/eoAPI.png"/>
   <p align="center">Create a full Earth Observation API with Metadata, Raster and Vector services.</p>
 </p>
 
@@ -15,7 +15,7 @@
 
 ---
 
-**Documentation**: <a href="https://developmentseed.org/eoAPI/" target="_blank">https://developmentseed.org/eoAPI/</a>
+**Documentation**: <a href="https://eoapi.dev" target="_blank">https://eoapi.dev</a>
 
 **Source Code**: <a href="https://github.com/developmentseed/eoAPI" target="_blank">https://github.com/developmentseed/eoAPI</a>
 
@@ -35,36 +35,10 @@
 
 ---
 
-## Why should you use `eoAPI`
+## 🌍 eoAPI: An Open-Source Community Project
 
-- **Focus on your use case:** `eoAPI` is used for large-scale data processing, building geographic information systems (GIS), creating real-time data applications, climate research and environmental monitoring, machine learning model training, and more.
+`eoAPI` is proudly open-source and driven by a dedicated community of contributors. We believe in the power of open collaboration and welcome anyone to contribute, discuss, and grow this tool with us. Join the conversations on [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions) and make a difference in the Earth Observation realm.
 
-- **Unified Repository:** `eoAPI` provides a single, unified repository to several state-of-the-art Earth Observation (EO) data services, including Metadata search (STAC), Raster, and Vector services. This can simplify the process of accessing and working with these services.
-
-- **Interoperability:** `eoAPI` is designed to enable interoperability among its included services. This can make building complex applications that leverage different types of EO data easier.
-
-- **Open Source and Community Support:** As an open-source project, `eoAPI` allows developers to inspect its code, contribute to its development, and use it as a base for custom solutions. It also benefits from the support and innovation of a community of developers and EO data users.
-
-- **Scalability and Flexibility:** Each service in `eoAPI` can be used or deployed independently, which provides a lot of flexibility. If a developer's application only requires one or two of eoAPI's services, they don't need to deploy the entire suite.
-
-- **Facilitate Earth Observation Tasks:** `eoAPI` includes specialized tools for working with EO data, such as dynamic tiling, metadata searching, and features/vector tiles API. These can significantly facilitate EO data processing, analysis, and visualization.
-
-- **Ease of Deployment:** `eoAPI` supports containerized deployment using Docker, making it easier to set up, scale, and maintain applications built on it. Spin up the demo locally and start experimenting in minutes.
-
----
-
-## Services Overview
-
-
-- **STAC Metadata**: Built with [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) and extended with a custom extension to connect it to **`TiTiler`** and a **[Search Viewer](http://localhost:8081/index.html)**. See [docs](http://localhost:8081/docs) for API details.
-
-- **Raster Tiles**: Built with [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac) to enable large scale mosaic based on results of STAC searches queries. See [docs](http://localhost:8082/docs) for API details.
-
-- **OGC Features & Vector Tiles**: Built with [tipg](https://github.com/developmentseed/tipg) to create a lightweight OGC Features and Tiles API with a PostGIS database. See [docs](http://localhost:8083/api.html) for API details.
-
-See [service details](./docs/src/services-details.md) for more information.
-
-*Note: The documentation links referenced require lauching the application with `docker-compose` or another deployment*.
 
 ---
 
@@ -72,9 +46,9 @@ See [service details](./docs/src/services-details.md) for more information.
 
 - Clone the repository: `git clone https://github.com/developmentseed/eoAPI.git`
 - Navigate to the project: `cd eoAPI`
-- Run services with `docker-compose up`
+- Run services with `docker compose up`
 - Follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](./demo/)) to load some data into eoAPI
-- Checkout the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
+- Check out the [Search Viewer](http://localhost:8081/index.html), and the API documentation ([STAC Metadata](http://localhost:8081/docs), [Raster Tiles](http://localhost:8082/docs), [Vector Tiles](http://localhost:8083/api.html))
 
 Alternatively, you may launch the application locally:
 ```bash
@@ -90,24 +64,40 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 .venv/bin/uvicorn eoapi.{SERVICE}.app:app --port 8000 --reload
 ```
 
-Note: services might have incompatible dependencies which you can resolve by using virtual environement per service
+Note: services might have incompatible dependencies which you can resolve by using a virtual environment for each service
 
 ---
+
 ## Deployment
 
-See [DEPLOYMENT.md](https://github.com/developmentseed/eoAPI/blob/main/infrastructure/DEPLOYMENT.md)
+This repository has current runtimes that are consistently updated with new functionality. 
+
+The services can be deployed locally via docker with `docker-compose up`. The official runtimes can be launched with `docker-compose -f docker-compose.yml -f docker-compose.official.yml up stac-fastapi titiler-pgstac tipg`. 
+
+Two Infrastructure as Code (IaC) repositories are available:
+- [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk): A set of AWS CDK constructs to deploy eoAPI services
+- [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s): IaC and Helm charts for deploying eoAPI services on AWS and GCP
+
+Finally, [eoapi-template](https://github.com/developmentseed/eoapi-template) is an AWS CDK app that shows how to configure the eoapi-cdk constructs.
 
 ## Contribution & Development
 
-See [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md)
+We highly value and rely on our community! Whether you're an expert or just getting started, you can make a difference. Here's how:
 
+- **Contribute**: Check out our [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md) guide to understand how you can contribute.
+- **Engage in Discussions**: Share your ideas, ask questions, or provide feedback through [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions). This is where most of our project conversations take place.
+- **Report Issues**: Found a bug or have a feature request? Raise it on our [issues page](https://github.com/developmentseed/eoAPI/issues).
+
+---
 ## License
 
-See [LICENSE](https://github.com/developmentseed/eoAPI/blob/main/LICENSE)
+At Development Seed, we believe in open collaboration and making tools and data more accessible. In line with this ethos, we've explicitly chosen a MIT license for `eoAPI`.
+
+For full license details, see [LICENSE](https://github.com/developmentseed/eoAPI/blob/main/LICENSE).
 
 ## Authors
 
-Created by [Development Seed](<http://developmentseed.org>)
+Nurtured by [Development Seed](<http://developmentseed.org>)
 
 See [contributors](https://github.com/developmentseed/eoAPI/graphs/contributors) for a listing of individual contributors.
 

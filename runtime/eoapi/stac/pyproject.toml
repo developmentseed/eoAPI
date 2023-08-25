@@ -19,6 +19,9 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
+    "fastapi>=0.95.1",
+    "pydantic~=1.0",
+    "geojson-pydantic~=0.6",
     "stac-fastapi.api~=2.4",
     "stac-fastapi.types~=2.4",
     "stac-fastapi.extensions~=2.4",

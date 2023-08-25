@@ -39,6 +39,7 @@ class eoDBSettings(pydantic.BaseSettings):
 
     # Define PGSTAC VERSION
     pgstac_version: str
+    instance_size: str = "SMALL"
     context: bool = True
     mosaic_index: bool = True
 

@@ -187,7 +187,8 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             vpc=vpc,
             engine=rds.DatabaseInstanceEngine.POSTGRES,
             instance_type=ec2.InstanceType.of(
-                ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL
+                ec2.InstanceClass.BURSTABLE3,
+                ec2.InstanceSize(eodb_settings.instance_size),
             ),
             database_name="postgres",
             # should set the subnet to `PRIVATE_ISOLATED` but then we need either a bastion host to connect to the db

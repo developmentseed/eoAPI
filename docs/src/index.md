@@ -1,1 +1,6 @@
-../../README.md
+---
+
+template: home.html
+title: Home
+
+---
