@@ -13,6 +13,7 @@ from stac_fastapi.extensions.core import (
     SortExtension,
     TokenPaginationExtension,
 )
+from stac_fastapi.pgstac.extensions.filter import FiltersClient
 from stac_fastapi.pgstac.types.search import PgstacSearch
 
 
@@ -71,7 +72,9 @@ def TilesApiSettings() -> _TilesApiSettings:
 
 
 extensions = [
-    FilterExtension(),
+    FilterExtension(
+        client=FiltersClient(),
+    ),
     QueryExtension(),
     SortExtension(),
     FieldsExtension(),
