@@ -249,12 +249,12 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             eoraster_function = aws_lambda.Function(
                 self,
                 f"{id}-raster-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_10,
+                runtime=aws_lambda.Runtime.PYTHON_3_11,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(context_dir),
                     file="infrastructure/aws/dockerfiles/Dockerfile.raster",
                     build_args={
-                        "PYTHON_VERSION": "3.10",
+                        "PYTHON_VERSION": "3.11",
                     },
                     platform="linux/amd64",
                 ),
@@ -329,12 +329,12 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             eostac_function = aws_lambda.Function(
                 self,
                 f"{id}-stac-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_10,
+                runtime=aws_lambda.Runtime.PYTHON_3_11,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(context_dir),
                     file="infrastructure/aws/dockerfiles/Dockerfile.stac",
                     build_args={
-                        "PYTHON_VERSION": "3.10",
+                        "PYTHON_VERSION": "3.11",
                     },
                     platform="linux/amd64",
                 ),
@@ -399,12 +399,12 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             eovector_function = aws_lambda.Function(
                 self,
                 f"{id}-vector-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_10,
+                runtime=aws_lambda.Runtime.PYTHON_3_11,
                 code=aws_lambda.Code.from_docker_build(
                     path=os.path.abspath(context_dir),
                     file="infrastructure/aws/dockerfiles/Dockerfile.vector",
                     build_args={
-                        "PYTHON_VERSION": "3.10",
+                        "PYTHON_VERSION": "3.11",
                     },
                     platform="linux/amd64",
                 ),
