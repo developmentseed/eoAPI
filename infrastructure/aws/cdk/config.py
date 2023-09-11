@@ -1,120 +1,95 @@
-"""eoAPI Configs."""
-
-from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pydantic
+from aws_cdk import aws_ec2
+from pydantic_core.core_schema import FieldValidationInfo
+from pydantic_settings import BaseSettings
+
+DEFAULT_PROJECT_ID = "eoapi"
+DEFAULT_STAGE = "staging"
+DEFAULT_NAT_GATEWAY_COUNT = 1
 
 
-class functionName(str, Enum):
-    """Function names."""
+class Config(BaseSettings):
+    project_id: Optional[str] = pydantic.Field(
+        description="Project ID", default=DEFAULT_PROJECT_ID
+    )
+    stage: Optional[str] = pydantic.Field(
+        description="Stage of deployment", default=DEFAULT_STAGE
+    )
+    tags: Optional[Dict[str, str]] = pydantic.Field(
+        description="""Tags to apply to resources. If none provided, 
+        will default to the defaults defined in `default_tags`.
+        Note that if tags are passed to the CDK CLI via `--tags`, 
+        they will override any tags defined here.""",
+        default=None,
+    )
+    auth_provider_jwks_url: Optional[str] = pydantic.Field(
+        description="""Auth Provider JSON Web Key Set URL for
+        ingestion authentication. If not provided, 
+        no authentication will be required.""",
+        default=None,
+    )
+    data_access_role_arn: Optional[str] = pydantic.Field(
+        description="""Role ARN for data access, that will be
+        used by the STAC ingestor for validation of assets
+        located in S3 and for the tiler application to access
+        assets located in S3. If none, the role will be
+        created at runtime with full S3 read access. If
+        provided, the existing role must be configured to
+        allow the tiler and STAC ingestor lambda roles to
+        assume it. See https://github.com/developmentseed/eoapi-cdk""",
+        default=None,
+    )
+    db_instance_type: Optional[str] = pydantic.Field(
+        description="Database instance type", default="t3.micro"
+    )
+    db_allocated_storage: Optional[int] = pydantic.Field(
+        description="Allocated storage for the database", default=5
+    )
+    public_db_subnet: Optional[bool] = pydantic.Field(
+        description="Whether to put the database in a public subnet", default=False
+    )
+    nat_gateway_count: Optional[int] = pydantic.Field(
+        description="Number of NAT gateways to create",
+        default=DEFAULT_NAT_GATEWAY_COUNT,
+    )
+    bastion_host_create_elastic_ip: Optional[bool] = pydantic.Field(
+        description="Whether to create an elastic IP for the bastion host",
+        default=False,
+    )
+    bastion_host_allow_ip_list: Optional[List[str]] = pydantic.Field(
+        description="""YAML file containing list of IP addresses to 
+        allow SSH access to the bastion host""",
+        default=[],
+    )
+    bastion_host_user_data: Optional[
+        Union[Dict[str, Any], aws_ec2.UserData]
+    ] = pydantic.Field(
+        description="Path to file containing user data for the bastion host",
+        default=aws_ec2.UserData.for_linux(),
+    )
+    titiler_buckets: Optional[List[str]] = pydantic.Field(
+        description="""Path to YAML file containing list of
+        buckets to grant access to the titiler API""",
+        default=[],
+    )
 
-    stac = "stac"
-    raster = "raster"
-    vector = "vector"
+    @pydantic.field_validator("tags")
+    def default_tags(cls, v, info: FieldValidationInfo):
+        return v or {"project_id": info.data["project_id"], "stage": info.data["stage"]}
 
+    @pydantic.field_validator("nat_gateway_count")
+    def validate_nat_gateway_count(cls, v, info: FieldValidationInfo):
+        if not info.data["public_db_subnet"] and v <= 0:
+            raise ValueError(
+                """if the database and its associated services instances
+                             are to be located in the private subnet of the VPC, NAT
+                             gateways are needed to allow egress from the services
+                             and therefore `nat_gateway_count` has to be > 0."""
+            )
+        else:
+            return v
 
-class eoAPISettings(pydantic.BaseSettings):
-    """Application settings"""
-
-    name: str = "eoapi"
-    stage: str = "production"
-    owner: Optional[str]
-    client: Optional[str]
-    functions: List[functionName] = [functionName.stac, functionName.raster]
-
-    class Config:
-        """model config"""
-
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_"
-        use_enum_values = True
-
-
-class eoDBSettings(pydantic.BaseSettings):
-    """Application settings"""
-
-    dbname: str = "eoapi"
-    user: str = "eouser"
-
-    # Define PGSTAC VERSION
-    pgstac_version: str
-    instance_size: str = "SMALL"
-    context: bool = True
-    mosaic_index: bool = True
-
-    class Config:
-        """model config"""
-
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_DB_"
-
-
-class eoSTACSettings(pydantic.BaseSettings):
-    """Application settings"""
-
-    env: Dict = {}
-
-    timeout: int = 10
-    memory: int = 256
-
-    class Config:
-        """model config"""
-
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_STAC_"
-
-
-class eoRasterSettings(pydantic.BaseSettings):
-    """Application settings"""
-
-    # Default options are optimized for CloudOptimized GeoTIFF
-    # For more information on GDAL env see: https://gdal.org/user/configoptions.html
-    # or https://developmentseed.org/titiler/advanced/performance_tuning/
-    env: Dict = {
-        "CPL_VSIL_CURL_ALLOWED_EXTENSIONS": ".tif,.TIF,.tiff",
-        "GDAL_CACHEMAX": "200",  # 200 mb
-        "GDAL_DISABLE_READDIR_ON_OPEN": "EMPTY_DIR",
-        "GDAL_INGESTED_BYTES_AT_OPEN": "32768",
-        "GDAL_HTTP_MERGE_CONSECUTIVE_RANGES": "YES",
-        "GDAL_HTTP_MULTIPLEX": "YES",
-        "GDAL_HTTP_VERSION": "2",
-        "PYTHONWARNINGS": "ignore",
-        "VSI_CACHE": "TRUE",
-        "VSI_CACHE_SIZE": "5000000",  # 5 MB (per file-handle)
-        "DB_MIN_CONN_SIZE": "1",
-        "DB_MAX_CONN_SIZE": "1",
-    }
-
-    # S3 bucket names where TiTiler could do HEAD and GET Requests
-    # specific private and public buckets MUST be added if you want to use s3:// urls
-    # You can whitelist all bucket by setting `*`.
-    # ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-arn-format.html
-    buckets: List = ["*"]
-
-    # S3 key pattern to limit the access to specific items (e.g: "my_data/*.tif")
-    key: str = "*"
-
-    timeout: int = 10
-    memory: int = 3008
-
-    class Config:
-        """model config"""
-
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_RASTER_"
-
-
-class eoVectorSettings(pydantic.BaseSettings):
-    """Application settings"""
-
-    env: Dict = {}
-
-    timeout: int = 10
-    memory: int = 512
-
-    class Config:
-        """model config"""
-
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_VECTOR_"
+    def build_service_name(self, service_id: str) -> str:
+        return f"{self.project_id}-{self.stage}-{service_id}"

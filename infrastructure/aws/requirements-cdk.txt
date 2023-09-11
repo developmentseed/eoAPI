@@ -1,9 +1,9 @@
 # aws cdk
 aws-cdk-lib==2.94.0
-aws_cdk-aws_apigatewayv2_alpha==2.94.0a0
-aws_cdk-aws_apigatewayv2_integrations_alpha==2.94.0a0
 constructs>=10.0.0
-
 # pydantic settings
-pydantic~=1.0
+pydantic==2.0.2
 python-dotenv
+eoapi-cdk==5.4.0
+boto3==1.24.15
+pydantic-settings==2.0.1
