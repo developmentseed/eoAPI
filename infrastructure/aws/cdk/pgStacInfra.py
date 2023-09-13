@@ -1,38 +1,46 @@
-from typing import Optional, Union
-
 import boto3
-from aws_cdk import Stack, aws_ec2, aws_iam, aws_rds
+import yaml
+from aws_cdk import (
+    RemovalPolicy,
+    Stack,
+    aws_certificatemanager,
+    aws_ec2,
+    aws_iam,
+    aws_rds,
+    aws_s3,
+    aws_lambda
+)
+from aws_cdk.aws_apigateway import DomainNameOptions
+from aws_cdk.aws_apigatewayv2_alpha import DomainName
 from constructs import Construct
 from eoapi_cdk import (
     BastionHost,
     PgStacApiLambda,
     PgStacDatabase,
+    StacBrowser,
     StacIngestor,
+    TiPgApiLambda,
     TitilerPgstacApiLambda,
 )
 
+from config import AppConfig
+
+APIS_RUNTIME_DIR = 'runtime'
 
 class pgStacInfraStack(Stack):
     def __init__(
         self,
         scope: Construct,
-        id: str,
         vpc: aws_ec2.Vpc,
-        stage: str,
-        db_allocated_storage: int,
-        public_db_subnet: bool,
-        db_instance_type: str,
-        stac_api_lambda_name: str,
-        titiler_pgstac_api_lambda_name: str,
-        bastion_host_allow_ip_list: list,
-        bastion_host_create_elastic_ip: bool,
-        titiler_buckets: list,
-        data_access_role_arn: Optional[str],
-        auth_provider_jwks_url: Optional[str],
-        bastion_host_user_data: Union[str, aws_ec2.UserData],
+        app_config: AppConfig,
         **kwargs,
     ) -> None:
-        super().__init__(scope, id, **kwargs)
+        super().__init__(
+            scope,
+            id=app_config.build_service_name("pgSTAC-infra"),
+            tags=app_config.tags,
+            **kwargs,
+        )
 
         pgstac_db = PgStacDatabase(
             self,
@@ -43,79 +51,142 @@ class pgStacInfraStack(Stack):
             ),
             vpc_subnets=aws_ec2.SubnetSelection(
                 subnet_type=aws_ec2.SubnetType.PUBLIC
-                if public_db_subnet
+                if app_config.public_db_subnet
                 else aws_ec2.SubnetType.PRIVATE_ISOLATED
             ),
-            allocated_storage=db_allocated_storage,
-            instance_type=aws_ec2.InstanceType(db_instance_type),
+            allocated_storage=app_config.db_allocated_storage,
+            instance_type=aws_ec2.InstanceType(app_config.db_instance_type),
+            api_code={'entry': f'{APIS_RUNTIME_DIR}/db', 'index': 'handler.py', 'handler': 'handler'},
         )
 
         stac_api_lambda = PgStacApiLambda(
             self,
             "pgstac-api",
-            api_env={"NAME": stac_api_lambda_name, "description": f"{stage} STAC API"},
+            api_env={
+                "NAME": app_config.build_service_name("STAC API"),
+                "description": f"{app_config.stage} STAC API",
+            },
+            api_code={'entry': f'{APIS_RUNTIME_DIR}/stac', 'index': 'handler.py', 'handler': 'handler'},
             vpc=vpc,
             db=pgstac_db.db,
             db_secret=pgstac_db.pgstac_secret,
             subnet_selection=aws_ec2.SubnetSelection(
                 subnet_type=aws_ec2.SubnetType.PUBLIC
-                if public_db_subnet
+                if app_config.public_db_subnet
                 else aws_ec2.SubnetType.PRIVATE_WITH_EGRESS
             ),
+            stac_api_domain_name=DomainName(
+                self,
+                "stac-api-domain-name",
+                domain_name=app_config.stac_api_custom_domain,
+                certificate=aws_certificatemanager.Certificate.from_certificate_arn(
+                    self,
+                    "stac-api-cdn-certificate",
+                    certificate_arn=app_config.acm_certificate_arn,
+                ),
+            )
+            if app_config.stac_api_custom_domain
+            else None,
         )
 
         TitilerPgstacApiLambda(
             self,
             "titiler-pgstac-api",
             api_env={
-                "NAME": titiler_pgstac_api_lambda_name,
-                "description": f"{stage} titiler pgstac API",
+                "NAME": app_config.build_service_name("titiler pgSTAC API"),
+                "description": f"{app_config.stage} titiler pgstac API",
             },
+            python_lambda_options={'runtime':f'{APIS_RUNTIME_DIR}/raster','index':'handler.py', 'handler':'handler','memorySize': 3008, 'architecture': aws_lambda.Architecture.X86_64},
             vpc=vpc,
             db=pgstac_db.db,
             db_secret=pgstac_db.pgstac_secret,
             subnet_selection=aws_ec2.SubnetSelection(
                 subnet_type=aws_ec2.SubnetType.PUBLIC
-                if public_db_subnet
+                if app_config.public_db_subnet
                 else aws_ec2.SubnetType.PRIVATE_WITH_EGRESS
             ),
-            buckets=titiler_buckets,
+            buckets=app_config.titiler_buckets,
+            titiler_pgstac_api_domain_name=DomainName(
+                self,
+                "titiler-pgstac-api-domain-name",
+                domain_name=app_config.titiler_pgstac_api_custom_domain,
+                certificate=aws_certificatemanager.Certificate.from_certificate_arn(
+                    self,
+                    "titiler-pgstac-api-cdn-certificate",
+                    certificate_arn=app_config.acm_certificate_arn,
+                ),
+            )
+            if app_config.titiler_pgstac_api_custom_domain
+            else None,
         )
 
-        BastionHost(
+        TiPgApiLambda(
             self,
-            "bastion-host",
+            "tipg-api",
+            api_env={
+                "NAME": app_config.build_service_name("tipg API"),
+                "description": f"{app_config.stage} tipg API",
+            },
+            api_code={'entry': f'{APIS_RUNTIME_DIR}/vector', 'index': 'handler.py', 'handler': 'handler'},
             vpc=vpc,
             db=pgstac_db.db,
-            ipv4_allowlist=bastion_host_allow_ip_list,
-            user_data=aws_ec2.UserData.custom(bastion_host_user_data)
-            if bastion_host_user_data
-            else aws_ec2.UserData.for_linux(),
-            create_elastic_ip=bastion_host_create_elastic_ip,
+            db_secret=pgstac_db.pgstac_secret,
+            subnet_selection=aws_ec2.SubnetSelection(
+                subnet_type=aws_ec2.SubnetType.PUBLIC
+                if app_config.public_db_subnet
+                else aws_ec2.SubnetType.PRIVATE_WITH_EGRESS
+            ),
+            tipg_api_domain_name=DomainName(
+                self,
+                "tipg-api-domain-name",
+                domain_name=app_config.tipg_api_custom_domain,
+                certificate=aws_certificatemanager.Certificate.from_certificate_arn(
+                    self,
+                    "tipg-api-cdn-certificate",
+                    certificate_arn=app_config.acm_certificate_arn,
+                ),
+            )
+            if app_config.tipg_api_custom_domain
+            else None,
         )
 
-        if data_access_role_arn:
+        if app_config.bastion_host:
+            BastionHost(
+                self,
+                "bastion-host",
+                vpc=vpc,
+                db=pgstac_db.db,
+                ipv4_allowlist=app_config.bastion_host_allow_ip_list,
+                user_data=aws_ec2.UserData.custom(
+                    yaml.dump(app_config.bastion_host_user_data)
+                )
+                if app_config.bastion_host_user_data is not None
+                else aws_ec2.UserData.for_linux(),
+                create_elastic_ip=app_config.bastion_host_create_elastic_ip,
+            )
+
+        if app_config.data_access_role_arn:
             # importing provided role from arn.
             # the stac ingestor will try to assume it when called,
             # so it must be listed in the data access role trust policy.
             data_access_role = aws_iam.Role.from_role_arn(
                 self,
                 "data-access-role",
-                role_arn=data_access_role_arn,
+                role_arn=app_config.data_access_role_arn,
             )
         else:
             data_access_role = self._create_data_access_role()
 
         stac_ingestor_env = {"REQUESTER_PAYS": "True"}
 
-        if auth_provider_jwks_url:
-            stac_ingestor_env["JWKS_URL"] = auth_provider_jwks_url
+        if app_config.auth_provider_jwks_url:
+            stac_ingestor_env["JWKS_URL"] = app_config.auth_provider_jwks_url
 
         stac_ingestor = StacIngestor(
             self,
             "stac-ingestor",
             stac_url=stac_api_lambda.url,
-            stage=stage,
+            stage=app_config.stage,
             vpc=vpc,
             data_access_role=data_access_role,
             stac_db_secret=pgstac_db.pgstac_secret,
@@ -124,12 +195,49 @@ class pgStacInfraStack(Stack):
                 subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_EGRESS
             ),
             api_env=stac_ingestor_env,
+            api_code={'entry': f'{APIS_RUNTIME_DIR}/ingestor', 'index': 'handler.py', 'handler': 'handler'},
+            ingestor_domain_name_options=DomainNameOptions(
+                domain_name=app_config.stac_ingestor_api_custom_domain,
+                certificate=aws_certificatemanager.Certificate.from_certificate_arn(
+                    self,
+                    "stac-ingestor-api-cdn-certificate",
+                    certificate_arn=app_config.acm_certificate_arn,
+                ),
+            )
+            if app_config.stac_ingestor_api_custom_domain
+            else None,
         )
+
+        if app_config.stac_browser_version:
+            stac_browser_bucket = aws_s3.Bucket(
+                self,
+                "stac-browser-bucket",
+                bucket_name=app_config.build_service_name("stac-browser"),
+                removal_policy=RemovalPolicy.DESTROY,
+                auto_delete_objects=True,
+                website_index_document="index.html",
+                public_read_access=True,
+                block_public_access=aws_s3.BlockPublicAccess(
+                    block_public_acls=False,
+                    block_public_policy=False,
+                    ignore_public_acls=False,
+                    restrict_public_buckets=False,
+                ),
+                object_ownership=aws_s3.ObjectOwnership.OBJECT_WRITER,
+            )
+            StacBrowser(
+                self,
+                "stac-browser",
+                github_repo_tag=app_config.stac_browser_version,
+                stac_catalog_url=f"https://{app_config.stac_api_custom_domain}",
+                website_index_document="index.html",
+                bucket_arn=stac_browser_bucket.bucket_arn,
+            )
 
         # we can only do that if the role is created here.
         # If injecting a role, that role's trust relationship
         # must be already set up, or set up after this deployment.
-        if not data_access_role_arn:
+        if not app_config.data_access_role_arn:
             data_access_role = self._grant_assume_role_with_principal_pattern(
                 data_access_role, stac_ingestor.handler_role.role_name
             )

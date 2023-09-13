@@ -1,12 +1,17 @@
 from aws_cdk import Stack, aws_ec2
 from constructs import Construct
 
+from config import AppConfig
+
 
 class VpcStack(Stack):
-    def __init__(
-        self, scope: Construct, id: str, nat_gateway_count: int, **kwargs
-    ) -> None:
-        super().__init__(scope, id, **kwargs)
+    def __init__(self, scope: Construct, app_config: AppConfig, **kwargs) -> None:
+        super().__init__(
+            scope,
+            id=app_config.build_service_name("pgSTAC-vpc"),
+            tags=app_config.tags,
+            **kwargs
+        )
 
         self.vpc = aws_ec2.Vpc(
             self,
@@ -26,7 +31,7 @@ class VpcStack(Stack):
                     cidr_mask=24,
                 ),
             ],
-            nat_gateways=nat_gateway_count,
+            nat_gateways=app_config.nat_gateway_count,
         )
 
         self.vpc.add_gateway_endpoint(

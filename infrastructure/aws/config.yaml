@@ -1,0 +1,12 @@
+project_id: "eoapi"
+stage: "dev"
+tags:
+  project: "eoapi"
+public_db_subnet: True # DB in public subnet
+bastion_host: False # no bastion host
+acm_certificate_arn: some_arn # for custom domain names
+stac_api_custom_domain: stac.eoapi.dev # domain name for STAC API
+titiler_pgstac_api_custom_domain: raster.eoapi.dev # ....
+stac_ingestor_api_custom_domain: ingestor.eoapi.dev
+tipg_api_custom_domain: vector.eoapi.dev
+stac_browser_version: v3.1.0 # Radiant Earth GH tag 
