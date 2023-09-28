@@ -14,6 +14,7 @@ if [ -z "$DATABASE_URL" ]; then
     DATABASE_URL="postgresql://$username:$password@$host:$port/$dbname"
 fi
 
+echo $DATABASE_URL
 echo "Inserting collection from $collection_json_file"
 pypgstac load collections $collection_json_file --dsn $DATABASE_URL --method insert_ignore
 echo "Inserting items from $items_json_file"
