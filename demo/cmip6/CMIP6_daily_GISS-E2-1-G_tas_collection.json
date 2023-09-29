@@ -1,0 +1,29 @@
+{
+    "id": "CMIP6_daily_GISS-E2-1-G_tas",
+    "stac_version": "1.0.0",
+    "license": "not-provided",
+    "title": "CMIP6 Daily Near-Surface Air Temperature from GISS-E2-1-G Model",
+    "type": "Collection",
+    "description": "CMIP6 Daily Near-Surface Air Temperature from GISS-E2-1-G Model",
+    "links":[],
+    "extent": {
+        "spatial": {
+            "bbox": [
+                [
+                    -180,
+                    -90,
+                    180,
+                    90
+                ]
+            ]
+        },
+        "temporal": {
+            "interval": [
+                [
+                    "1950-01-01T00:00:00.000Z",
+                    "1951-12-31T00:00:00.000Z"
+                ]
+            ]
+        }
+    }
+}
