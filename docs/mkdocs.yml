@@ -28,16 +28,34 @@ nav:
 
 plugins:
   - search
-
+extra_css:
+  - overrides/stylesheets/extra.css
 theme:
   name: material
   custom_dir: src/overrides/
   palette:
-    primary: black
-    scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+      primary: custom
+      accent: deep orange
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+      primary: custom
+      accent: deep orange
+        
   features:
     - navigation.tabs
-    - navigation.tabs.sticky
+    # - navigation.tabs.sticky
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - navigation.expand
   favicon: img/favicon.ico
   logo: img/logo.png
 
