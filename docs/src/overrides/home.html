@@ -157,7 +157,7 @@
         }
 
         .feature-grid {
-            grid-template-columns: repeat(3, minmax(10px, 1fr));
+            grid-template-columns: repeat(var(--cols), minmax(10px, 1fr));
         }
     }
 
@@ -250,6 +250,9 @@
     .md-header {
         background: transparent;
     }
+    figure {
+        margin: 0;
+    }
 </style>
 
 <main>
@@ -301,7 +304,7 @@
                     fit most EO and geospatial infrastructure needs.</p>
             </div>
             <div class="md-content__inner">
-                <ul class="feature-grid">
+                <ul class="feature-grid" style="--cols: 3;">
                     <li>
                         <article class="md-typeset">
                             <h3>STAC Powered</h3>
@@ -332,7 +335,7 @@
                 <header class="md-typeset">
                     <h5 id="end-to-end-eoAPI" class="supheading">End-To-End Earth Observation Infrastructure</h5>
                 </header>
-                <ul class="feature-grid">
+                <ul class="feature-grid" style="--cols: 4;">
                     <li>
                         <article class="feature-item">
                             <h2>
@@ -398,8 +401,8 @@
     </section>
 
     <!-- eoAPI benefits section -->
-    <section class="md-container" data-md-color-scheme="default">
-        <div class="md-content md-grid" data-md-component="content">
+    <section class="md-content" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
             <div class="md-content__inner">
                 <header class="md-typeset">
                     <h5 id="eoapi-benefits" class="supheading">eoapi benefits</h5>
@@ -407,7 +410,7 @@
                         <a href="#eoapi-benefits" class="headerlink" title="Permanent link"> ¶ </a>
                     </h1>
                 </header>
-                <div class="mdx-spotlight">
+                <div class="">
                     <figure class="mdx-spotlight__feature">
                         <a href="how-to-guides/huggingface/pipeline/nlp/translation/" title="Built-in search"
                             tabindex="-1">
@@ -463,8 +466,8 @@
     </section>
 
     <!-- Why eoAPI section -->
-    <section class="md-container secondary-section" data-md-color-scheme="default">
-        <div class="md-content md-grid" data-md-component="content">
+    <section class="md-content secondary-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
             <div class="md-content__inner">
                 <header class="md-typeset">
                     <h5 id="eoapi-benefits" class="supheading">Why eoAPI</h5>
