@@ -22,9 +22,15 @@
                         <a href="{{ page.next_page.url | url }}" title="Get Started"
                             class="md-button md-button--primary">
                             Get Started
+                            <span class="twemoji">
+                                {% include ".icons/material/arrow-right.svg" %}
+                            </span>
                         </a>
-                        <a href="{{ config.repo_url }}" title="{{ lang.t('source.link.title') }}" class="md-button">
+                        <a href="{{ config.repo_url }}" title="EoAPI Github Repo" class="md-button">
                             View on Github
+                            <span class="twemoji">
+                                {% include ".icons/simple/github.svg" %}
+                            </span>
                         </a>
 
                     </div>
@@ -55,20 +61,29 @@
             </div>
             <div class="md-content__inner">
                 <ul class="feature-grid" style="--cols: 3;">
-                    <li>
+                    <li class="feature-tout">
                         <article class="md-typeset">
+                            <span class="twemoji">
+                                {% include ".icons/material/database-marker-outline.svg" %}
+                            </span>
                             <h3>STAC Powered</h3>
                             <p>A suite of STAC-focused technologies that consistently perform well as a backend</p>
                         </article>
                     </li>
-                    <li>
+                    <li class="feature-tout">
                         <article class="md-typeset">
+                            <span class="twemoji">
+                                {% include ".icons/material/folder-home.svg" %}
+                            </span>
                             <h3>Intelligent Defaults</h3>
                             <p>Seamless deployment, configuration, and customization, while preserving flexibility.</p>
                         </article>
                     </li>
-                    <li>
+                    <li class="feature-tout">
                         <article class="md-typeset">
+                            <span class="twemoji">
+                                {% include ".icons/material/cloud-braces.svg" %}
+                            </span>
                             <h3>Cloud agnostic</h3>
                             <p>Quickly deploy, configure and scale EO services. Deploy anywhere.</p>
                         </article>
@@ -85,14 +100,10 @@
                 <header class="md-typeset">
                     <h5 id="end-to-end-eoAPI" class="supheading">End-To-End Earth Observation Infrastructure</h5>
                 </header>
-                <ul class="feature-grid" style="--cols: 4;">
+                <ul class="feature-grid" style="grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));">
                     <li>
                         <article class="feature-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" stroke-linecap="round">
-                                <path
-                                    d="M12 1.25c2.487 0 4.773.402 6.466 1.079.844.337 1.577.758 2.112 1.264.536.507.922 1.151.922 1.907v12.987l-.026.013h.026c0 .756-.386 1.4-.922 1.907-.535.506-1.268.927-2.112 1.264-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079c-.844-.337-1.577-.758-2.112-1.264C2.886 19.9 2.5 19.256 2.5 18.5h.026l-.026-.013V5.5c0-.756.386-1.4.922-1.907.535-.506 1.268-.927 2.112-1.264C7.226 1.652 9.513 1.25 12 1.25ZM4 14.371v4.116l-.013.013H4c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971 2.345 0 4.434-.381 5.909-.971.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817h.013L20 18.487v-4.116a7.85 7.85 0 0 1-1.534.8c-1.693.677-3.979 1.079-6.466 1.079s-4.774-.402-6.466-1.079a7.843 7.843 0 0 1-1.534-.8ZM20 12V7.871a7.85 7.85 0 0 1-1.534.8C16.773 9.348 14.487 9.75 12 9.75s-4.774-.402-6.466-1.079A7.85 7.85 0 0 1 4 7.871V12c0 .21.104.487.453.817.35.332.899.666 1.638.961 1.475.59 3.564.972 5.909.972 2.345 0 4.434-.382 5.909-.972.74-.295 1.287-.629 1.638-.96.35-.33.453-.607.453-.818ZM4 5.5c0 .211.103.487.453.817.351.332.898.666 1.638.962 1.475.589 3.564.971 5.909.971 2.345 0 4.434-.381 5.909-.971.739-.296 1.288-.63 1.638-.962.349-.33.453-.607.453-.817 0-.211-.103-.487-.453-.817-.351-.332-.898-.666-1.638-.962-1.475-.589-3.564-.971-5.909-.971-2.345 0-4.434.381-5.909.971-.739.296-1.288.63-1.638.962C4.104 5.013 4 5.29 4 5.5Z">
-                                </path>
-                            </svg>
+                            <img src="../img/pgstac_logo.png" alt="pgstac logo" loading="lazy">
                             <div class="feature-item__description md-typeset">
                                 <h3>
                                     Catalog Cloud Data
@@ -108,14 +119,7 @@
                         </article>
                     </li>
                     <article class="feature-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" stroke-linecap="round">
-                            <path
-                                d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z">
-                            </path>
-                            <path
-                                d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z">
-                            </path>
-                        </svg>
+                        <img src="../img/stacfastapi_logo.png" alt="stac-fastapi logo" loading="lazy" />
                         <div class="feature-item__description md-typeset">
                             <h3>
                                 Make it Discoverable
@@ -131,11 +135,7 @@
                         </div>
                     </article>
                     <article class="feature-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" stroke-linecap="round">
-                            <path
-                                d="M21.75 21.5H2.25A1.75 1.75 0 0 1 .5 19.75V4.25c0-.966.784-1.75 1.75-1.75h19.5c.966 0 1.75.784 1.75 1.75v15.5a1.75 1.75 0 0 1-1.75 1.75ZM2.25 4a.25.25 0 0 0-.25.25v15.5c0 .138.112.25.25.25h3.178L14 10.977a1.749 1.749 0 0 1 2.506-.032L22 16.44V4.25a.25.25 0 0 0-.25-.25ZM22 19.75v-1.19l-6.555-6.554a.248.248 0 0 0-.18-.073.247.247 0 0 0-.178.077L7.497 20H21.75a.25.25 0 0 0 .25-.25ZM10.5 9.25a3.25 3.25 0 1 1-6.5 0 3.25 3.25 0 0 1 6.5 0Zm-1.5 0a1.75 1.75 0 1 0-3.501.001A1.75 1.75 0 0 0 9 9.25Z">
-                            </path>
-                        </svg>
+                        <img src="../img/titilerpgstac_logo.png" alt="titiler-pgstac logo" loading="lazy" />
                         <div class="feature-item__description md-typeset">
                             <h3>
                                 Visualize Raster Data
@@ -151,11 +151,7 @@
                         </div>
                     </article>
                     <article class="feature-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" stroke-linecap="round">
-                            <path
-                                d="M12 1c6.075 0 11 4.925 11 11s-4.925 11-11 11S1 18.075 1 12 5.925 1 12 1Zm3.241 10.5v-.001c-.1-2.708-.992-4.904-1.89-6.452a13.919 13.919 0 0 0-1.304-1.88L12 3.11l-.047.059c-.354.425-.828 1.06-1.304 1.88-.898 1.547-1.79 3.743-1.89 6.451Zm-12.728 0h4.745c.1-3.037 1.1-5.49 2.093-7.204.39-.672.78-1.233 1.119-1.673C6.11 3.329 2.746 7 2.513 11.5Zm18.974 0C21.254 7 17.89 3.329 13.53 2.623c.339.44.729 1.001 1.119 1.673.993 1.714 1.993 4.167 2.093 7.204ZM8.787 13c.182 2.478 1.02 4.5 1.862 5.953.382.661.818 1.29 1.304 1.88l.047.057.047-.059c.354-.425.828-1.06 1.304-1.88.842-1.451 1.679-3.471 1.862-5.951Zm-1.504 0H2.552a9.505 9.505 0 0 0 7.918 8.377 15.773 15.773 0 0 1-1.119-1.673C8.413 18.085 7.47 15.807 7.283 13Zm9.434 0c-.186 2.807-1.13 5.085-2.068 6.704-.39.672-.78 1.233-1.118 1.673A9.506 9.506 0 0 0 21.447 13Z">
-                            </path>
-                        </svg>
+                        <img src="../img/tipg_logo.png" alt="tipg logo" loading="lazy" />
                         <div class="feature-item__description md-typeset">
                             <h3>
                                 Visualize Vector Data
@@ -189,7 +185,7 @@
                             <img src="https://placehold.co/600x300" alt="Alt text" loading="lazy">
                         </a>
                         <figcaption class="md-typeset">
-                            <h2>Ingest any STAC Collection</h2>
+                            <h2>Download and Deploy Anywhere</h2>
                             <p>Ingest any STAC Collection. Cambrian explosion radio telescope dream of the mind's eye
                                 something incredible is waiting to be known, astonishment, rich in mystery shores of the
                                 cosmic ocean! The carbon in our apple pies, star stuff harvesting star light something
@@ -206,7 +202,7 @@
                             <img src="https://placehold.co/600x300" alt="Alt text" loading="lazy">
                         </a>
                         <figcaption class="md-typeset">
-                            <h2>Download and Deploy</h2>
+                            <h2>Ingest Metadata</h2>
                             <p>Download eoAPI resources. Deploy in minutes.`The size and age of the Cosmos are beyond
                                 ordinary human understanding. Lost somewhere between immensity and eternity is our tiny
                                 planetary home. In a cosmic perspective, most human concerns seem insignificant, even
@@ -220,7 +216,7 @@
                             <img src="https://placehold.co/600x300" alt="Alt text" loading="lazy">
                         </a>
                         <figcaption class="md-typeset">
-                            <h2>Raster Vector, faster connector</h2>
+                            <h2>Visualize Everything</h2>
                             <p>A galaxy is composed of gas and dust and stars—billions upon billions of stars. Every
                                 star
                                 may be a sun to someone. Within a galaxy are stars and worlds and, it may be, a
@@ -266,15 +262,63 @@
                     <figure>
                         <figcaption class="md-typeset">
                             <h3>NASA IMPACT’s VEDA Project</h3>
-                            <p>NASA IMPACT is leading the way for how NASA (and space agencies worldwide) can increase the
-                                societal impact of their data through cloud-optimized data distribution. They’ve invested
-                                significant resources in advancing modern public EO data standards, tools, and platforms.
+                            <p>NASA IMPACT is leading the way for how NASA (and space agencies worldwide) can increase
+                                the
+                                societal impact of their data through cloud-optimized data distribution. They’ve
+                                invested
+                                significant resources in advancing modern public EO data standards, tools, and
+                                platforms.
                                 You
                                 can see eoAPI services in action across</p>
                         </figcaption>
                         <img src="https://placehold.co/600x300" alt="Alt text" loading="lazy">
                     </figure>
                 </div>
+            </div>
+        </div>
+    </section>
+    <section class="md-content secondary-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner">
+                <header class="md-typeset text-centered">
+                    <h5 id="trusted-by" class="supheading">Trusted By</h5>
+                </header>
+                <div class="feature-grid logo-grid" style="--cols: 3;">
+                    <figure>
+                        <img src="../img/nasa_logo.svg" alt="NASA logo" loading="lazy" height="88px">
+                    </figure>
+                    <figure>
+                        <img src="../img/msft_logo.svg" alt="Microsoft Logo" loading="lazy" height="64px">
+                    </figure>
+                    <figure>
+                        <img src="../img/aws_logo.svg" alt="AWS Logo" loading="lazy" height="64px">
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="md-content gradient-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner centered text-centered">
+                <div class="feature-grid" style="--cols: 2;">
+                    <div class="md-typeset">
+                        <h5 class="supheading">Bespoke Solutions</h5>
+                        <p>Want to discuss a customized solution for your needs?
+                        </p>
+                        <a href="https://developmentseed.org/contact" target="_blank" rel="noopener">Contact us</a>
+                    </div>
+                    <div class="md-typeset">
+                        <h5 class="supheading">Driven by Community</h5>
+                        <p>eoAPI is a community-driven initiative built on collaboration. We welcome your contributions,
+                            feedback, and suggestions. Join the discussion or open a pull request <a
+                                href="https://developmentseed.org/contact" target="_blank" rel="noopener">in the eoAPI
+                                repository</a>
+                        </p>
+                    </div>
+                </div>
+                <a href="https://developmentseed.org" target="_blank" rel="noopener"
+                    style="display: block; margin-top: 2rem;" title="DevelopmentSeed.org"><img
+                        src="../img/devseed_logo.svg" height="64px" alt="Development Seed Logo" loading="lazy" /></a>
             </div>
         </div>
     </section>
