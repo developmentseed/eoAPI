@@ -1,8 +1,10 @@
 :root,
-[data-md-color-scheme=default] {
+[data-md-color-scheme='default'] {
   --md-heading-font: 'Oswald';
   --md-primary-fg-color: #cf3f02;
   --md-default-fg-color: #443f3f;
+  --boxShadowD: 0px 12px 24px 0px rgba(68, 63, 63, 0.08),
+    0px 0px 4px 0px rgba(68, 63, 63, 0.08);
 }
 body {
   margin: 0;
