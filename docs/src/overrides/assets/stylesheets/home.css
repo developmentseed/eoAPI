@@ -156,6 +156,9 @@ section + section {
   margin: 1rem 0;
   gap: 1rem;
 }
+.figure-collection figure img {
+  max-width: 100%;
+}
 
 .text-centered {
   text-align: center;
@@ -191,17 +194,6 @@ section + section {
     grid-template-columns: repeat(var(--cols), minmax(10px, 1fr));
   }
 
-  .figure-collection figure {
-    flex-flow: row nowrap;
-  }
-
-  .figure-collection figure > * {
-    flex: 1;
-  }
-
-  .figure-collection figure > :first-child {
-    order: var(--figureOrder);
-  }
 
   .width-160 {
     max-width: 160ch;
@@ -212,7 +204,18 @@ section + section {
   .tx-hero {
     padding: 4rem 1rem 6rem;
   }
+  .figure-collection figure {
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+  }
 
+  .figure-collection figure > * {
+    flex: 1;
+  }
+
+  .figure-collection figure > :first-child {
+    order: var(--figureOrder);
+  }
   .md-typeset h2 {
     font-size: 2rem;
     line-height: 2.5rem;
