@@ -45,6 +45,52 @@
   padding: 0 1rem;
 }
 
+.media-attribution {
+  position: absolute;
+  top: 4rem;
+  right: 1rem;
+  z-index: 40;
+  max-width: calc(100% - 2rem);
+  display: inline-flex;
+  color: rgb(255, 255, 255);
+  border-radius: 320rem;
+  padding: 0rem 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  background: rgba(68, 63, 63, 0.32);
+  overflow: hidden;
+}
+.media-attribution .twemoji {
+  font-size: 0.75rem;
+  height: initial;
+}
+.media-attribution strong {
+  display: block;
+  width: 100%;
+  max-width: 0px;
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: normal;
+  white-space: nowrap;
+  padding: 0rem;
+  opacity: 0;
+  transition: all 0.24s ease-in-out 0s;
+}
+.media-attribution a {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  color: rgb(255, 255, 255);
+}
+.media-attribution a:hover strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64vw;
+  padding: 0rem 0.5rem 0rem 0.25rem;
+  opacity: 1;
+  color: rgb(255, 255, 255);
+}
 .tx-hero h1 {
   color: currentColor;
   font-weight: 700;
@@ -187,8 +233,8 @@ section + section {
   margin-bottom: 1rem;
   color: var(--md-primary-fg-color);
 }
-.feature-tout .twemoji:after { 
-  position: absolute; 
+.feature-tout .twemoji:after {
+  position: absolute;
   background: rgba(207, 63, 2, 0.12);
   border-radius: 100%;
   padding: 2.5rem;
