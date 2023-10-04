@@ -34,20 +34,8 @@ theme:
   name: material
   custom_dir: src/overrides/
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      toggle:
-        icon: material/weather-night
-        name: Switch to dark mode
-      primary: custom
-      accent: deep orange
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to light mode
-      primary: custom
-      accent: deep orange
+    primary: custom
+    accent: deep orange
         
   features:
     - navigation.tabs
