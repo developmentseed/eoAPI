@@ -19,7 +19,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "titiler.pgstac==0.5.1",
+    "titiler.pgstac==0.7.0",
     "starlette-cramjam>=0.3,<0.4",
     "importlib_resources>=1.1.0;python_version<'3.9'",
 ]

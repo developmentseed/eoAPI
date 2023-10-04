@@ -98,6 +98,7 @@ app.add_middleware(CompressionMiddleware)
 if settings.catalog_ttl:
     app.add_middleware(
         CatalogUpdateMiddleware,
+        func=register_collection_catalog,
         ttl=settings.catalog_ttl,
         schemas=["public"],
         exclude_function_schemas=["public"],
