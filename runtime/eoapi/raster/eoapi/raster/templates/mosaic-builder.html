@@ -230,6 +230,12 @@
               </div>
             </div>
 
+            <div class='px12 pt12 pb6'>
+              <div class='txt-h5 mt6 mb6 color-black'>Mosaic Name</div>
+              <input id="mosaic-name" class='input inline-block align-center color-black'/>
+              <div id='mosaic-metadata'></div>
+            </div>
+
             <!-- <div class='px12 pt12 pb6'>
               <div class='txt-h5 mt6 mb6 color-black'>Mosaic Metadata</div>
               <div class='mt12'>
@@ -369,6 +375,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   document.getElementById('start-date').value = ''
   document.getElementById('end-date').value = ''
   document.getElementById('mosaic-info').innerHTML = ''
+  document.getElementById('mosaic-name').value = ''
 })
 
 document.getElementById('collection-select').addEventListener('change', () => {
@@ -568,6 +575,11 @@ document.getElementById('btn-query').addEventListener('click', () => {
   })
 
   if (filter.args.length > 0) body.filter = filter
+
+  var name = document.getElementById('mosaic-name').value
+  if (name) {
+    body.metadata.name = name
+  }
 
   fetch('{{ register_endpoint }}', {
     method: 'POST',
