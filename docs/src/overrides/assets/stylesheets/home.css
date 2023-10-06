@@ -192,7 +192,7 @@ section + section {
 }
 
 .dark-section {
-  background: var(--md-default-fg-color);
+  background: #2e2b2b;
   color: var(--md-default-bg-color);
 }
 
@@ -263,6 +263,7 @@ section + section {
   flex-flow: column nowrap;
   margin: 1rem 0;
   gap: 1rem;
+  position: relative;
 }
 .figure-collection figure img {
   max-width: 100%;
@@ -274,12 +275,16 @@ section + section {
 
 .centered {
   margin: 0 auto;
+  padding: 0 0.75rem;
 }
 .logo-grid {
   align-items: center;
 }
 .logo-grid figure {
   mix-blend-mode: luminosity;
+}
+a > img {
+  max-width: 100%;
 }
 
 @media screen and (min-width: 40em) {
@@ -303,9 +308,26 @@ section + section {
     max-width: 60ch;
     font-size: 1rem;
   }
-
   .feature-grid {
     grid-template-columns: repeat(var(--cols), minmax(10px, 1fr));
+  }
+  .figure-collection figure img {
+    max-width: 75%;
+    align-self: center;
+  }
+  #eoapi-benefits.figure-collection figure:last-of-type:after {
+    display: block;
+    position: absolute;
+    content: '';
+    height: clamp(6rem, 14vw, 12rem);
+    width: 50vw;
+    background: var(--md-primary-fg-color);
+    mix-blend-mode: multiply;
+    border-radius: 0 0.5rem 0.5rem 0;
+    pointer-events: none;
+    z-index: -1;
+    bottom: 12rem;
+    left: -20vw;
   }
 
   .width-160 {
@@ -317,13 +339,38 @@ section + section {
   .tx-hero {
     padding: 4rem 1rem 6rem;
   }
+  .centered {
+    padding: 0;
+  }
   .figure-collection figure {
     flex-flow: row nowrap;
     justify-content: flex-start;
+    gap: 2rem;
+    align-items: center;
   }
 
   .figure-collection figure > * {
     flex: 1;
+    flex-shrink: 0;
+  }
+
+  .figure-collection figure img {
+    max-width: 50%;
+  }
+  #eoapi-benefits.figure-collection figure:nth-of-type(even) img {
+    margin-right: -5rem;
+    max-width: 100%;
+  }
+  #eoapi-benefits.figure-collection figure:nth-of-type(odd) img {
+    margin-left: -5rem;
+    max-width: 100%;
+  }
+  #eoapi-benefits.figure-collection figure:last-of-type:after {
+    bottom: 2rem;
+    left: -30vw;
+  }
+  .figure-collection figure:nth-of-type(even) img {
+    order: 1;
   }
 
   .figure-collection figure > :first-child {
