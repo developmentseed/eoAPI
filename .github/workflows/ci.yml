@@ -50,7 +50,7 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          python -m pip install pytest pytest-asyncio httpx pypgstac==0.7.1 psycopg[pool] brotlipy boto3 pytest-pgsql psycopg2
+          python -m pip install pytest pytest-asyncio httpx pypgstac==0.8.1 psycopg[pool] brotlipy boto3 pytest-pgsql psycopg2
 
       - name: Test CDK DB Bootstrap
         working-directory: ./infrastructure/aws

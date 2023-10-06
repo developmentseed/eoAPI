@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Dict, List, Optional
 
-import pydantic
+from pydantic_settings import BaseSettings
 
 
 class functionName(str, Enum):
@@ -14,24 +14,24 @@ class functionName(str, Enum):
     vector = "vector"
 
 
-class eoAPISettings(pydantic.BaseSettings):
+class eoAPISettings(BaseSettings):
     """Application settings"""
 
     name: str = "eoapi"
     stage: str = "production"
-    owner: Optional[str]
-    client: Optional[str]
+    owner: Optional[str] = None
+    client: Optional[str] = None
     functions: List[functionName] = [functionName.stac, functionName.raster]
 
-    class Config:
-        """model config"""
+    model_config = {
+        "env_prefix": "CDK_EOAPI_",
+        "env_file": ".env",
+        "extra": "ignore",
+        "use_enum_values": True,
+    }
 
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_"
-        use_enum_values = True
 
-
-class eoDBSettings(pydantic.BaseSettings):
+class eoDBSettings(BaseSettings):
     """Application settings"""
 
     dbname: str = "eoapi"
@@ -43,14 +43,13 @@ class eoDBSettings(pydantic.BaseSettings):
     context: bool = True
     mosaic_index: bool = True
 
-    class Config:
-        """model config"""
+    model_config = {
+        "env_prefix": "CDK_EOAPI_DB_",
+        "env_file": ".env",
+    }
 
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_DB_"
 
-
-class eoSTACSettings(pydantic.BaseSettings):
+class eoSTACSettings(BaseSettings):
     """Application settings"""
 
     env: Dict = {}
@@ -58,14 +57,13 @@ class eoSTACSettings(pydantic.BaseSettings):
     timeout: int = 10
     memory: int = 256
 
-    class Config:
-        """model config"""
+    model_config = {
+        "env_prefix": "CDK_EOAPI_STAC_",
+        "env_file": ".env",
+    }
 
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_STAC_"
 
-
-class eoRasterSettings(pydantic.BaseSettings):
+class eoRasterSettings(BaseSettings):
     """Application settings"""
 
     # Default options are optimized for CloudOptimized GeoTIFF
@@ -98,14 +96,13 @@ class eoRasterSettings(pydantic.BaseSettings):
     timeout: int = 10
     memory: int = 3008
 
-    class Config:
-        """model config"""
+    model_config = {
+        "env_prefix": "CDK_EOAPI_RASTER_",
+        "env_file": ".env",
+    }
 
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_RASTER_"
 
-
-class eoVectorSettings(pydantic.BaseSettings):
+class eoVectorSettings(BaseSettings):
     """Application settings"""
 
     env: Dict = {}
@@ -113,8 +110,7 @@ class eoVectorSettings(pydantic.BaseSettings):
     timeout: int = 10
     memory: int = 512
 
-    class Config:
-        """model config"""
-
-        env_file = ".env"
-        env_prefix = "CDK_EOAPI_VECTOR_"
+    model_config = {
+        "env_prefix": "CDK_EOAPI_VECTOR_",
+        "env_file": ".env",
+    }
