@@ -9,6 +9,7 @@ from eoapi.raster import __version__ as eoapi_raster_version
 from eoapi.raster.config import ApiSettings
 from fastapi import Depends, FastAPI, Query
 from psycopg import OperationalError
+from psycopg.rows import dict_row
 from psycopg_pool import PoolTimeout
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -118,9 +119,10 @@ async def mosaic_builder(request: Request):
 async def list_collection(request: Request):
     """list collections."""
     with request.app.state.dbpool.connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM collections;")
-            return [t[2] for t in cursor.fetchall() if t]
+        with conn.cursor(row_factory=dict_row) as cursor:
+            cursor.execute("SELECT * FROM pgstac.all_collections();")
+            r = cursor.fetchone()
+            return r.get("all_collections", [])
 
 
 app.include_router(mosaic.router, tags=["Mosaic"], prefix="/mosaic")
