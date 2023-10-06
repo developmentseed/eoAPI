@@ -88,11 +88,14 @@ app.add_middleware(
 # MOSAIC Endpoints
 mosaic = MosaicTilerFactory(
     router_prefix="/mosaic",
+    # add /statistics [POST]
     add_statistics=True,
     # add /map viewer
     add_viewer=True,
     # add /mosaic/list endpoint
     add_mosaic_list=True,
+    # add `/bbox` and `/feature [POST]` endpoint
+    add_part=False,
 )
 
 
