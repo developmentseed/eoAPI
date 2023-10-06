@@ -188,3 +188,16 @@ def test_item():
         in resp.json()["tiles"][0]
     )
     assert resp.json()["bounds"] == [-85.5501, 36.1749, -85.5249, 36.2001]
+
+
+def test_collections():
+    """test collection endpoints."""
+    resp = httpx.get(
+        f"{raster_endpoint}/collections",
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/json"
+
+    collections = resp.json()
+    assert len(collections) == 1
+    assert collections[0]["id"] == "noaa-emergency-response"
