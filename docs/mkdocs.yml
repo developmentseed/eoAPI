@@ -23,7 +23,7 @@ nav:
   - Intro: "intro.md"
   - Services: "services.md"
   - Deployment: "deployment.md"
-  - Development - Contributing: "contributing.md"
+  - Contributing: "contributing.md"
 
 
 plugins:
