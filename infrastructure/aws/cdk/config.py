@@ -42,7 +42,7 @@ class eoDBSettings(BaseSettings):
     instance_size: str = "SMALL"
     context: bool = True
     mosaic_index: bool = True
-
+    allocated_storage: int = 20
     model_config = {
         "env_prefix": "CDK_EOAPI_DB_",
         "env_file": ".env",
@@ -89,9 +89,6 @@ class eoRasterSettings(BaseSettings):
     # You can whitelist all bucket by setting `*`.
     # ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-arn-format.html
     buckets: List = ["*"]
-
-    # S3 key pattern to limit the access to specific items (e.g: "my_data/*.tif")
-    key: str = "*"
 
     timeout: int = 10
     memory: int = 3008
