@@ -239,6 +239,9 @@ section + section {
   border-radius: 100%;
   padding: 2.5rem;
   content: '';
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .feature-grid {
