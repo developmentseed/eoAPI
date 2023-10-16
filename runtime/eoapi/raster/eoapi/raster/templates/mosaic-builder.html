@@ -593,13 +593,25 @@ document.getElementById('btn-query').addEventListener('click', () => {
       throw new Error('Network response was not ok.')
     })
     .then((data) => {
+      var info_link = data.links.filter((link) => link.rel  == 'metadata');
+      var tilejson_link = data.links.filter((link) => link.rel  == 'tilejson');
+      var map_link = data.links.filter((link) => link.rel  == 'map');
+      var mosaic_info_str = `<p class="mt6">MosaicID: <strong>${data.searchid}</strong></p><p>Links:</p>`
+      if (info_link) {
+        mosaic_info_str += `<p class="mt6">- <a href="${info_link[0].href}" target="_blank">Mosaic Info Link</a></p>`
+      }
+
+      if (tilejson_link) {
+        mosaic_info_str += `<p class="mt6">- <a href="${tilejson_link[0].href}" target="_blank">TileJSON Link</a> (Template URL)</p>`
+      }
+
+      if (map_link) {
+        mosaic_info_str += `<p class="mt6">- <a href="${map_link[0].href}" target="_blank">Map Link</a> (Template URL)</p>`
+      }
+
       const mosaic_info = document.getElementById('mosaic-info')
       mosaic_info.innerHTML = ''
-      mosaic_info.insertAdjacentHTML(
-        'beforeend',
-        `<p class="mt6">MosaicID: ${data.searchid}</p>` +
-        `<p class="mt6"><a href="${data.links[0].href}" target="_blank">Mosaic Info Link</p>`
-      )
+      mosaic_info.insertAdjacentHTML('beforeend', mosaic_info_str)
     })
 })
 
