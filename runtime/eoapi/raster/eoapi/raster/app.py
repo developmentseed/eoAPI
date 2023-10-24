@@ -195,7 +195,7 @@ def ping(
 def landing(request: Request):
     """Get landing page."""
     data = {
-        "title": "eoAPI-Raster",
+        "title": settings.name or "eoAPI-raster",
         "links": [
             {
                 "title": "Landing page",
