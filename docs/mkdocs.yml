@@ -23,21 +23,26 @@ nav:
   - Intro: "intro.md"
   - Services: "services.md"
   - Deployment: "deployment.md"
-  - Development - Contributing: "contributing.md"
+  - Contributing: "contributing.md"
 
 
 plugins:
   - search
-
+extra_css:
+  - overrides/stylesheets/extra.css
 theme:
   name: material
   custom_dir: src/overrides/
   palette:
-    primary: black
-    scheme: default
+    primary: custom
+    accent: deep orange
+        
   features:
     - navigation.tabs
-    - navigation.tabs.sticky
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - navigation.expand
   favicon: img/favicon.ico
   logo: img/logo.png
 

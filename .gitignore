@@ -63,6 +63,10 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/src/.DS_Store
+docs/src/img/.DS_Store
+docs/src/overrides/.DS_Store
+docs/.DS_Store
 
 # PyBuilder
 target/
