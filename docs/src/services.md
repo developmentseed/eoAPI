@@ -15,7 +15,7 @@ eoAPI combines several state-of-the-art projects to create a full Earth Observat
 
 ## Metadata
 
-A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
+Built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
 
 The service includes:
 
@@ -58,7 +58,7 @@ Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/main
 
 OGC Features and Tiles API built on top of [tipg](https://github.com/developmentseed/tipg).
 
-By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions that connect to the pgSTAC schema.
+By default, the API will look for tables in the `public` schema of the database. We've also added three functions that connect to the pgSTAC schema:
 
 - **pg_temp.pgstac_collections_view**: Simple function which returns PgSTAC Collections
 - **pg_temp.pgstac_hash**: Return features for a specific `searchId` (hash)
