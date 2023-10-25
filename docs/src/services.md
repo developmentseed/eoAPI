@@ -1,5 +1,4 @@
-
-eoAPI combines several state-of-the-art projects to create a full Earth Observation API. Each service can be used and deployed independently but eoAPI creates the interconnections between each service:
+eoAPI combines several state-of-the-art projects to create an entire Earth Observation API. Each service can be used and deployed independently, but eoAPI creates the interconnections between each service:
 
 - pgSTAC database https://github.com/stac-utils/pgstac
 - STAC API built on top of https://github.com/stac-utils/stac-fastapi
@@ -8,7 +7,7 @@ eoAPI combines several state-of-the-art projects to create a full Earth Observat
 
 ## Database
 
-The STAC database is at the heart of eoAPI and is the only **mandatory** service. We use [`PgSTAC`](https://github.com/stac-utils/pgstac) Postgres schema and functions which provides functionality for STAC Filters, CQL2 search, and utilities to help manage the indexing and partitioning of STAC Collections and Items.
+The STAC database is at the heart of eoAPI and is the only **mandatory** service. We use [`PgSTAC`](https://github.com/stac-utils/pgstac) Postgres schema and functions, which provides functionality for STAC Filters, CQL2 search, and utilities to help manage the indexing and partitioning of STAC Collections and Items.
 
 > PgSTAC is used in production to scale to hundreds of millions of STAC items. PgSTAC implements core data models and functions to provide a STAC API from a PostgreSQL database. PgSTAC is entirely within the database and does not provide an HTTP-facing API. The Stac FastAPI PgSTAC backend and Franklin can be used to expose a PgSTAC catalog. Integrating PgSTAC with any other language with PostgreSQL drivers is also possible.
 >
@@ -20,7 +19,7 @@ The STAC database is at the heart of eoAPI and is the only **mandatory** service
 
 The Metadata service deployed in eoAPI is built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application.
 
-By default, the STAC metadata service will have a set of endpoint to *search* and list STAC collections and items.
+By default, the STAC metadata service will have a set of endpoints to *search* and list STAC collections and items.
 
 
 <p align="center">
@@ -47,7 +46,7 @@ By default, the STAC metadata service will have a set of endpoint to *search* an
 
 The Raster service deployed in `eoAPI` is built on top of [titiler-pgstac](https://stac-utils.github.io/titiler-pgstac/).
 
-It enables Raster visualization for single STAC **Item** and large-scale (multi collections/items) mosaic based on STAC search queries.
+It enables Raster visualization for a single STAC **Item** and large-scale (multi collections/items) mosaic based on STAC search queries.
 
 <p align="center">
 <img alt="titiler-pgstac"  src="https://github.com/developmentseed/eoAPI/assets/10407788/096de97d-21d5-48e1-b61a-d1595ed9816d">
@@ -108,7 +107,6 @@ It enables vector Features/Features Collection exploration and visualization for
 
     - https://vector.eoapi.dev/collections/public.landsat_wrs/tiles/WebMercatorQuad get `WebMercatorQuad` TileSet information for the `landsat_wrs` Table
 
-    - https://vector.eoapi.dev/collections/public.landsat_wrs/viewer show the `landsat_wrs` Table on a Map client using vector tiles
+    - https://vector.eoapi.dev/collections/public.landsat_wrs/viewer shows the `landsat_wrs` Table on a Map client using vector tiles
 
     - https://vector.eoapi.dev/tileMatrixSets/WebMercatorQuad `WebMercatorQuad` TileMatrixSet information
-

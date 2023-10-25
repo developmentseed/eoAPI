@@ -1,4 +1,3 @@
-
 Issues and pull requests are more than welcome: https://github.com/developmentseed/eoAPI/issues
 
 You can also start **Discussions** in https://github.com/developmentseed/eoAPI/discussions
@@ -15,14 +14,14 @@ python -m pip install --upgrade virtualenv
 virtualenv .venv
 source .venv/bin/activate
 
-# Install eoapi module
+# Install the eoapi module
 python -m pip install "psycopg[binary,pool]"
 python -m pip install -e runtime/eoapi/raster["test"] # or -e runtime/eoapi/stac["test"]  | -e runtime/eoapi/vector["test"]
 ```
 
 !!! danger
 
-    Python applications might have incompatible dependencies which you can resolve by using virtual environment *per application*
+    Python applications might have incompatible dependencies, which you can resolve by using a virtual environment *per application*
 
 **pre-commit**
 

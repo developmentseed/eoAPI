@@ -1,5 +1,4 @@
-
-The eoAPI repository (https://github.com/developmentseed/eoAPI) hosts customized version of each base services. This is to show how each services can be customized and how they can work in parallel or with each other.
+The eoAPI repository (https://github.com/developmentseed/eoAPI) hosts customized versions of each base service. The documentation below demonstrates how each service can be customized. The eoAPI services can work in parallel or in combination with each other.
 
 ---
 ## eoapi.stac
@@ -33,7 +32,7 @@ The service includes all the default endpoints from **titiler-pgstac** applicati
 
 - `/`: a custom landing page with links to the different endpoints
 
-- `/mosaic/builder`: a virtual mosaic builder UI, which help creating and registering STAC Search queries
+- `/mosaic/builder`: a virtual mosaic builder UI, which helps create and register STAC Search queries
 
 - `/collections`: a *secret* (not in OpenAPI documentation) endpoint used in the mosaic-builder page
 
