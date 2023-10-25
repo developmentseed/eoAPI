@@ -2,6 +2,9 @@ version: '3'
 
 services:
   stac-fastapi:
+    # Note:
+    # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
+    # which is why here we use a custom Dockerfile using python 3.11 and gunicorn
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.stac
@@ -40,7 +43,7 @@ services:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
-    image: ghcr.io/stac-utils/titiler-pgstac:latest
+    image: ghcr.io/stac-utils/titiler-pgstac:0.8.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
@@ -86,7 +89,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   tipg:
-    image: ghcr.io/developmentseed/tipg:latest
+    image: ghcr.io/developmentseed/tipg:0.4.4
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
@@ -115,8 +118,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    container_name: eoapi.db
-    image: ghcr.io/stac-utils/pgstac:v0.7.10
+    image: ghcr.io/stac-utils/pgstac:v0.8.1
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password

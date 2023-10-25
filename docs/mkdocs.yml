@@ -19,12 +19,14 @@ extra:
       link: "https://developmentseed.org/blog"
 
 nav:
-  - Home: "index.md"
-  - Intro: "intro.md"
-  - Services: "services.md"
-  - Deployment: "deployment.md"
-  - Contributing: "contributing.md"
-
+  - Home: index.md
+  - Getting started:
+    - intro.md
+    - Services: services.md
+    - Contributing: contributing.md
+  - Advanced User Guide:
+    - Customization: customization.md
+  - Deployment: deployment.md
 
 plugins:
   - search
@@ -36,16 +38,16 @@ theme:
   palette:
     primary: custom
     accent: deep orange
-        
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
     - navigation.tracking
     - navigation.top
-    - navigation.expand
+    - navigation.footer
+    - navigation.sections
   favicon: img/favicon.ico
   logo: img/logo.png
-
 
 markdown_extensions:
   - admonition
@@ -59,7 +61,6 @@ markdown_extensions:
   - pymdownx.caret:
       insert: false
   - pymdownx.details
-  - pymdownx.emoji
   - pymdownx.escapeall:
       hardbreak: true
       nbsp: true
@@ -73,3 +74,6 @@ markdown_extensions:
   - pymdownx.tilde
   - toc:
       permalink: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg

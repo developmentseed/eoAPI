@@ -102,11 +102,11 @@ If you don't have a k8s cluster set up on AWS or GCP then follow an IaC guide be
 > &#9432; The helm chart in this repo assumes your cluster has a few third-party add-ons and controllers installed. So
 > it's in your best interest to read through the IaC guides to understand what those defaults are
 
-* [AWS EKS Cluster Setup](./docs/aws-eks.md)
+* :octicons-link-external-16: [AWS EKS Cluster Setup](https://github.com/developmentseed/eoapi-k8s/blob/main/docs/aws-eks.md)
 
-* [TBD: GCP GKE Cluster Setup](./docs/gcp-gke.md)
- 
-**Helm Installation** 
+* :octicons-link-external-16: [TBD: GCP GKE Cluster Setup](https://github.com/developmentseed/eoapi-k8s/blob/main/docs/gcp-gke.md)
+
+**Helm Installation**
 
 Once you have a k8s cluster set up you can `helm install` eoAPI as follows
 
@@ -121,7 +121,7 @@ Once you have a k8s cluster set up you can `helm install` eoAPI as follows
       $ export POSTGRES_USER=s00pers3cr3t
       $ export POSTGRES_PASSWORD=superuserfoobar
       $ export PGPASSWORD=foobar
-   
+
       $ cd ./helm-chart
 
       $ helm install \
@@ -141,15 +141,15 @@ Once you have a k8s cluster set up you can `helm install` eoAPI as follows
     ```python
       # add the eoapi helm repo locally
       $ helm repo add eoapi https://devseed.com/eoapi-k8s/
-    
+
       # list out the eoapi chart versions
-      $ helm search repo eoapi 
-      NAME            CHART VERSION   APP VERSION     DESCRIPTION                                       
+      $ helm search repo eoapi
+      NAME            CHART VERSION   APP VERSION     DESCRIPTION
       eoapi/eoapi     0.1.1           0.1.0           Create a full Earth Observation API with Metada...
       eoapi/eoapi     0.1.2           0.1.0           Create a full Earth Observation API with Metada...
-   
+
       # add the required secret overrides to an arbitrarily named `.yaml` file (`config.yaml` below)
-      $ cat config.yaml 
+      $ cat config.yaml
       db:
         settings:
           secrets:
@@ -157,7 +157,7 @@ Once you have a k8s cluster set up you can `helm install` eoAPI as follows
             POSTGRES_USER: "username"
             PGPASSWORD: "password"
             POSTGRES_PASSWORD: "password"
-    
-      # then run `helm install` with those overrides 
+
+      # then run `helm install` with those overrides
       helm install eoapi eoapi/eoapi --version 0.1.1 -f config.yaml
     ```
