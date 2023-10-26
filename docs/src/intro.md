@@ -46,16 +46,13 @@
 
 ## Services Overview
 
+- **STAC Metadata**: Built with [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) to enable data discovery. See the specifications [core](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/core/README.md), [search](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/item-search/README.md) and [features](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/ogcapi-features/README.md) for API details.
 
-- **STAC Metadata**: Built with [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) and extended with a custom extension to connect it to **`TiTiler`** and a **[Search Viewer](http://localhost:8081/index.html)**. See [docs](http://localhost:8081/docs) for API details.
+- **Raster Tiles**: Built with [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac) to enable large scale mosaic based on results of STAC searches queries. See [docs](https://stac-utils.github.io/titiler-pgstac/0.8.0/mosaic_endpoints/) for API details.
 
-- **Raster Tiles**: Built with [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac) to enable large scale mosaic based on results of STAC searches queries. See [docs](http://localhost:8082/docs) for API details.
-
-- **OGC Features & Vector Tiles**: Built with [tipg](https://github.com/developmentseed/tipg) to create a lightweight OGC Features and Tiles API with a PostGIS database. See [docs](http://localhost:8083/api.html) for API details.
+- **OGC Features & Vector Tiles**: Built with [tipg](https://github.com/developmentseed/tipg) to create a lightweight OGC Features and Tiles API with a PostGIS database. See [docs](https://developmentseed.org/tipg/user_guide/endpoints/) for API details.
 
 See [service details](./services.md) for more information.
-
-*Note: The documentation links referenced require launching the application with `docker compose` or another deployment*.
 
 ---
 
@@ -81,18 +78,35 @@ Then you can start exploring your dataset with:
 
     If you've added vector datasets to the `public` schema in the Postgres database, they will be available through the **Vector** service at [http://localhost:8083](http://localhost:8083).
 
-Alternatively, you may launch the application locally:
-```bash
+Alternatively, you may install and launch applications locally:
+
+```sh
 python -m pip install --upgrade virtualenv
 virtualenv .venv
 source .venv/bin/activate
 
-python -m pip install "psycopg[binary,pool]" uvicorn
-python -m pip install runtime/eoapi/{SERVICE}  # SERVICE should be one of `raster, vector, stac.`
-
 export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Connect to the database of your choice
 
-.venv/bin/uvicorn eoapi.{SERVICE}.app:app --port 8000 --reload
+python -m pip install uvicorn
+
+###############################################################################
+# Install and launch the application
+# Select one of the following
+
+###############################################################################
+# STAC
+python -m pip install "psycopg[binary,pool]" stac-fastapi-pgstac
+.venv/bin/uvicorn stac_fastapi.pgstac.app:app --port 8081 --reload
+
+###############################################################################
+# RASTER
+python -m pip install "psycopg[binary,pool]" titiler-pgstac
+.venv/bin/uvicorn titiler.pgstac.main:app --port 8082 --reload
+
+###############################################################################
+# VECTOR
+python -m pip install tipg
+.venv/bin/uvicorn tipg.main:app --port 8083 --reload
 ```
 
 !!! danger

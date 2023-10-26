@@ -1,19 +1,22 @@
 version: '3'
 
 services:
-  stac:
-    container_name: eoapi.stac
+  stac-fastapi:
+    # Note:
+    # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
+    # which is why here we use a custom Dockerfile using python 3.11 and gunicorn
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.stac
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8081
+      # Application
       - HOST=0.0.0.0
       - PORT=8081
-      - ENVIRONMENT=local
+      - MODULE_NAME=stac_fastapi.pgstac.app
+      - VARIABLE_NAME=app
+      # gunicorn
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
       - WEB_CONCURRENCY=10
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
@@ -29,25 +32,18 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-      # https://github.com/developmentseed/eoAPI/issues/16
-      # - TITILER_ENDPOINT=raster
-      - TITILER_ENDPOINT=http://127.0.0.1:8082
     depends_on:
       - database
-      - raster
     command:
       bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-  raster:
-    container_name: eoapi.raster
+  titiler-pgstac:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
-    build:
-      context: .
-      dockerfile: dockerfiles/Dockerfile.raster
+    image: ghcr.io/stac-utils/titiler-pgstac:0.8.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
@@ -85,8 +81,6 @@ services:
       # AWS S3 endpoint config
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      # API Config
-      - EOAPI_RASTER_ENABLE_MOSAIC_SEARCH=TRUE
     depends_on:
       - database
     command:
@@ -94,11 +88,8 @@ services:
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-  vector:
-    container_name: eoapi.vector
-    build:
-      context: .
-      dockerfile: dockerfiles/Dockerfile.vector
+  tipg:
+    image: ghcr.io/developmentseed/tipg:0.4.4
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
@@ -127,7 +118,6 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    container_name: eoapi.db
     image: ghcr.io/stac-utils/pgstac:v0.8.1
     environment:
       - POSTGRES_USER=username
