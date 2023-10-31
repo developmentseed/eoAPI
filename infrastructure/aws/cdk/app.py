@@ -4,11 +4,14 @@ CDK Stack definition code for EOAPI
 import os
 from typing import Any
 
+import boto3
 from aws_cdk import App, CfnOutput, Duration, RemovalPolicy, Stack, Tags
 from aws_cdk import aws_ec2 as ec2
+from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_rds as rds
+from aws_cdk import aws_s3 as s3
 from config import (
     eoAPISettings,
     eoDBSettings,
@@ -20,6 +23,8 @@ from constructs import Construct
 from eoapi_cdk import (
     PgStacApiLambda,
     PgStacDatabase,
+    StacBrowser,
+    StacIngestor,
     TiPgApiLambda,
     TitilerPgstacApiLambda,
 )
@@ -42,8 +47,6 @@ class eoAPIconstruct(Stack):
         """Define stack."""
         super().__init__(scope, id, **kwargs)
 
-        # vpc = ec2.Vpc(self, f"{id}-vpc", nat_gateways=0)
-
         vpc = ec2.Vpc(
             self,
             f"{id}-vpc",
@@ -52,23 +55,8 @@ class eoAPIconstruct(Stack):
                     name="ingress",
                     cidr_mask=24,
                     subnet_type=ec2.SubnetType.PUBLIC,
-                ),
-                ec2.SubnetConfiguration(
-                    name="application",
-                    cidr_mask=24,
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
-                ),
-                ec2.SubnetConfiguration(
-                    name="rds",
-                    cidr_mask=28,
-                    subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
-                ),
+                )
             ],
-            nat_gateways=1,
-        )
-        print(
-            """The eoAPI stack use AWS NatGateway for the Raster service so it can reach the internet.
-This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)."""
         )
 
         interface_endpoints = [
@@ -135,6 +123,9 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             secrets_prefix=os.path.join(stage, name),
         )
 
+        # allow connections from anywhere to the DB
+        pgstac_db.db.connections.allow_default_port_from_any_ipv4()
+
         CfnOutput(
             self,
             f"{id}-database-secret-arn",
@@ -174,10 +165,6 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
                 f"{id}-raster-lambda",
                 db=pgstac_db.db,
                 db_secret=pgstac_db.pgstac_secret,
-                vpc=vpc,
-                subnet_selection=ec2.SubnetSelection(
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
-                ),
                 api_env=env,
                 lambda_function_options={
                     "code": aws_lambda.Code.from_docker_build(
@@ -232,15 +219,11 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             if "raster" in eoapi_settings.functions:
                 env["TITILER_ENDPOINT"] = eoraster.url.strip("/")
 
-            PgStacApiLambda(
+            eostac = PgStacApiLambda(
                 self,
                 id=f"{id}-stac-lambda",
                 db=pgstac_db.db,
                 db_secret=pgstac_db.pgstac_secret,
-                vpc=vpc,
-                subnet_selection=ec2.SubnetSelection(
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
-                ),
                 api_env=env,
                 lambda_function_options={
                     "runtime": aws_lambda.Runtime.PYTHON_3_11,
@@ -258,6 +241,38 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
                     "log_retention": logs.RetentionDays.ONE_WEEK,
                 },
             )
+
+            if eostac_settings.stac_browser_github_tag is not None:
+                assert (
+                    eostac_settings.stac_api_custom_domain_name is not None
+                ), "stac_api_custom_domain_name must be set if stac_browser_github_tag is not None. The browser deployment needs a resolved STAC API url at deployment time and so needs to rely on a predefined custom domain name."
+                stac_browser_bucket = s3.Bucket(
+                    self,
+                    "stac-browser-bucket",
+                    bucket_name=f"{id.lower()}-stac-browser",
+                    removal_policy=RemovalPolicy.DESTROY,
+                    auto_delete_objects=True,
+                    website_index_document="index.html",
+                    public_read_access=True,
+                    block_public_access=s3.BlockPublicAccess(
+                        block_public_acls=False,
+                        block_public_policy=False,
+                        ignore_public_acls=False,
+                        restrict_public_buckets=False,
+                    ),
+                    object_ownership=s3.ObjectOwnership.OBJECT_WRITER,
+                )
+
+                # need to build this manually, the attribute eostac.url is not resolved yet.
+
+                StacBrowser(
+                    self,
+                    "stac-browser",
+                    github_repo_tag=eostac_settings.stac_browser_github_tag,
+                    stac_catalog_url=eostac_settings.stac_api_custom_domain_name,
+                    website_index_document="index.html",
+                    bucket_arn=stac_browser_bucket.bucket_arn,
+                )
 
         # eoapi.vector
         if "vector" in eoapi_settings.functions:
@@ -292,12 +307,8 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             TiPgApiLambda(
                 self,
                 f"{id}-vector-lambda",
-                vpc=vpc,
                 db=pgstac_db.db,
                 db_secret=pgstac_db.pgstac_secret,
-                subnet_selection=ec2.SubnetSelection(
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
-                ),
                 api_env=env,
                 lambda_function_options={
                     "runtime": aws_lambda.Runtime.PYTHON_3_11,
@@ -315,6 +326,72 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
                     "log_retention": logs.RetentionDays.ONE_WEEK,
                 },
             )
+
+        if "ingestor" in eoapi_settings.functions:
+
+            data_access_role = self._create_data_access_role()
+
+            stac_ingestor = StacIngestor(
+                self,
+                "stac-ingestor",
+                stac_url=eostac.url,
+                stage=eoapi_settings.stage,
+                data_access_role=data_access_role,
+                stac_db_secret=pgstac_db.pgstac_secret,
+                stac_db_security_group=pgstac_db.db.connections.security_groups[0],
+                api_env={"REQUESTER_PAYS": "True"},
+            )
+
+            data_access_role = self._grant_assume_role_with_principal_pattern(
+                data_access_role, stac_ingestor.handler_role.role_name
+            )
+
+    def _create_data_access_role(self) -> iam.Role:
+
+        """
+        Creates an IAM role with full S3 read access.
+        """
+
+        data_access_role = iam.Role(
+            self,
+            "data-access-role",
+            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+        )
+
+        data_access_role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3FullAccess")
+        )
+
+        return data_access_role
+
+    def _grant_assume_role_with_principal_pattern(
+        self,
+        role_to_assume: iam.Role,
+        principal_pattern: str,
+        account_id: str = boto3.client("sts").get_caller_identity().get("Account"),
+    ) -> iam.Role:
+        """
+        Grants assume role permissions to the role of the given
+        account with the given name pattern. Default account
+        is the current account.
+        """
+
+        role_to_assume.assume_role_policy.add_statements(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                principals=[iam.AnyPrincipal()],
+                actions=["sts:AssumeRole"],
+                conditions={
+                    "StringLike": {
+                        "aws:PrincipalArn": [
+                            f"arn:aws:iam::{account_id}:role/{principal_pattern}"
+                        ]
+                    }
+                },
+            )
+        )
+
+        return role_to_assume
 
 
 app = App()
