@@ -242,10 +242,10 @@ class eoAPIconstruct(Stack):
                 },
             )
 
-            if eostac_settings.stac_browser_github_tag is not None:
+            if eostac_settings.stac_api_custom_domain_name is not None:
                 assert (
-                    eostac_settings.stac_api_custom_domain_name is not None
-                ), "stac_api_custom_domain_name must be set if stac_browser_github_tag is not None. The browser deployment needs a resolved STAC API url at deployment time and so needs to rely on a predefined custom domain name."
+                    eostac_settings.stac_browser_github_tag is not None
+                ), "stac_browser_github_tag must be set if stac_api_custom_domain_name is not None."
                 stac_browser_bucket = s3.Bucket(
                     self,
                     "stac-browser-bucket",

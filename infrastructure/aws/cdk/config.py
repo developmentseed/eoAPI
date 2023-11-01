@@ -57,8 +57,10 @@ class eoSTACSettings(BaseSettings):
 
     timeout: int = 10
     memory: int = 256
-    stac_browser_github_tag: None | str = "v3.1.0"  # if not none, will try to deploy this version of radiant earth stac browser
-    stac_api_custom_domain_name: None | str = "https://stac.eoapi.dev"
+    stac_browser_github_tag: None | str = "v3.1.0"
+    stac_api_custom_domain_name: None | str = (
+        None  # if not none, will try to deploy a browser with the above tag
+    )
     model_config = {
         "env_prefix": "CDK_EOAPI_STAC_",
         "env_file": ".env",
