@@ -596,7 +596,7 @@ document.getElementById('btn-query').addEventListener('click', () => {
       var info_link = data.links.filter((link) => link.rel  == 'metadata');
       var tilejson_link = data.links.filter((link) => link.rel  == 'tilejson');
       var map_link = data.links.filter((link) => link.rel  == 'map');
-      var mosaic_info_str = `<p class="mt6">MosaicID: <strong>${data.searchid}</strong></p><p>Links:</p>`
+      var mosaic_info_str = `<p class="mt6">MosaicID: <strong>${data.id}</strong></p><p>Links:</p>`
       if (info_link) {
         mosaic_info_str += `<p class="mt6">- <a href="${info_link[0].href}" target="_blank">Mosaic Info Link</a></p>`
       }
