@@ -17,8 +17,14 @@ from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 from starlette_cramjam.middleware import CompressionMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
-from titiler.core.factory import AlgorithmFactory, MultiBaseTilerFactory, TMSFactory
+from titiler.core.factory import (
+    AlgorithmFactory,
+    MultiBaseTilerFactory,
+    TilerFactory,
+    TMSFactory,
+)
 from titiler.core.middleware import CacheControlMiddleware
+from titiler.extensions import cogViewerExtension
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.pgstac.db import close_db_connection, connect_to_db
 from titiler.pgstac.dependencies import CollectionIdParams, ItemIdParams, SearchIdParams
@@ -209,6 +215,17 @@ app.include_router(
     prefix="/collections/{collection_id}/items/{item_id}",
 )
 
+
+###############################################################################
+# COG Endpoints
+cog = TilerFactory(
+    router_prefix="/cog",
+    extensions=[
+        cogViewerExtension(),
+    ],
+)
+
+app.include_router(cog.router, prefix="/cog", tags=["Cloud Optimized GeoTIFF"])
 
 ###############################################################################
 # Tiling Schemes Endpoints
