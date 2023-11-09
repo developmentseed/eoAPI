@@ -1,63 +1,112 @@
----
-hide:
-  - navigation
----
+eoAPI combines several state-of-the-art projects to create an entire Earth Observation API. Each service can be used and deployed independently, but eoAPI creates the interconnections between each service:
 
-The `eoAPI` is composed of four services built on top of `state-of-the-art` projects: [**pgstac**](https://github.com/stac-utils/pgstac), [**stac-fastapi**](https://github.com/stac-utils/stac-fastapi), [**titiler-pgstac**](https://github.com/stac-utils/titiler-pgstac) and [**tipg**](https://github.com/developmentseed/tipg). While those offert a great baseline, we choose to customize them to demo how they could work together, not only be used in parallel.
+- pgSTAC database https://github.com/stac-utils/pgstac
+- STAC API built on top of https://github.com/stac-utils/stac-fastapi
+- STAC Items And Mosaic Raster Tiles API built on top of https://github.com/stac-utils/titiler-pgstac
+- OGC Features and Vector Tiles API built on top of https://github.com/developmentseed/tipg
+
+## Database
+
+The STAC database is at the heart of eoAPI and is the only **mandatory** service. We use [`PgSTAC`](https://github.com/stac-utils/pgstac) Postgres schema and functions, which provides functionality for STAC Filters, CQL2 search, and utilities to help manage the indexing and partitioning of STAC Collections and Items.
+
+> PgSTAC is used in production to scale to hundreds of millions of STAC items. PgSTAC implements core data models and functions to provide a STAC API from a PostgreSQL database. PgSTAC is entirely within the database and does not provide an HTTP-facing API. The Stac FastAPI PgSTAC backend and Franklin can be used to expose a PgSTAC catalog. Integrating PgSTAC with any other language with PostgreSQL drivers is also possible.
+>
+> PgSTAC Documentation: https://stac-utils.github.io/pgstac/pgstac
+>
+> pyPgSTAC Documentation: https://stac-utils.github.io/pgstac/pypgstac
 
 ## Metadata
 
-A custom version of [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
+The Metadata service deployed in eoAPI is built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application.
 
-The service includes:
+By default, the STAC metadata service will have a set of endpoints to *search* and list STAC collections and items.
 
-- Full **stac-fastapi** implementation - see [docs](http://localhost:8081/docs) if using the `docker compose` configuration.
-
-- Simple STAC Search **viewer** - see [viewer](http://localhost:8081/index.html) if using the `docker compose` configuration.
-
-- **Proxy** to the Tiler endpoint for STAC Items
-
-  When `TITILER_ENDPOINT` environement is set (pointing the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/main/src/eoapi/stac/eoapi/stac/extension.py)):
-
-  - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an item
-  - `/collections/{collectionId}/items/{itemId}/viewer`: Redirect to the `raster` viewer
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/10407788/146790933-e439893c-ef2e-4d78-a372-f2f18694836c.png"/>
-  <p align="center">STAC Search viewer</p>
+<img alt="stac-fastapi" src="https://github.com/developmentseed/eoAPI/assets/10407788/d0963386-1c8f-4607-98b8-3b0edb341a5e"/>
 </p>
 
-Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/stac)
+!!! example
+
+    - https://stac.eoapi.dev landing page
+
+    - https://stac.eoapi.dev/collections list available **Collection**
+
+    - https://stac.eoapi.dev/collections/MAXAR_southafrica_flooding22/items list available **Items** for the `MAXAR_southafrica_flooding22` collection
+
+    - https://stac.eoapi.dev/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100 get `36_213131033000_1040010076566100` **Item** in the `MAXAR_southafrica_flooding22` collection
+
+    - https://stac.eoapi.dev/search list of **Items** in the catalog
+
+    - https://stac.eoapi.dev/search?collections=MAXAR_Kahramanmaras_turkey_earthquake_23&limit=5&datetime=2023-02-06T00:00:00Z/2023-02-10T00:00:00Z list of **Items** in the catalog for the `MAXAR_Kahramanmaras_turkey_earthquake_23` collection between February 6th and 10th
 
 ---
 
 ## Raster
 
-The dynamic tiler deployed within eoAPI is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large scale mosaic based on results of STAC searches queries.
+The Raster service deployed in `eoAPI` is built on top of [titiler-pgstac](https://stac-utils.github.io/titiler-pgstac/).
 
-The service includes:
-
-- Full **titiler-pgstac** implementation
+It enables Raster visualization for a single STAC **Item** and large-scale (multi collections/items) mosaic based on STAC search queries.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/10407788/129632282-f71e9f45-264c-4882-af28-7062c4e56f25.png"/>
-  <p align="center">TiTiler-PgSTAC workflow</p>
+<img alt="titiler-pgstac"  src="https://github.com/developmentseed/eoAPI/assets/10407788/096de97d-21d5-48e1-b61a-d1595ed9816d">
 </p>
 
-Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/raster)
+!!! example
+
+    - https://raster.eoapi.dev landing page
+
+    **Items endpoints**
+
+    - https://raster.eoapi.dev/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100/info get Raster metadata information about **Assets** found in `36_213131033000_1040010076566100` **Item** in the `MAXAR_southafrica_flooding22` collection
+
+    - https://raster.eoapi.dev/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100/info?assets=visual get Raster metadata information only for the `visual` **Asset**
+
+    - https://raster.eoapi.dev/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100/map?assets=visual&minzoom=12&maxzoom=19 show the `visual` **Asset** on a Map client
+
+    - https://raster.eoapi.dev/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100/tilejson.json?assets=ms_analytic&minzoom=13&maxzoom=17&asset_bidx=ms_analytic|8,2,1&rescale=0,4000 get a TileJSON document for the  `ms_analytic` **Asset** with band combination 8,2,1 with values rescaling from 0,4000 to 0,255
+
+
+    **Mosaic endpoints**
+
+    - https://raster.eoapi.dev/mosaic/list list pre-registered Virtual Mosaics
+
+    - https://raster.eoapi.dev/mosaic/ebe10c878834f8319311ad47e2472f3b/info get information about the `ebe10c878834f8319311ad47e2472f3b` mosaic
+
+    - https://raster.eoapi.dev/mosaic/ebe10c878834f8319311ad47e2472f3b/map?assets=visual&minzoom=12&maxzoom=19 show the `ebe10c878834f8319311ad47e2472f3b` mosaic and using the `visual` **Asset** on a Map client
+
+    - https://raster.eoapi.dev/mosaic/ebe10c878834f8319311ad47e2472f3b/tilejson.json?assets=visual&minzoom=12&maxzoom=19 get a TileJSON document for the `ebe10c878834f8319311ad47e2472f3b` mosaic and using the `visual` **Asset**
 
 ---
 
 ## Vector
 
-OGC Features + Tiles API built on top of [tipg](https://github.com/developmentseed/tipg).
+The OGC Features and (Mapbox Vector) Tiles API service deployed in `eoAPI` is built on top of [tipg](https://github.com/developmentseed/tipg)).
 
-By default, the API will look for tables in the `public` schema of the database. We've also added three custom functions which connect to the pgSTAC schema.
+It enables vector Features/Features Collection exploration and visualization for Tables stored in the Postgres database (in the `public` schema).
 
-- **pg_temp.pgstac_collections_view**: Simple function which return PgSTAC Collections
-- **pg_temp.pgstac_hash**: Return features for a specific searchId (hash)
-- **pg_temp.pgstac_hash_count**: Return the number of items per geometry for a specific searchId (hash)
+<p align="center">
+<img alt="tipg"  src="https://github.com/developmentseed/eoAPI/assets/10407788/a35dbf04-be8a-4cf5-b528-8960b18cef45">
+</p>
 
-Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/vector)
+!!! example
 
----
+    - https://vector.eoapi.dev landing page
+
+    **OGC Features**
+
+    - https://vector.eoapi.dev/collections list available **Tables** or **Function Layers**
+
+    - https://vector.eoapi.dev/collections/public.landsat_wrs get information about the `landsat_wrs` Table
+
+    - https://vector.eoapi.dev/collections/public.landsat_wrs/items list items for the `landsat_wrs` Table
+
+    **OGC Tiles**
+
+    - https://vector.eoapi.dev/collections/public.landsat_wrs/tiles list all TileSet available for the `landsat_wrs` Table
+
+    - https://vector.eoapi.dev/collections/public.landsat_wrs/tiles/WebMercatorQuad get `WebMercatorQuad` TileSet information for the `landsat_wrs` Table
+
+    - https://vector.eoapi.dev/collections/public.landsat_wrs/viewer shows the `landsat_wrs` Table on a Map client using vector tiles
+
+    - https://vector.eoapi.dev/tileMatrixSets/WebMercatorQuad `WebMercatorQuad` TileMatrixSet information
