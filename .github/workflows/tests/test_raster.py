@@ -235,3 +235,15 @@ def test_collections():
     collections = resp.json()
     assert len(collections) == 1
     assert collections[0]["id"] == "noaa-emergency-response"
+
+
+def test_cog_endpoints():
+    """test /cog endpoints"""
+    resp = httpx.get(
+        f"{raster_endpoint}/cog/info",
+        params={
+            "url": "https://noaa-eri-pds.s3.us-east-1.amazonaws.com/2020_Nashville_Tornado/20200307a_RGB/20200307aC0854500w361030n.tif",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/json"
