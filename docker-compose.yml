@@ -132,6 +132,16 @@ services:
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
 
+  # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
+  stac-browser:
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.browser
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8084:8080"
+    depends_on:
+      - stac-fastapi
+
 networks:
   default:
     name: eoapi-network

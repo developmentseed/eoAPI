@@ -272,6 +272,7 @@ class eoAPIconstruct(Stack):
                     stac_catalog_url=eostac_settings.stac_api_custom_domain_name,
                     website_index_document="index.html",
                     bucket_arn=stac_browser_bucket.bucket_arn,
+                    config_file_path="cdk/stac_browser_config.js",
                 )
 
         # eoapi.vector

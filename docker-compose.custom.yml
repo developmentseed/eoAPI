@@ -259,6 +259,15 @@ services:
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
 
+  stac-browser:
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.browser
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8084:8080"
+    depends_on:
+      - stac
+
 networks:
   default:
     name: eoapi-network
