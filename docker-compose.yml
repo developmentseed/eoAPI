@@ -1,6 +1,19 @@
 version: '3'
 
 services:
+
+  # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
+  stac-browser:
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.browser
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
+    depends_on:
+      - stac-fastapi
+      - titiler-pgstac
+      - database
+      
   stac-fastapi:
     # Note:
     # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
@@ -131,16 +144,6 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
-
-  # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
-  stac-browser:
-    build:
-      context: dockerfiles
-      dockerfile: Dockerfile.browser
-    ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
-    depends_on:
-      - stac-fastapi
 
 networks:
   default:

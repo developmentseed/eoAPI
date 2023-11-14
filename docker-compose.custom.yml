@@ -1,6 +1,18 @@
 version: '3'
 
 services:
+  stac-browser:
+    profiles:
+      - gunicorn
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.browser
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
+    depends_on:
+      - stac
+      - database
+      - raster
   stac:
     container_name: eoapi.stac
     profiles:
@@ -258,15 +270,6 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
-
-  stac-browser:
-    build:
-      context: dockerfiles
-      dockerfile: Dockerfile.browser
-    ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
-    depends_on:
-      - stac
 
 networks:
   default:
