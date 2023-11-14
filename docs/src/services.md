@@ -114,9 +114,7 @@ It enables vector Features/Features Collection exploration and visualization for
 
 ## Browsing UI
 
-The browsing UI deployed in eoAPI is built on [the radiant earth STAC browser](https://github.com/radiantearth/stac-browser), and provides a configurable, user-friendly interface to search across and within collections and quickly visualize single items assets. 
-
-By default, the STAC metadata service will have a set of endpoints to *search* and list STAC collections and items. Below we display an example of what the interface shows for a given item : 
+The browsing UI deployed in eoAPI is built on [the radiant earth STAC browser](https://github.com/radiantearth/stac-browser), and provides a configurable, user-friendly interface to search across and within collections and quickly visualize single items assets.
 
 
 <p align="center">
