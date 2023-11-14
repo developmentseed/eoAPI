@@ -113,3 +113,8 @@ node_modules/
 
 # Demo files to ignore
 demo/cmip6/CMIP6_daily_*stac_items.ndjson
+
+
+# browser compiled code and default config
+infrastructure/aws/stac-browser
+infrastructure/aws/browser_config.js

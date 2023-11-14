@@ -12,6 +12,8 @@ class functionName(str, Enum):
     stac = "stac"
     raster = "raster"
     vector = "vector"
+    ingestor = "ingestor"
+    browser = "browser"  # not actually a function, but this keeps things clean.
 
 
 class eoAPISettings(BaseSettings):
@@ -42,7 +44,7 @@ class eoDBSettings(BaseSettings):
     instance_size: str = "SMALL"
     context: bool = True
     mosaic_index: bool = True
-
+    allocated_storage: int = 20
     model_config = {
         "env_prefix": "CDK_EOAPI_DB_",
         "env_file": ".env",
@@ -56,7 +58,6 @@ class eoSTACSettings(BaseSettings):
 
     timeout: int = 10
     memory: int = 256
-
     model_config = {
         "env_prefix": "CDK_EOAPI_STAC_",
         "env_file": ".env",
@@ -90,9 +91,6 @@ class eoRasterSettings(BaseSettings):
     # ref: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-arn-format.html
     buckets: List = ["*"]
 
-    # S3 key pattern to limit the access to specific items (e.g: "my_data/*.tif")
-    key: str = "*"
-
     timeout: int = 10
     memory: int = 3008
 
@@ -112,5 +110,17 @@ class eoVectorSettings(BaseSettings):
 
     model_config = {
         "env_prefix": "CDK_EOAPI_VECTOR_",
+        "env_file": ".env",
+    }
+
+
+class eoStacBrowserSettings(BaseSettings):
+    """STAC browser settings"""
+
+    stac_browser_github_tag: None | str = "v3.1.0"
+    stac_catalog_url: None | str = None
+    config_file_path: None | str = "browser_config.js"
+    model_config = {
+        "env_prefix": "CDK_EOAPI_BROWSER_",
         "env_file": ".env",
     }
