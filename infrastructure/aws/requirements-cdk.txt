@@ -7,4 +7,4 @@ boto3==1.28.71
 # pydantic settings
 pydantic~=2.0
 pydantic-settings~=2.0
-eoapi-cdk==6.0.0
+eoapi-cdk==6.1.0
