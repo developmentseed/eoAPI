@@ -13,6 +13,7 @@ class functionName(str, Enum):
     raster = "raster"
     vector = "vector"
     ingestor = "ingestor"
+    browser = "browser"  # not actually a function, but this keeps things clean.
 
 
 class eoAPISettings(BaseSettings):
@@ -57,10 +58,6 @@ class eoSTACSettings(BaseSettings):
 
     timeout: int = 10
     memory: int = 256
-    stac_browser_github_tag: None | str = "v3.1.0"
-    stac_api_custom_domain_name: None | str = (
-        None  # if not none, will try to deploy a browser with the above tag
-    )
     model_config = {
         "env_prefix": "CDK_EOAPI_STAC_",
         "env_file": ".env",
@@ -113,5 +110,17 @@ class eoVectorSettings(BaseSettings):
 
     model_config = {
         "env_prefix": "CDK_EOAPI_VECTOR_",
+        "env_file": ".env",
+    }
+
+
+class eoStacBrowserSettings(BaseSettings):
+    """STAC browser settings"""
+
+    stac_browser_github_tag: None | str = "v3.1.0"
+    stac_catalog_url: None | str = None
+    config_file_path: None | str = None
+    model_config = {
+        "env_prefix": "CDK_EOAPI_BROWSER_",
         "env_file": ".env",
     }

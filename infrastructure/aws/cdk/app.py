@@ -16,6 +16,7 @@ from config import (
     eoAPISettings,
     eoDBSettings,
     eoRasterSettings,
+    eoStacBrowserSettings,
     eoSTACSettings,
     eoVectorSettings,
 )
@@ -242,10 +243,9 @@ class eoAPIconstruct(Stack):
                 },
             )
 
-            if eostac_settings.stac_api_custom_domain_name is not None:
-                assert (
-                    eostac_settings.stac_browser_github_tag is not None
-                ), "stac_browser_github_tag must be set if stac_api_custom_domain_name is not None."
+            if "browser" in eoapi_settings.functions:
+                eobrowser_settings = eoStacBrowserSettings()
+
                 stac_browser_bucket = s3.Bucket(
                     self,
                     "stac-browser-bucket",
@@ -268,11 +268,11 @@ class eoAPIconstruct(Stack):
                 StacBrowser(
                     self,
                     "stac-browser",
-                    github_repo_tag=eostac_settings.stac_browser_github_tag,
-                    stac_catalog_url=eostac_settings.stac_api_custom_domain_name,
+                    github_repo_tag=eobrowser_settings.stac_browser_github_tag,
+                    stac_catalog_url=eobrowser_settings.stac_catalog_url,
                     website_index_document="index.html",
                     bucket_arn=stac_browser_bucket.bucket_arn,
-                    config_file_path="cdk/stac_browser_config.js",
+                    config_file_path=eobrowser_settings.config_file_path,
                 )
 
         # eoapi.vector

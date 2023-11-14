@@ -18,7 +18,7 @@ module.exports = {
     apiCatalogPriority: null,
     useTileLayerAsFallback: true,
     displayGeoTiffByDefault: false,
-    buildTileUrlTemplate: ({href, asset}) => "https://raster.eoapi.dev/cog/tiles/{z}/{x}/{y}@2x?url=" + encodeURIComponent(asset.href.startsWith("/vsi") ? asset.href : href),
+    buildTileUrlTemplate: ({href, asset}) => "https://raster.dev/cog/tiles/{z}/{x}/{y}@2x?url=" + encodeURIComponent(asset.href.startsWith("/vsi") ? asset.href : href),
     stacProxyUrl: null,
     pathPrefix: "/",
     historyMode: "history",
