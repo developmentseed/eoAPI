@@ -264,7 +264,7 @@ services:
       context: dockerfiles
       dockerfile: Dockerfile.browser
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8084:8080"
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
     depends_on:
       - stac
 
