@@ -32,6 +32,8 @@
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
 
+- **A STAC Catalog browsing UI** based on the radiant earth browser : [https://github.com/radiantearth/stac-browser](https://github.com/radiantearth/stac-browser)
+
 ---
 
 ## 🌍 eoAPI: An Open-Source Community Project
@@ -57,22 +59,19 @@ Then you can start exploring your dataset with:
 
   - the STAC Metadata service [http://localhost:8081](http://localhost:8081)
   - the Raster service [http://localhost:8082](http://localhost:8082)
+  - the browser UI [http://localhost:8085](http://localhost:8085)
 
 If you've added a vector dataset to the `public` schema in the Postgres database, they will be available through the **Vector** service at [http://localhost:8083](http://localhost:8083).
 
-## Deployment
+## Deployment with standard runtimes
 
 This repository has current runtimes that are consistently updated with new functionality.
 
-The services can be deployed locally via docker with `docker compose up`.
+### Local deployment
 
-Two Infrastructure as Code (IaC) repositories are available:
-- [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk): A set of AWS CDK constructs to deploy eoAPI services
-- [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s): IaC and Helm charts for deploying eoAPI services on AWS and GCP
+The services can be deployed altogether locally with `docker compose up`.
 
-Finally, [eoapi-template](https://github.com/developmentseed/eoapi-template) is an AWS CDK app that shows how to configure the eoapi-cdk constructs.
-
-Alternatively, you may install the libraries locally:
+Alternatively, you may install the libraries and launch the applications manually : 
 
 <details>
 
@@ -109,7 +108,19 @@ Note: python libraries might have incompatible dependencies, which you can resol
 
 </details>
 
-## Custom runtimes
+### Deployment on the cloud
+
+#### Kubernetes 
+
+[eoapi-k8s](https://github.com/developmentseed/eoapi-k8s) contains IaC and Helm charts for deploying eoAPI services on AWS and GCP.
+
+#### AWS CDK
+
+[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) defines a set of AWS CDK constructs that can be used to deploy eoAPI services on AWS. This repository itself makes use of these in `infrastructure/aws`. An official example usage of these constructs can be found at [eoapi-template](https://github.com/developmentseed/eoapi-template).
+
+
+
+## Deployment with custom runtimes
 
 The eoAPI repository hosts customized versions of each base service which can work in parallel or in combination with each other.
 
