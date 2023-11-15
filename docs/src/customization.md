@@ -64,3 +64,8 @@ By default, the API will look for tables in the `public` schema of the database.
 </p>
 
 Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/vector)
+
+--
+# STAC browser
+
+The custom browser configuration can be modified using the config located in [/dockerfiles/browser_config.js](https://github.com/developmentseed/eoAPI/tree/main/dockerfiles/browser_config.js). For more information about available configurations, see the [Radiant Earth repository](https://github.com/radiantearth/stac-browser).
