@@ -14,6 +14,8 @@
 
 - **STAC API** built on top of [https://github.com/stac-utils/stac-fastapi](https://github.com/stac-utils/stac-fastapi)
 
+- **STAC browser** a UI that exposes, in a user friendly interface, the metadata served by the STAC API. Built on top of [https://github.com/radiantearth/stac-browser](https://github.com/radiantearth/stac-browser)
+
 - **STAC Items And Mosaic Raster Tiles** API built on top of [https://github.com/stac-utils/titiler-pgstac](https://github.com/stac-utils/titiler-pgstac)
 
 - **OGC Features and Vector Tiles** API built on top of [https://github.com/developmentseed/tipg](https://github.com/developmentseed/tipg)
@@ -48,9 +50,12 @@
 
 - **STAC Metadata**: Built with [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) to enable data discovery. See the specifications [core](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/core/README.md), [search](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/item-search/README.md) and [features](https://github.com/radiantearth/stac-api-spec/blob/v1.0.0/ogcapi-features/README.md) for API details.
 
+- **STAC browser** : Built with the [Radiant Earth STAC browser](https://github.com/radiantearth/stac-browser) to provide a simple user-friendly interface for searching the STAC metadata.
+
 - **Raster Tiles**: Built with [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac) to enable large scale mosaic based on results of STAC searches queries. See [docs](https://stac-utils.github.io/titiler-pgstac/0.8.0/mosaic_endpoints/) for API details.
 
 - **OGC Features & Vector Tiles**: Built with [tipg](https://github.com/developmentseed/tipg) to create a lightweight OGC Features and Tiles API with a PostGIS database. See [docs](https://developmentseed.org/tipg/user_guide/endpoints/) for API details.
+
 
 See [service details](./services.md) for more information.
 
