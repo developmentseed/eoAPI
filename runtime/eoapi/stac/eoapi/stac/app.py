@@ -3,16 +3,16 @@
 from contextlib import asynccontextmanager
 
 from eoapi.stac.config import ApiSettings, TilesApiSettings
-from eoapi.stac.config import extensions as PgStacExtensions
-from eoapi.stac.config import get_request_model as GETModel
-from eoapi.stac.config import post_request_model as POSTModel
 from eoapi.stac.extension import TiTilerExtension
+from eoapi.stac.extension import extensions_map as PgStacExtensions
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
+from stac_fastapi.api.models import create_get_request_model, create_post_request_model
 from stac_fastapi.pgstac.config import Settings
 from stac_fastapi.pgstac.core import CoreCrudClient
 from stac_fastapi.pgstac.db import close_db_connection, connect_to_db
+from stac_fastapi.pgstac.types.search import PgstacSearch
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
@@ -43,12 +43,22 @@ async def lifespan(app: FastAPI):
     await close_db_connection(app)
 
 
+if enabled_extensions := api_settings.extensions:
+    extensions = [
+        PgStacExtensions[extension_name] for extension_name in enabled_extensions
+    ]
+else:
+    extensions = list(PgStacExtensions.values())
+
+POSTModel = create_post_request_model(extensions, base_model=PgstacSearch)
+GETModel = create_get_request_model(extensions)
+
 api = StacApi(
     app=FastAPI(title=api_settings.name, lifespan=lifespan),
     title=api_settings.name,
     description=api_settings.name,
     settings=settings,
-    extensions=PgStacExtensions,
+    extensions=extensions,
     client=CoreCrudClient(post_request_model=POSTModel),
     search_get_request_model=GETModel,
     search_post_request_model=POSTModel,
@@ -63,7 +73,7 @@ if api_settings.cors_origins:
         CORSMiddleware,
         allow_origins=api_settings.cors_origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=api_settings.cors_methods,
         allow_headers=["*"],
     )
 
