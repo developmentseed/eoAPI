@@ -21,6 +21,7 @@ The example commands here will deploy a CloudFormation stack called `eoAPI-stagi
     ```bash
     # Download eoapi repo
     git clone https://github.com/developmentseed/eoapi.git
+    cd eoapi
 
     # Create a virtual environment
     python -m pip install --upgrade virtualenv
