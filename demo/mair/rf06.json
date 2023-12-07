@@ -1,0 +1,93 @@
+{
+  "type": "Feature",
+  "stac_version": "1.0.0",
+  "id": "RF06_Level4_GIM_COG",
+  "properties": {
+    "title": "MethaneAIR RF06",
+    "description": "MethaneAIR Flight RF06",
+    "start_datetime": "2021-08-06T13:34:54Z",
+    "end_datetime": "2021-08-06T20:32:54Z",
+    "proj:epsg": 3857,
+    "proj:wkt2": "PROJCRS[\"WGS 84 / Pseudo-Mercator\",BASEGEOGCRS[\"WGS 84\",ENSEMBLE[\"World Geodetic System 1984 ensemble\",MEMBER[\"World Geodetic System 1984 (Transit)\"],MEMBER[\"World Geodetic System 1984 (G730)\"],MEMBER[\"World Geodetic System 1984 (G873)\"],MEMBER[\"World Geodetic System 1984 (G1150)\"],MEMBER[\"World Geodetic System 1984 (G1674)\"],MEMBER[\"World Geodetic System 1984 (G1762)\"],MEMBER[\"World Geodetic System 1984 (G2139)\"],ELLIPSOID[\"WGS 84\",6378137,298.257223563,LENGTHUNIT[\"metre\",1]],ENSEMBLEACCURACY[2.0]],PRIMEM[\"Greenwich\",0,ANGLEUNIT[\"degree\",0.0174532925199433]],ID[\"EPSG\",4326]],CONVERSION[\"Popular Visualisation Pseudo-Mercator\",METHOD[\"Popular Visualisation Pseudo Mercator\",ID[\"EPSG\",1024]],PARAMETER[\"Latitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8801]],PARAMETER[\"Longitude of natural origin\",0,ANGLEUNIT[\"degree\",0.0174532925199433],ID[\"EPSG\",8802]],PARAMETER[\"False easting\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8806]],PARAMETER[\"False northing\",0,LENGTHUNIT[\"metre\",1],ID[\"EPSG\",8807]]],CS[Cartesian,2],AXIS[\"easting (X)\",east,ORDER[1],LENGTHUNIT[\"metre\",1]],AXIS[\"northing (Y)\",north,ORDER[2],LENGTHUNIT[\"metre\",1]],USAGE[SCOPE[\"Web mapping and visualisation.\"],AREA[\"World between 85.06°S and 85.06°N.\"],BBOX[-85.06,-180,85.06,180]],ID[\"EPSG\",3857]]",
+    "proj:bbox": [
+      -11897270.578531127,
+      3443946.746416933,
+      -11271098.442818964,
+      4070118.8821290955
+    ],
+    "proj:transform": [
+      1222.9924525628178,
+      0.0,
+      -11897270.578531127,
+      0.0,
+      -1222.9924525628178,
+      4070118.8821290955,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "proj:shape": [
+      512,
+      512
+    ],
+    "datetime": "2021-08-06T13:34:54Z"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -101.25000000000013,
+          29.535229562948704
+        ],
+        [
+          -101.25000000000013,
+          34.30714385628826
+        ],
+        [
+          -106.87500000000011,
+          34.30714385628826
+        ],
+        [
+          -106.87500000000011,
+          29.535229562948704
+        ],
+        [
+          -101.25000000000013,
+          29.535229562948704
+        ]
+      ]
+    ]
+  },
+  "links": [
+    {
+      "rel": "self",
+      "href": "/Users/ccervantes/git/eoAPI/demo/mair/rf06.json",
+      "type": "application/json"
+    }
+  ],
+  "assets": {
+    "COG": {
+      "href": "http://localhost:8090/cogs/RF06.tif",
+      "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+      "title": "RF06 COG",
+      "file:size": 30282,
+      "roles": [
+        "data",
+        "labels",
+        "labels-raster"
+      ]
+    }
+  },
+  "bbox": [
+    -106.87500000000011,
+    29.535229562948704,
+    -101.25000000000013,
+    34.30714385628826
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/projection/v1.1.0/schema.json",
+    "https://stac-extensions.github.io/file/v2.1.0/schema.json"
+  ],
+  "collection": "MethaneAIR_Level4"
+}

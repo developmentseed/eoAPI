@@ -100,6 +100,7 @@ services:
       bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
+      - ./data:/usr/local/share1/data
 
   tipg:
     image: ghcr.io/developmentseed/tipg:0.5.0
@@ -144,6 +145,14 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
+  
+  apache:
+    image: httpd:latest
+    container_name: cog-server
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8090:80"
+    volumes:
+      - ./website:/usr/local/apache2/htdocs
 
 networks:
   default:

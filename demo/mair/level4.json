@@ -1,0 +1,41 @@
+{
+  "type": "Collection",
+  "id": "MethaneAIR_Level4",
+  "stac_version": "1.0.0",
+  "description": "MethaneAIR level 4 data",
+  "links": [
+    {
+      "rel": "root",
+      "href": "/Users/ccervantes/git/eoAPI/demo/mair/level4.json",
+      "type": "application/json",
+      "title": "MethaneAIR Level 4 data"
+    },
+    {
+      "rel": "self",
+      "href": "/Users/ccervantes/git/eoAPI/demo/mair/level4.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "MethaneAIR Level 4 data",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -112.50000000000013,
+          36.59788913307041,
+          -106.87500000000011,
+          43.068887774169795
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2021-08-06T13:34:54Z",
+          "2021-08-06T20:32:54Z"
+        ]
+      ]
+    }
+  },
+  "license": "proprietary"
+}
