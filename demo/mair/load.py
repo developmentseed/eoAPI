@@ -23,7 +23,7 @@ from pystac.extensions.label import (
 )
 
 
-def load_rf06():
+def save_rf06():
     # Metadata
     title = "MethaneAIR RF06"
     description = "MethaneAIR Flight RF06"
@@ -112,7 +112,7 @@ def load_rf06():
     collection.save_object()
 
 
-def load_rf08():
+def save_rf08():
     # Metadata
     title = "MethaneAIR RF08"
     description = "MethaneAIR Flight RF08"
@@ -202,5 +202,5 @@ def load_rf08():
 
 
 if __name__ == "__main__":
-    load_rf06()
-    load_rf08()
+    save_rf06()
+    save_rf08()
