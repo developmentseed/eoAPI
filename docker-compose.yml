@@ -145,14 +145,16 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
-  
-  apache:
-    image: httpd:latest
-    container_name: cog-server
+
+  nginx:
+    image: nginx:latest
+    container_name: cogs-serve
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8090:80"
     volumes:
-      - ./website:/usr/local/apache2/htdocs
+      - ./website:/www/data/
+      - './nginx/nginx.conf:/etc/nginx/nginx.conf:ro'
+
 
 networks:
   default:
