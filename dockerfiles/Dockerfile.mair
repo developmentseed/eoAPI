@@ -1,0 +1,21 @@
+FROM python:latest
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir \
+    pystac \
+    pypgstac \
+    psycopg
+RUN pip install --no-cache-dir psycopg[pool]
+RUN pip install --no-cache-dir psycopg[binary]
+
+COPY demo/mair/level4.json level4.json
+COPY demo/mair/rf08.json rf08.json
+COPY demo/mair/rf06.json rf06.json
+
+RUN ls /app
+
+CMD ["sh", "-c", "pypgstac load collections level4.json --dsn ${DB_CONNECT_STRING} --method upsert && \
+    pypgstac load items rf06.json --dsn ${DB_CONNECT_STRING} --method upsert && \
+    pypgstac load items rf08.json --dsn ${DB_CONNECT_STRING} --method upsert"]
