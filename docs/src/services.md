@@ -110,3 +110,24 @@ It enables vector Features/Features Collection exploration and visualization for
     - https://vector.eoapi.dev/collections/public.landsat_wrs/viewer shows the `landsat_wrs` Table on a Map client using vector tiles
 
     - https://vector.eoapi.dev/tileMatrixSets/WebMercatorQuad `WebMercatorQuad` TileMatrixSet information
+
+
+## Browsing UI
+
+The browsing UI deployed in eoAPI is built on [the radiant earth STAC browser](https://github.com/radiantearth/stac-browser), and provides a configurable, user-friendly interface to search across and within collections and quickly visualize single items assets.
+
+
+<p align="center">
+<img alt="stac-fastapi" src="https://github.com/developmentseed/eoAPI/assets/45140658/fae75d99-44c5-4899-8185-d003cd3c2c6a"/>
+</p>
+
+!!! example
+
+    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com landing page
+
+    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com/collections display available **Collection**
+
+    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com/collections/MAXAR_southafrica_flooding22/items display available **Items** for the `MAXAR_southafrica_flooding22` collection
+
+    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100 show the `36_213131033000_1040010076566100` **Item** in the `MAXAR_southafrica_flooding22` collection and visualize its "visual" asset. 
+---

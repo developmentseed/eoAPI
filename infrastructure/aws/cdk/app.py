@@ -1,122 +1,36 @@
 """
 CDK Stack definition code for EOAPI
 """
-import json
 import os
 from typing import Any
 
-from aws_cdk import App, CfnOutput, CustomResource, Duration, RemovalPolicy, Stack, Tags
-from aws_cdk import aws_apigatewayv2_alpha as apigw
+import boto3
+from aws_cdk import App, CfnOutput, Duration, RemovalPolicy, Stack, Tags
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_rds as rds
-from aws_cdk import aws_secretsmanager as secretsmanager
-from aws_cdk.aws_apigatewayv2_integrations_alpha import HttpLambdaIntegration
+from aws_cdk import aws_s3 as s3
 from config import (
     eoAPISettings,
     eoDBSettings,
     eoRasterSettings,
+    eoStacBrowserSettings,
     eoSTACSettings,
     eoVectorSettings,
 )
 from constructs import Construct
+from eoapi_cdk import (
+    PgStacApiLambda,
+    PgStacDatabase,
+    StacBrowser,
+    StacIngestor,
+    TiPgApiLambda,
+    TitilerPgstacApiLambda,
+)
 
 eoapi_settings = eoAPISettings()
-
-
-class BootstrappedDb(Construct):
-    """
-    Given an RDS database, connect to DB and create a database, user, and
-    password
-    """
-
-    def __init__(
-        self,
-        scope: Construct,
-        id: str,
-        db: rds.DatabaseInstance,
-        new_dbname: str,
-        new_username: str,
-        secrets_prefix: str,
-        pgstac_version: str,
-        enable_context: bool = False,
-        enable_mosaic_index: bool = False,
-        context_dir: str = "../../",
-    ) -> None:
-        """Update RDS database."""
-        super().__init__(scope, id)
-
-        # TODO: Utilize a singleton function.
-        handler = aws_lambda.Function(
-            self,
-            "DatabaseBootstrapper",
-            handler="handler.handler",
-            runtime=aws_lambda.Runtime.PYTHON_3_10,
-            code=aws_lambda.Code.from_docker_build(
-                path=os.path.abspath(context_dir),
-                file="infrastructure/aws/dockerfiles/Dockerfile.db",
-                build_args={"PYTHON_VERSION": "3.10", "PGSTAC_VERSION": pgstac_version},
-                platform="linux/amd64",
-            ),
-            timeout=Duration.minutes(5),
-            vpc=db.vpc,
-            allow_public_subnet=True,
-            log_retention=logs.RetentionDays.ONE_WEEK,
-        )
-
-        self.secret = secretsmanager.Secret(
-            self,
-            id,
-            secret_name=os.path.join(
-                secrets_prefix, id.replace(" ", "_"), self.node.addr
-            ),
-            generate_secret_string=secretsmanager.SecretStringGenerator(
-                secret_string_template=json.dumps(
-                    {
-                        "dbname": new_dbname,
-                        "engine": "postgres",
-                        "port": 5432,
-                        "host": db.instance_endpoint.hostname,
-                        "username": new_username,
-                    },
-                ),
-                generate_string_key="password",
-                exclude_punctuation=True,
-            ),
-            description=f"Deployed by {Stack.of(self).stack_name}",
-        )
-
-        self.resource = CustomResource(
-            scope=scope,
-            id="BootstrappedDbResource",
-            service_token=handler.function_arn,
-            properties={
-                # By setting pgstac_version in the properties assures
-                # that Create/Update events will be passed to the service token
-                "pgstac_version": pgstac_version,
-                "context": enable_context,
-                "mosaic_index": enable_mosaic_index,
-                "conn_secret_arn": db.secret.secret_arn,
-                "new_user_secret_arn": self.secret.secret_arn,
-            },
-            # We do not need to run the custom resource on STAC Delete
-            # Custom Resource are not physical resources so it's OK to `Retain` it
-            removal_policy=RemovalPolicy.RETAIN,
-        )
-
-        # Allow lambda to...
-        # read new user secret
-        self.secret.grant_read(handler)
-        # read database secret
-        db.secret.grant_read(handler)
-        # connect to database
-        db.connections.allow_from(handler, port_range=ec2.Port.tcp(5432))
-
-    def is_required_by(self, construct: Construct):
-        """Register required services."""
-        return construct.node.add_dependency(self.resource)
 
 
 class eoAPIconstruct(Stack):
@@ -134,8 +48,6 @@ class eoAPIconstruct(Stack):
         """Define stack."""
         super().__init__(scope, id, **kwargs)
 
-        # vpc = ec2.Vpc(self, f"{id}-vpc", nat_gateways=0)
-
         vpc = ec2.Vpc(
             self,
             f"{id}-vpc",
@@ -144,23 +56,8 @@ class eoAPIconstruct(Stack):
                     name="ingress",
                     cidr_mask=24,
                     subnet_type=ec2.SubnetType.PUBLIC,
-                ),
-                ec2.SubnetConfiguration(
-                    name="application",
-                    cidr_mask=24,
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
-                ),
-                ec2.SubnetConfiguration(
-                    name="rds",
-                    cidr_mask=28,
-                    subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
-                ),
+                )
             ],
-            nat_gateways=1,
-        )
-        print(
-            """The eoAPI stack use AWS NatGateway for the Raster service so it can reach the internet.
-This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)."""
         )
 
         interface_endpoints = [
@@ -181,62 +78,79 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             vpc.add_gateway_endpoint(key, service=service)
 
         eodb_settings = eoDBSettings()
-        db = rds.DatabaseInstance(
+
+        pgstac_db = PgStacDatabase(
             self,
-            f"{id}-postgres-db",
+            "pgstac-db",
             vpc=vpc,
-            engine=rds.DatabaseInstanceEngine.POSTGRES,
+            engine=rds.DatabaseInstanceEngine.postgres(
+                version=rds.PostgresEngineVersion.VER_14
+            ),
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
+            allocated_storage=eodb_settings.allocated_storage,
             instance_type=ec2.InstanceType.of(
                 ec2.InstanceClass.BURSTABLE3,
                 ec2.InstanceSize(eodb_settings.instance_size),
             ),
             database_name="postgres",
-            # should set the subnet to `PRIVATE_ISOLATED` but then we need either a bastion host to connect to the db
-            # or an API to ingest/delete data in the DB
-            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             backup_retention=Duration.days(7),
             deletion_protection=eoapi_settings.stage.lower() == "production",
             removal_policy=RemovalPolicy.SNAPSHOT
             if eoapi_settings.stage.lower() == "production"
             else RemovalPolicy.DESTROY,
+            custom_resource_properties={
+                "pgstac_version": eodb_settings.pgstac_version,
+                "context": eodb_settings.context,
+                "mosaic_index": eodb_settings.mosaic_index,
+            },
+            bootstrapper_lambda_function_options={
+                "handler": "handler.handler",
+                "runtime": aws_lambda.Runtime.PYTHON_3_10,
+                "code": aws_lambda.Code.from_docker_build(
+                    path=os.path.abspath(context_dir),
+                    file="infrastructure/aws/dockerfiles/Dockerfile.db",
+                    build_args={
+                        "PYTHON_VERSION": "3.10",
+                        "PGSTAC_VERSION": eodb_settings.pgstac_version,
+                    },
+                    platform="linux/amd64",
+                ),
+                "timeout": Duration.minutes(5),
+                "allow_public_subnet": True,
+                "log_retention": logs.RetentionDays.ONE_WEEK,
+            },
+            pgstac_db_name=eodb_settings.dbname,
+            pgstac_username=eodb_settings.user,
+            secrets_prefix=os.path.join(stage, name),
         )
 
-        setup_db = BootstrappedDb(
-            self,
-            "STAC DB for eoapi",
-            db=db,
-            new_dbname=eodb_settings.dbname,
-            new_username=eodb_settings.user,
-            secrets_prefix=os.path.join(stage, name),
-            pgstac_version=eodb_settings.pgstac_version,
-            enable_context=eodb_settings.context,
-            enable_mosaic_index=eodb_settings.mosaic_index,
-            context_dir=context_dir,
-        )
+        # allow connections from anywhere to the DB
+        pgstac_db.db.connections.allow_default_port_from_any_ipv4()
 
         CfnOutput(
             self,
             f"{id}-database-secret-arn",
-            value=db.secret.secret_arn,
+            value=pgstac_db.pgstac_secret.secret_arn,
             description="Arn of the SecretsManager instance holding the connection info for Postgres DB",
         )
 
         # eoapi.raster
         if "raster" in eoapi_settings.functions:
+
             db_secrets = {
-                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                "POSTGRES_HOST": pgstac_db.pgstac_secret.secret_value_from_json(
                     "host"
                 ).to_string(),
-                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                "POSTGRES_DBNAME": pgstac_db.pgstac_secret.secret_value_from_json(
                     "dbname"
                 ).to_string(),
-                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                "POSTGRES_USER": pgstac_db.pgstac_secret.secret_value_from_json(
                     "username"
                 ).to_string(),
-                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                "POSTGRES_PASS": pgstac_db.pgstac_secret.secret_value_from_json(
                     "password"
                 ).to_string(),
-                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                "POSTGRES_PORT": pgstac_db.pgstac_secret.secret_value_from_json(
                     "port"
                 ).to_string(),
             }
@@ -245,76 +159,52 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             env = eoraster_settings.env or {}
             if "DB_MAX_CONN_SIZE" not in env:
                 env["DB_MAX_CONN_SIZE"] = "1"
+            env.update(db_secrets)
 
-            eoraster_function = aws_lambda.Function(
+            eoraster = TitilerPgstacApiLambda(
                 self,
                 f"{id}-raster-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_11,
-                code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(context_dir),
-                    file="infrastructure/aws/dockerfiles/Dockerfile.raster",
-                    build_args={
-                        "PYTHON_VERSION": "3.11",
-                    },
-                    platform="linux/amd64",
-                ),
-                vpc=vpc,
-                vpc_subnets=ec2.SubnetSelection(
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
-                ),
-                allow_public_subnet=True,
-                handler="handler.handler",
-                memory_size=eoraster_settings.memory,
-                timeout=Duration.seconds(eoraster_settings.timeout),
-                environment=env,
-                log_retention=logs.RetentionDays.ONE_WEEK,
+                db=pgstac_db.db,
+                db_secret=pgstac_db.pgstac_secret,
+                api_env=env,
+                lambda_function_options={
+                    "code": aws_lambda.Code.from_docker_build(
+                        path=os.path.abspath(context_dir),
+                        file="infrastructure/aws/dockerfiles/Dockerfile.raster",
+                        build_args={
+                            "PYTHON_VERSION": "3.11",
+                        },
+                        platform="linux/amd64",
+                    ),
+                    "allow_public_subnet": True,
+                    "handler": "handler.handler",
+                    "runtime": aws_lambda.Runtime.PYTHON_3_11,
+                    "memory_size": eoraster_settings.memory,
+                    "timeout": Duration.seconds(eoraster_settings.timeout),
+                    "log_retention": logs.RetentionDays.ONE_WEEK,
+                },
+                buckets=eoraster_settings.buckets,
             )
-            for k, v in db_secrets.items():
-                eoraster_function.add_environment(key=k, value=str(v))
-
-            eoraster_function.add_to_role_policy(
-                iam.PolicyStatement(
-                    actions=["s3:GetObject"],
-                    resources=[
-                        f"arn:aws:s3:::{bucket}/{eoraster_settings.key}"
-                        for bucket in eoraster_settings.buckets
-                    ],
-                )
-            )
-
-            db.connections.allow_from(eoraster_function, port_range=ec2.Port.tcp(5432))
-
-            raster_api = apigw.HttpApi(
-                self,
-                f"{id}-raster-endpoint",
-                default_integration=HttpLambdaIntegration(
-                    f"{id}-raster-integration",
-                    eoraster_function,
-                ),
-            )
-            CfnOutput(self, "eoAPI-raster", value=raster_api.url.strip("/"))
-
-            setup_db.is_required_by(eoraster_function)
 
         # eoapi.stac
         if "stac" in eoapi_settings.functions:
             db_secrets = {
-                "POSTGRES_HOST_READER": setup_db.secret.secret_value_from_json(
+                "POSTGRES_HOST_READER": pgstac_db.pgstac_secret.secret_value_from_json(
                     "host"
                 ).to_string(),
-                "POSTGRES_HOST_WRITER": setup_db.secret.secret_value_from_json(
+                "POSTGRES_HOST_WRITER": pgstac_db.pgstac_secret.secret_value_from_json(
                     "host"
                 ).to_string(),
-                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                "POSTGRES_DBNAME": pgstac_db.pgstac_secret.secret_value_from_json(
                     "dbname"
                 ).to_string(),
-                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                "POSTGRES_USER": pgstac_db.pgstac_secret.secret_value_from_json(
                     "username"
                 ).to_string(),
-                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                "POSTGRES_PASS": pgstac_db.pgstac_secret.secret_value_from_json(
                     "password"
                 ).to_string(),
-                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                "POSTGRES_PORT": pgstac_db.pgstac_secret.secret_value_from_json(
                     "port"
                 ).to_string(),
             }
@@ -325,65 +215,82 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
                 env["DB_MAX_CONN_SIZE"] = "1"
             if "DB_MIN_CONN_SIZE" not in env:
                 env["DB_MIN_CONN_SIZE"] = "1"
-
-            eostac_function = aws_lambda.Function(
-                self,
-                f"{id}-stac-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_11,
-                code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(context_dir),
-                    file="infrastructure/aws/dockerfiles/Dockerfile.stac",
-                    build_args={
-                        "PYTHON_VERSION": "3.11",
-                    },
-                    platform="linux/amd64",
-                ),
-                vpc=vpc,
-                handler="handler.handler",
-                memory_size=eostac_settings.memory,
-                timeout=Duration.seconds(eostac_settings.timeout),
-                environment=env,
-                log_retention=logs.RetentionDays.ONE_WEEK,
-            )
-            for k, v in db_secrets.items():
-                eostac_function.add_environment(key=k, value=str(v))
-
+            env.update(db_secrets)
             # If raster is deployed we had the TITILER_ENDPOINT env to add the Proxy extension
             if "raster" in eoapi_settings.functions:
-                eostac_function.add_environment(
-                    key="TITILER_ENDPOINT", value=raster_api.url.strip("/")
+                env["TITILER_ENDPOINT"] = eoraster.url.strip("/")
+
+            eostac = PgStacApiLambda(
+                self,
+                id=f"{id}-stac-lambda",
+                db=pgstac_db.db,
+                db_secret=pgstac_db.pgstac_secret,
+                api_env=env,
+                lambda_function_options={
+                    "runtime": aws_lambda.Runtime.PYTHON_3_11,
+                    "code": aws_lambda.Code.from_docker_build(
+                        path=os.path.abspath(context_dir),
+                        file="infrastructure/aws/dockerfiles/Dockerfile.stac",
+                        build_args={
+                            "PYTHON_VERSION": "3.11",
+                        },
+                        platform="linux/amd64",
+                    ),
+                    "handler": "handler.handler",
+                    "memory_size": eostac_settings.memory,
+                    "timeout": Duration.seconds(eostac_settings.timeout),
+                    "log_retention": logs.RetentionDays.ONE_WEEK,
+                },
+            )
+
+            if "browser" in eoapi_settings.functions:
+                eobrowser_settings = eoStacBrowserSettings()
+
+                stac_browser_bucket = s3.Bucket(
+                    self,
+                    "stac-browser-bucket",
+                    bucket_name=f"{id.lower()}-stac-browser",
+                    removal_policy=RemovalPolicy.DESTROY,
+                    auto_delete_objects=True,
+                    website_index_document="index.html",
+                    public_read_access=True,
+                    block_public_access=s3.BlockPublicAccess(
+                        block_public_acls=False,
+                        block_public_policy=False,
+                        ignore_public_acls=False,
+                        restrict_public_buckets=False,
+                    ),
+                    object_ownership=s3.ObjectOwnership.OBJECT_WRITER,
                 )
 
-            db.connections.allow_from(eostac_function, port_range=ec2.Port.tcp(5432))
+                # need to build this manually, the attribute eostac.url is not resolved yet.
 
-            stac_api = apigw.HttpApi(
-                self,
-                f"{id}-stac-endpoint",
-                default_integration=HttpLambdaIntegration(
-                    f"{id}-stac-integration",
-                    eostac_function,
-                ),
-            )
-            CfnOutput(self, "eoAPI-stac", value=stac_api.url.strip("/"))
-
-            setup_db.is_required_by(eostac_function)
+                StacBrowser(
+                    self,
+                    "stac-browser",
+                    github_repo_tag=eobrowser_settings.stac_browser_github_tag,
+                    stac_catalog_url=eobrowser_settings.stac_catalog_url,
+                    website_index_document="index.html",
+                    bucket_arn=stac_browser_bucket.bucket_arn,
+                    config_file_path=eobrowser_settings.config_file_path,
+                )
 
         # eoapi.vector
         if "vector" in eoapi_settings.functions:
             db_secrets = {
-                "POSTGRES_HOST": setup_db.secret.secret_value_from_json(
+                "POSTGRES_HOST": pgstac_db.pgstac_secret.secret_value_from_json(
                     "host"
                 ).to_string(),
-                "POSTGRES_DBNAME": setup_db.secret.secret_value_from_json(
+                "POSTGRES_DBNAME": pgstac_db.pgstac_secret.secret_value_from_json(
                     "dbname"
                 ).to_string(),
-                "POSTGRES_USER": setup_db.secret.secret_value_from_json(
+                "POSTGRES_USER": pgstac_db.pgstac_secret.secret_value_from_json(
                     "username"
                 ).to_string(),
-                "POSTGRES_PASS": setup_db.secret.secret_value_from_json(
+                "POSTGRES_PASS": pgstac_db.pgstac_secret.secret_value_from_json(
                     "password"
                 ).to_string(),
-                "POSTGRES_PORT": setup_db.secret.secret_value_from_json(
+                "POSTGRES_PORT": pgstac_db.pgstac_secret.secret_value_from_json(
                     "port"
                 ).to_string(),
             }
@@ -396,41 +303,96 @@ This might incurs some cost (https://docs.aws.amazon.com/vpc/latest/userguide/vp
             if "DB_MIN_CONN_SIZE" not in env:
                 env["DB_MIN_CONN_SIZE"] = "1"
 
-            eovector_function = aws_lambda.Function(
+            env.update(db_secrets)
+
+            TiPgApiLambda(
                 self,
                 f"{id}-vector-lambda",
-                runtime=aws_lambda.Runtime.PYTHON_3_11,
-                code=aws_lambda.Code.from_docker_build(
-                    path=os.path.abspath(context_dir),
-                    file="infrastructure/aws/dockerfiles/Dockerfile.vector",
-                    build_args={
-                        "PYTHON_VERSION": "3.11",
-                    },
-                    platform="linux/amd64",
-                ),
-                vpc=vpc,
-                handler="handler.handler",
-                memory_size=eovector_settings.memory,
-                timeout=Duration.seconds(eovector_settings.timeout),
-                environment=env,
-                log_retention=logs.RetentionDays.ONE_WEEK,
+                db=pgstac_db.db,
+                db_secret=pgstac_db.pgstac_secret,
+                api_env=env,
+                lambda_function_options={
+                    "runtime": aws_lambda.Runtime.PYTHON_3_11,
+                    "code": aws_lambda.Code.from_docker_build(
+                        path=os.path.abspath(context_dir),
+                        file="infrastructure/aws/dockerfiles/Dockerfile.vector",
+                        build_args={
+                            "PYTHON_VERSION": "3.11",
+                        },
+                        platform="linux/amd64",
+                    ),
+                    "handler": "handler.handler",
+                    "memory_size": eovector_settings.memory,
+                    "timeout": Duration.seconds(eovector_settings.timeout),
+                    "log_retention": logs.RetentionDays.ONE_WEEK,
+                },
             )
-            for k, v in db_secrets.items():
-                eovector_function.add_environment(key=k, value=str(v))
 
-            db.connections.allow_from(eovector_function, port_range=ec2.Port.tcp(5432))
+        if "ingestor" in eoapi_settings.functions:
 
-            vector_api = apigw.HttpApi(
+            data_access_role = self._create_data_access_role()
+
+            stac_ingestor = StacIngestor(
                 self,
-                f"{id}-vector-endpoint",
-                default_integration=HttpLambdaIntegration(
-                    f"{id}-vector-integration",
-                    eovector_function,
-                ),
+                "stac-ingestor",
+                stac_url=eostac.url,
+                stage=eoapi_settings.stage,
+                data_access_role=data_access_role,
+                stac_db_secret=pgstac_db.pgstac_secret,
+                stac_db_security_group=pgstac_db.db.connections.security_groups[0],
+                api_env={"REQUESTER_PAYS": "True"},
             )
-            CfnOutput(self, "eoAPI-vector", value=vector_api.url.strip("/"))
 
-            setup_db.is_required_by(eovector_function)
+            data_access_role = self._grant_assume_role_with_principal_pattern(
+                data_access_role, stac_ingestor.handler_role.role_name
+            )
+
+    def _create_data_access_role(self) -> iam.Role:
+
+        """
+        Creates an IAM role with full S3 read access.
+        """
+
+        data_access_role = iam.Role(
+            self,
+            "data-access-role",
+            assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
+        )
+
+        data_access_role.add_managed_policy(
+            iam.ManagedPolicy.from_aws_managed_policy_name("AmazonS3FullAccess")
+        )
+
+        return data_access_role
+
+    def _grant_assume_role_with_principal_pattern(
+        self,
+        role_to_assume: iam.Role,
+        principal_pattern: str,
+        account_id: str = boto3.client("sts").get_caller_identity().get("Account"),
+    ) -> iam.Role:
+        """
+        Grants assume role permissions to the role of the given
+        account with the given name pattern. Default account
+        is the current account.
+        """
+
+        role_to_assume.assume_role_policy.add_statements(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                principals=[iam.AnyPrincipal()],
+                actions=["sts:AssumeRole"],
+                conditions={
+                    "StringLike": {
+                        "aws:PrincipalArn": [
+                            f"arn:aws:iam::{account_id}:role/{principal_pattern}"
+                        ]
+                    }
+                },
+            )
+        )
+
+        return role_to_assume
 
 
 app = App()

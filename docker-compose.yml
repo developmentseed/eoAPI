@@ -1,6 +1,19 @@
 version: '3'
 
 services:
+
+  # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
+  stac-browser:
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.browser
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
+    depends_on:
+      - stac-fastapi
+      - titiler-pgstac
+      - database
+      
   stac-fastapi:
     # Note:
     # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
@@ -43,7 +56,7 @@ services:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
-    image: ghcr.io/stac-utils/titiler-pgstac:0.8.0
+    image: ghcr.io/stac-utils/titiler-pgstac:1.0.0a3
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
@@ -89,7 +102,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   tipg:
-    image: ghcr.io/developmentseed/tipg:0.4.4
+    image: ghcr.io/developmentseed/tipg:0.5.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:

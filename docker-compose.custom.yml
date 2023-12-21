@@ -1,6 +1,18 @@
 version: '3'
 
 services:
+  stac-browser:
+    profiles:
+      - gunicorn
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.browser
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
+    depends_on:
+      - stac
+      - database
+      - raster
   stac:
     container_name: eoapi.stac
     profiles:
@@ -34,6 +46,9 @@ services:
       # https://github.com/developmentseed/eoAPI/issues/16
       # - TITILER_ENDPOINT=raster
       - TITILER_ENDPOINT=http://127.0.0.1:8082
+      # PgSTAC extensions
+      # - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
+      # - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
     depends_on:
       - database
       - raster
@@ -159,6 +174,9 @@ services:
       # https://github.com/developmentseed/eoAPI/issues/16
       # - TITILER_ENDPOINT=raster
       - TITILER_ENDPOINT=http://127.0.0.1:8082
+      # PgSTAC extensions
+      # - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
+      # - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
     depends_on:
       - database
       - raster-uvicorn

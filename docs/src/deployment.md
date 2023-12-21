@@ -7,7 +7,7 @@ hide:
 ## Via [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk)
 
 
-[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) is a set of AWS CDK constructs to deploy eoAPI services.
+[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) is a set of AWS CDK constructs that can be used to easily deploy eoAPI services on AWS with the CDK. 
 
 [eoapi-template](https://github.com/developmentseed/eoapi-template) is an AWS CDK app that shows how to configure the [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) constructs.
 

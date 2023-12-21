@@ -4,12 +4,56 @@ from typing import Optional
 from urllib.parse import urlencode
 
 import attr
+import pydantic
 from fastapi import APIRouter, FastAPI, HTTPException, Path, Query
-from fastapi.responses import RedirectResponse
+from fastapi.responses import ORJSONResponse, RedirectResponse
+from stac_fastapi.extensions.core import (
+    ContextExtension,
+    FieldsExtension,
+    FilterExtension,
+    QueryExtension,
+    SortExtension,
+    TokenPaginationExtension,
+    TransactionExtension,
+)
+from stac_fastapi.extensions.third_party import BulkTransactionExtension
+from stac_fastapi.pgstac.extensions.filter import FiltersClient
+from stac_fastapi.pgstac.transactions import BulkTransactionsClient, TransactionsClient
 from stac_fastapi.types.extension import ApiExtension
 from starlette.requests import Request
 
 router = APIRouter()
+
+
+class TransactionSettings(pydantic.BaseSettings):
+    """Simple API settings from stac-fastapi-pgstac Transaction Client.
+
+    ref: https://github.com/stac-utils/stac-fastapi/blob/09dac221d86fe70035aa6cddbc9a3f0de304aff5/stac_fastapi/types/stac_fastapi/types/config.py#L7-L37
+    """
+
+    enable_response_models: bool = False
+
+    class Config:
+        """Model config (https://pydantic-docs.helpmanual.io/usage/model_config/)."""
+
+        extra = "allow"
+        env_file = ".env"
+
+
+extensions_map = {
+    "query": QueryExtension(),
+    "sort": SortExtension(),
+    "fields": FieldsExtension(),
+    "pagination": TokenPaginationExtension(),
+    "context": ContextExtension(),
+    "filter": FilterExtension(client=FiltersClient()),
+    "transaction": TransactionExtension(
+        client=TransactionsClient(),
+        settings=TransactionSettings(),
+        response_class=ORJSONResponse,
+    ),
+    "bulk_transactions": BulkTransactionExtension(client=BulkTransactionsClient()),
+}
 
 
 @attr.s

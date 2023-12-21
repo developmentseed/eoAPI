@@ -1,20 +1,9 @@
 """API settings."""
 
 from functools import lru_cache
-from typing import Optional
+from typing import List, Optional
 
 import pydantic
-from stac_fastapi.api.models import create_get_request_model, create_post_request_model
-from stac_fastapi.extensions.core import (
-    ContextExtension,
-    FieldsExtension,
-    FilterExtension,
-    QueryExtension,
-    SortExtension,
-    TokenPaginationExtension,
-)
-from stac_fastapi.pgstac.extensions.filter import FiltersClient
-from stac_fastapi.pgstac.types.search import PgstacSearch
 
 
 class _ApiSettings(pydantic.BaseSettings):
@@ -22,13 +11,28 @@ class _ApiSettings(pydantic.BaseSettings):
 
     name: str = "eoAPI-stac"
     cors_origins: str = "*"
+    cors_methods: str = "GET,POST,OPTIONS"
     cachecontrol: str = "public, max-age=3600"
     debug: bool = False
+
+    extensions: List[str] = [
+        "filter",
+        "query",
+        "sort",
+        "fields",
+        "pagination",
+        "context",
+    ]
 
     @pydantic.validator("cors_origins")
     def parse_cors_origin(cls, v):
         """Parse CORS origins."""
         return [origin.strip() for origin in v.split(",")]
+
+    @pydantic.validator("cors_methods")
+    def parse_cors_methods(cls, v):
+        """Parse CORS methods."""
+        return [method.strip() for method in v.split(",")]
 
     class Config:
         """model config"""
@@ -69,17 +73,3 @@ def TilesApiSettings() -> _TilesApiSettings:
 
     """
     return _TilesApiSettings()
-
-
-extensions = [
-    FilterExtension(
-        client=FiltersClient(),
-    ),
-    QueryExtension(),
-    SortExtension(),
-    FieldsExtension(),
-    TokenPaginationExtension(),
-    ContextExtension(),
-]
-post_request_model = create_post_request_model(extensions, base_model=PgstacSearch)
-get_request_model = create_get_request_model(extensions)
