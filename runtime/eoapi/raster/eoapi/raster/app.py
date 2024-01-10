@@ -4,6 +4,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Dict
 
+import jinja2
 import pystac
 from eoapi.raster import __version__ as eoapi_raster_version
 from eoapi.raster.config import ApiSettings
@@ -36,20 +37,20 @@ from titiler.pgstac.factory import (
 )
 from titiler.pgstac.reader import PgSTACReader
 
-try:
-    from importlib.resources import files as resources_files  # type: ignore
-except ImportError:
-    # Try backported to PY<39 `importlib_resources`.
-    from importlib_resources import files as resources_files  # type: ignore
-
 logging.getLogger("botocore.credentials").disabled = True
 logging.getLogger("botocore.utils").disabled = True
 logging.getLogger("rio-tiler").setLevel(logging.ERROR)
 
 settings = ApiSettings()
 
-# TODO: mypy fails in python 3.9, we need to find a proper way to do this
-templates = Jinja2Templates(directory=str(resources_files(__package__) / "templates"))  # type: ignore
+jinja2_env = jinja2.Environment(
+    loader=jinja2.ChoiceLoader(
+        [
+            jinja2.PackageLoader(__package__, "templates"),
+        ]
+    )
+)
+templates = Jinja2Templates(env=jinja2_env)
 
 
 @asynccontextmanager

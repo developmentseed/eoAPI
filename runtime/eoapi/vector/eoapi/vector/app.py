@@ -64,15 +64,15 @@ app = FastAPI(
 )
 
 # add eoapi_vector templates and tipg templates
-templates = Jinja2Templates(  # type: ignore
-    directory="",
+jinja2_env = jinja2.Environment(
     loader=jinja2.ChoiceLoader(
         [
             jinja2.PackageLoader(__package__, "templates"),
             jinja2.PackageLoader("tipg", "templates"),
         ]
-    ),
+    )
 )
+templates = Jinja2Templates(env=jinja2_env)
 
 # Register TiPg endpoints.
 endpoints = TiPgEndpoints(
