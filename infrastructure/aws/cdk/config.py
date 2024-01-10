@@ -117,9 +117,10 @@ class eoVectorSettings(BaseSettings):
 class eoStacBrowserSettings(BaseSettings):
     """STAC browser settings"""
 
-    stac_browser_github_tag: None | str = "v3.1.0"
-    stac_catalog_url: None | str = None
-    config_file_path: None | str = "browser_config.js"
+    stac_browser_github_tag: str = "v3.1.0"
+    stac_catalog_url: str
+    config_file_path: str = "browser_config.js"
+
     model_config = {
         "env_prefix": "CDK_EOAPI_BROWSER_",
         "env_file": ".env",
