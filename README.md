@@ -53,7 +53,7 @@ cd eoAPI
 docker compose up
 ```
 
-Once the applications are *up*, you'll need to add STAC **Collections** and **Items** to the PgSTAC database. If you don't have these available, you can use the follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)).
+Once the applications are *up*, you'll need to add STAC **Collections** and **Items** to the PgSTAC database. If you don't have these available, you can follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)).
 
 Then you can start exploring your dataset with:
 
