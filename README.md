@@ -53,7 +53,7 @@ cd eoAPI
 docker compose up
 ```
 
-Once the applications are *up*, you'll need to add STAC **Collections** and **Items** to the PgSTAC database. If you don't have, you can use the follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)).
+Once the applications are *up*, you'll need to add STAC **Collections** and **Items** to the PgSTAC database. If you don't have these available, you can use the follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)).
 
 Then you can start exploring your dataset with:
 
@@ -71,7 +71,7 @@ This repository has current runtimes that are consistently updated with new func
 
 The services can be deployed altogether locally with `docker compose up`.
 
-Alternatively, you may install the libraries and launch the applications manually : 
+Alternatively, you may install the libraries and launch the applications manually: 
 
 <details>
 
@@ -104,7 +104,7 @@ python -m pip install tipg
 .venv/bin/uvicorn tipg.main:app --port 8083 --reload
 ```
 
-Note: python libraries might have incompatible dependencies, which you can resolve by using a virtual environment for each ones
+Note: Python libraries might have incompatible dependencies, which you can resolve by using a virtual environment for each one.
 
 </details>
 
@@ -124,7 +124,7 @@ Note: python libraries might have incompatible dependencies, which you can resol
 
 The eoAPI repository hosts customized versions of each base service which can work in parallel or in combination with each other.
 
-eoAPI custom runtimes can be launched with docker
+eoAPI custom runtimes can be launched with docker:
 
 ```
 docker compose -f docker-compose.custom.yml --profile gunicorn up
@@ -144,7 +144,7 @@ export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Conne
 .venv/bin/uvicorn eoapi.{SERVICE}.app:app --port 8000 --reload
 ```
 
-Note: services might have incompatible dependencies, which you can resolve by using a virtual environment for each service
+Note: services might have incompatible dependencies, which you can resolve by using a virtual environment for each service.
 
 ## Contribution & Development
 
