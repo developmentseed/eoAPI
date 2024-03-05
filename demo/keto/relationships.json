@@ -7,7 +7,7 @@
   },
   {
     "namespace": "StacCollection",
-    "object": "facebook",
+    "object": "facebook-population-density",
     "relation": "write",
     "subject_id": "#staff"
   },
