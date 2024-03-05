@@ -1,11 +1,7 @@
 import { Namespace, SubjectSet, Context } from "@ory/keto-namespace-types";
 
 // https://www.ory.sh/docs/keto/modeling/create-permission-model
-class User implements Namespace {
-  related: {
-    manager: User[];
-  };
-}
+class User implements Namespace {}
 
 class Group implements Namespace {
   related: {
@@ -15,7 +11,7 @@ class Group implements Namespace {
 
 class StacCollection implements Namespace {
   related: {
-    parents: (StacItem | StacCollection)[];
+    parents: StacCollection[];
     viewers: SubjectSet<Group, "members">[];
   };
 
@@ -28,7 +24,7 @@ class StacCollection implements Namespace {
 
 class StacItem implements Namespace {
   related: {
-    parents: (StacItem | StacCollection)[];
+    parents: StacCollection[];
     viewers: (User | SubjectSet<Group, "members">)[];
     owners: (User | SubjectSet<Group, "members">)[];
   };
