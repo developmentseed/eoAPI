@@ -2,88 +2,31 @@
   {
     "namespace": "StacCollection",
     "object": "cmip6",
-    "relation": "write",
-    "subject_id": "#staff"
+    "relation": "owners",
+    "subject_id": "alice"
   },
-  {
-    "namespace": "StacCollection",
-    "object": "facebook-population-density",
-    "relation": "write",
-    "subject_id": "#staff"
-  },
-  {
-    "namespace": "StacCollection",
-    "object": "maxar",
-    "relation": "write",
-    "subject_id": "#staff"
-  },
-  {
-    "namespace": "StacCollection",
-    "object": "noaa",
-    "relation": "write",
-    "subject_id": "#staff"
-  },
-
   {
     "namespace": "StacCollection",
     "object": "cmip6",
-    "relation": "write",
-    "subject_id": "#data_editor"
-  },
-
-  {
-    "namespace": "Group",
-    "object": "staff",
-    "relation": "member",
-    "subject_id": "alice"
-  },
-  {
-    "namespace": "Group",
-    "object": "data_editor",
-    "relation": "member",
-    "subject_id": "bob"
-  },
-
-  {
-    "namespace": "User",
-    "object": "alice",
-    "relation": "member",
-    "subject_id": "alice"
-  },
-  {
-    "namespace": "User",
-    "object": "bob",
-    "relation": "member",
+    "relation": "editors",
     "subject_id": "bob"
   },
   {
-    "namespace": "User",
-    "object": "carlos",
-    "relation": "member",
+    "namespace": "StacCollection",
+    "object": "cmip6",
+    "relation": "viewers",
     "subject_id": "carlos"
   },
   {
-    "namespace": "User",
-    "object": "darla",
-    "relation": "member",
-    "subject_id": "darla"
+    "namespace": "StacCollection",
+    "object": "cmip6",
+    "relation": "viewers",
+    "subject_id": "carlos"
   },
   {
-    "namespace": "User",
-    "object": "edward",
-    "relation": "member",
-    "subject_id": "edward"
-  },
-  {
-    "namespace": "User",
-    "object": "frank",
-    "relation": "member",
-    "subject_id": "frank"
-  },
-  {
-    "namespace": "User",
-    "object": "george",
-    "relation": "member",
-    "subject_id": "george"
+    "namespace": "StacCollection",
+    "object": "foo",
+    "relation": "viewers",
+    "subject_id": "*"
   }
 ]
