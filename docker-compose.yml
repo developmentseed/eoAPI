@@ -1,9 +1,9 @@
-version: '3'
+version: "3"
 
 services:
-
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
   stac-browser:
+    platform: linux/amd64
     build:
       context: dockerfiles
       dockerfile: Dockerfile.browser
@@ -13,7 +13,7 @@ services:
       - stac-fastapi
       - titiler-pgstac
       - database
-      
+
   stac-fastapi:
     # Note:
     # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
@@ -47,8 +47,7 @@ services:
       - DB_MAX_CONN_SIZE=10
     depends_on:
       - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
@@ -96,8 +95,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
@@ -123,14 +121,14 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     depends_on:
       - database
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
+    platform: linux/amd64
     image: ghcr.io/stac-utils/pgstac:v0.8.1
     environment:
       - POSTGRES_USER=username
@@ -139,11 +137,57 @@ services:
       - PGUSER=username
       - PGPASSWORD=password
       - PGDATABASE=postgis
+      - POSTGRES_MULTIPLE_DATABASES=accesscontroldb
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
     command: postgres -N 500
     volumes:
+      - ./dockerfiles/scripts/docker-postgresql-multiple-databases.sh:/docker-entrypoint-initdb.d/docker-postgresql-multiple-databases.sh
       - ./.pgdata:/var/lib/postgresql/data
+
+  keto-migrate:
+    image: oryd/keto:v0.12.0-alpha.0
+    volumes:
+      - type: bind
+        source: demo/keto
+        target: /home/ory
+      - type: bind
+        source: dockerfiles/scripts
+        target: /tmp/scripts
+    environment:
+      - LOG_LEVEL=debug
+      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
+    depends_on:
+      - database
+    restart: on-failure
+    command: migrate up -y
+
+  keto:
+    image: oryd/keto:v0.12.0-alpha.0
+    ports:
+      - "4466:4466"
+      - "4467:4467"
+    command: serve -c /home/ory/keto.yml
+    depends_on:
+      - keto-migrate
+    environment:
+      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: demo/keto/keto.yml
+        target: /home/ory/keto.yml
+
+  keto-init:
+    image: oryd/keto:v0.12.0-alpha.0
+    environment:
+      - KETO_WRITE_REMOTE=keto:4467
+    volumes:
+      - type: bind
+        source: demo/keto
+        target: /home/ory
+    command: relation-tuple create /home/ory/relation-tuples
+    restart: on-failure
 
 networks:
   default:

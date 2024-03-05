@@ -1,0 +1,72 @@
+[
+  {
+    "namespace": "Group",
+    "object": "developer",
+    "relation": "members",
+    "subject_id": "patrik"
+  },
+  {
+    "namespace": "Group",
+    "object": "developer",
+    "relation": "members",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Patrik"
+    }
+  },
+  {
+    "namespace": "Group",
+    "object": "developer",
+    "relation": "members",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Henning"
+    }
+  },
+  {
+    "namespace": "StacCollection",
+    "object": "keto/",
+    "relation": "viewers",
+    "subject_set": {
+      "namespace": "Group",
+      "object": "developer",
+      "relation": "members"
+    }
+  },
+  {
+    "namespace": "StacItem",
+    "object": "keto/README.md",
+    "relation": "parents",
+    "subject_set": {
+      "namespace": "StacCollection",
+      "object": "keto/"
+    }
+  },
+  {
+    "namespace": "StacCollection",
+    "object": "keto/src/",
+    "relation": "parents",
+    "subject_set": {
+      "namespace": "StacCollection",
+      "object": "keto/"
+    }
+  },
+  {
+    "namespace": "StacItem",
+    "object": "keto/src/main.go",
+    "relation": "parents",
+    "subject_set": {
+      "namespace": "StacCollection",
+      "object": "keto/src/"
+    }
+  },
+  {
+    "namespace": "StacItem",
+    "object": "private",
+    "relation": "owners",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Henning"
+    }
+  }
+]

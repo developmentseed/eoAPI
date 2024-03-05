@@ -1,0 +1,16 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+devDependencies:
+  '@ory/keto-namespace-types':
+    specifier: 0.13.0-alpha.0
+    version: 0.13.0-alpha.0
+
+packages:
+
+  /@ory/keto-namespace-types@0.13.0-alpha.0:
+    resolution: {integrity: sha512-e2s9sfDEdL40+dRPvYwO4rJY60i85IFH9+3woScXw7zrjvoy/oEDsjJuLbZ/hskJHPNplnNp3IoikXxDKxiL6A==}
+    dev: true
