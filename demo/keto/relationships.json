@@ -1,72 +1,89 @@
 [
   {
-    "namespace": "Group",
-    "object": "developer",
-    "relation": "members",
-    "subject_id": "patrik"
-  },
-  {
-    "namespace": "Group",
-    "object": "developer",
-    "relation": "members",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Patrik"
-    }
-  },
-  {
-    "namespace": "Group",
-    "object": "developer",
-    "relation": "members",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Henning"
-    }
+    "namespace": "StacCollection",
+    "object": "cmip6",
+    "relation": "write",
+    "subject_id": "#staff"
   },
   {
     "namespace": "StacCollection",
-    "object": "keto/",
-    "relation": "viewers",
-    "subject_set": {
-      "namespace": "Group",
-      "object": "developer",
-      "relation": "members"
-    }
-  },
-  {
-    "namespace": "StacItem",
-    "object": "keto/README.md",
-    "relation": "parents",
-    "subject_set": {
-      "namespace": "StacCollection",
-      "object": "keto/"
-    }
+    "object": "facebook",
+    "relation": "write",
+    "subject_id": "#staff"
   },
   {
     "namespace": "StacCollection",
-    "object": "keto/src/",
-    "relation": "parents",
-    "subject_set": {
-      "namespace": "StacCollection",
-      "object": "keto/"
-    }
+    "object": "maxar",
+    "relation": "write",
+    "subject_id": "#staff"
   },
   {
-    "namespace": "StacItem",
-    "object": "keto/src/main.go",
-    "relation": "parents",
-    "subject_set": {
-      "namespace": "StacCollection",
-      "object": "keto/src/"
-    }
+    "namespace": "StacCollection",
+    "object": "noaa",
+    "relation": "write",
+    "subject_id": "#staff"
+  },
+
+  {
+    "namespace": "StacCollection",
+    "object": "cmip6",
+    "relation": "write",
+    "subject_id": "#data_editor"
+  },
+
+  {
+    "namespace": "Group",
+    "object": "staff",
+    "relation": "member",
+    "subject_id": "alice"
   },
   {
-    "namespace": "StacItem",
-    "object": "private",
-    "relation": "owners",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Henning"
-    }
+    "namespace": "Group",
+    "object": "data_editor",
+    "relation": "member",
+    "subject_id": "bob"
+  },
+
+  {
+    "namespace": "User",
+    "object": "alice",
+    "relation": "member",
+    "subject_id": "alice"
+  },
+  {
+    "namespace": "User",
+    "object": "bob",
+    "relation": "member",
+    "subject_id": "bob"
+  },
+  {
+    "namespace": "User",
+    "object": "carlos",
+    "relation": "member",
+    "subject_id": "carlos"
+  },
+  {
+    "namespace": "User",
+    "object": "darla",
+    "relation": "member",
+    "subject_id": "darla"
+  },
+  {
+    "namespace": "User",
+    "object": "edward",
+    "relation": "member",
+    "subject_id": "edward"
+  },
+  {
+    "namespace": "User",
+    "object": "frank",
+    "relation": "member",
+    "subject_id": "frank"
+  },
+  {
+    "namespace": "User",
+    "object": "george",
+    "relation": "member",
+    "subject_id": "george"
   }
 ]

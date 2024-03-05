@@ -1,5 +1,6 @@
 import { Namespace, SubjectSet, Context } from "@ory/keto-namespace-types";
 
+// https://www.ory.sh/docs/keto/modeling/create-permission-model
 class User implements Namespace {
   related: {
     manager: User[];

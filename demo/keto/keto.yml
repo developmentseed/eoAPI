@@ -1,11 +1,11 @@
+$schema: https://raw.githubusercontent.com/ory/keto/master/.schema/config.schema.json
 version: v0.6.0-alpha.1
 
 log:
   level: debug
 
 namespaces:
-  - id: 0
-    name: videos
+  location: file:///home/ory/namespaces.keto.ts
 
 serve:
   read:

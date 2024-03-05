@@ -147,46 +147,44 @@ services:
 
   keto-migrate:
     image: oryd/keto:v0.12.0-alpha.0
+    command: migrate up -y
+    environment:
+      - LOG_LEVEL=debug
+      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
     volumes:
       - type: bind
         source: demo/keto
         target: /home/ory
-      - type: bind
-        source: dockerfiles/scripts
-        target: /tmp/scripts
-    environment:
-      - LOG_LEVEL=debug
-      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
     depends_on:
       - database
     restart: on-failure
-    command: migrate up -y
 
   keto:
     image: oryd/keto:v0.12.0-alpha.0
+    command: serve -c /home/ory/keto.yml
+    environment:
+      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
+    volumes:
+      - type: bind
+        source: demo/keto
+        target: /home/ory
     ports:
       - "4466:4466"
       - "4467:4467"
-    command: serve -c /home/ory/keto.yml
     depends_on:
       - keto-migrate
-    environment:
-      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
     restart: on-failure
-    volumes:
-      - type: bind
-        source: demo/keto/keto.yml
-        target: /home/ory/keto.yml
 
   keto-init:
     image: oryd/keto:v0.12.0-alpha.0
+    command: relation-tuple create /home/ory/relationships.json --insecure-disable-transport-security
     environment:
+      - KETO_READ_REMOTE=keto:4466
       - KETO_WRITE_REMOTE=keto:4467
     volumes:
       - type: bind
         source: demo/keto
         target: /home/ory
-    command: relation-tuple create /home/ory/relation-tuples
     restart: on-failure
 
 networks:
