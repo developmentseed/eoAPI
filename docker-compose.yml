@@ -181,10 +181,26 @@ services:
       - ZED_TOKEN=eoapi-secret-token
     volumes:
       - type: bind
-        source: runtime/spicedb
+        source: ./runtime/spicedb/init
         target: /home/spicedb
     depends_on:
       - spicedb
+
+  spicedb-ui:
+    build:
+      context: ./runtime/spicedb/spicedb-ui
+
+    # Set environment variables directly in the docker-compose file
+    environment:
+      ENV_VARIABLE: ${ENV_VARIABLE}
+      NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+
+    volumes:
+      - ./runtime/spicedb/spicedb-ui/src:/app/src
+      - ./runtime/spicedb/spicedb-ui/public:/app/public
+    restart: always
+    ports:
+      - 3000:3000
 
 networks:
   default:
