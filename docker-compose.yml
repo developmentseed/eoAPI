@@ -137,7 +137,7 @@ services:
       - PGUSER=username
       - PGPASSWORD=password
       - PGDATABASE=postgis
-      - POSTGRES_MULTIPLE_DATABASES=accesscontroldb
+      - POSTGRES_MULTIPLE_DATABASES=spicedb
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
     command: postgres -N 500
@@ -145,47 +145,46 @@ services:
       - ./dockerfiles/scripts/docker-postgresql-multiple-databases.sh:/docker-entrypoint-initdb.d/docker-postgresql-multiple-databases.sh
       - ./.pgdata:/var/lib/postgresql/data
 
-  keto-migrate:
-    image: oryd/keto:v0.12.0-alpha.0
-    command: migrate up -y
+  spicedb-migrate:
+    image: authzed/spicedb
+    command: migrate head
+    restart: on-failure
     environment:
-      - LOG_LEVEL=debug
-      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
-    volumes:
-      - type: bind
-        source: demo/keto
-        target: /home/ory
+      - SPICEDB_DATASTORE_ENGINE=postgres
+      - SPICEDB_DATASTORE_CONN_URI=postgres://username:password@database:5432/spicedb?sslmode=disable
     depends_on:
       - database
-    restart: on-failure
 
-  keto:
-    image: oryd/keto:v0.12.0-alpha.0
-    command: serve -c /home/ory/keto.yml
-    environment:
-      - DSN=postgres://username:password@database:5432/accesscontroldb?sslmode=disable
-    volumes:
-      - type: bind
-        source: demo/keto
-        target: /home/ory
+  spicedb:
+    image: authzed/spicedb
+    command: serve --http-enabled
+    restart: always
     ports:
-      - "4466:4466"
-      - "4467:4467"
-    depends_on:
-      - keto-migrate
-    restart: on-failure
-
-  keto-init:
-    image: oryd/keto:v0.12.0-alpha.0
-    command: relation-tuple create /home/ory/relationships.json --insecure-disable-transport-security
+      - 8443:8443 # HTTP API
+      - 9090:9090 # Prometheus metrics
+      - 50051:50051 # gRPC API
     environment:
-      - KETO_READ_REMOTE=keto:4466
-      - KETO_WRITE_REMOTE=keto:4467
+      - SPICEDB_GRPC_PRESHARED_KEY="eoapi-secret-token"
+      - SPICEDB_DATASTORE_ENGINE=postgres
+      - SPICEDB_DATASTORE_CONN_URI=postgres://username:password@database:5432/spicedb?sslmode=disable
+      - SPICEDB_HTTP_ENABLED=true
+    depends_on:
+      - spicedb-migrate
+
+  spicedb-init:
+    image: authzed/zed
+    command: import file:///home/spicedb/zed.yaml
+    restart: on-failure
+    environment:
+      - ZED_ENDPOINT=spicedb:50051
+      - ZED_INSECURE=true
+      - ZED_TOKEN=eoapi-secret-token
     volumes:
       - type: bind
-        source: demo/keto
-        target: /home/ory
-    restart: on-failure
+        source: runtime/spicedb
+        target: /home/spicedb
+    depends_on:
+      - spicedb
 
 networks:
   default:
