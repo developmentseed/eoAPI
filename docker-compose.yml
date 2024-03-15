@@ -200,6 +200,21 @@ services:
     ports:
       - 3000:3000
 
+  keycloak:
+    image: jboss/keycloak:latest
+    environment:
+      DB_VENDOR: H2
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    command:
+      - "-Dkeycloak.profile.feature.upload_scripts=enabled"
+    volumes:
+      # - ./keycloak-realm-config:/tmp/keycloak-realm-config
+      - ./keycloak-init.sh:/opt/jboss/startup-scripts/keycloak-init.sh
+
 networks:
   default:
     name: eoapi-network
