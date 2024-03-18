@@ -4,6 +4,8 @@ services:
 
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
   stac-browser:
+    container_name: base_stac_browser_container
+    platform: linux/amd64
     build:
       context: dockerfiles
       dockerfile: Dockerfile.browser
@@ -15,9 +17,11 @@ services:
       - database
       
   stac-fastapi:
+    container_name: base_stac_api_container
     # Note:
     # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
     # which is why here we use a custom Dockerfile using python 3.11 and gunicorn
+    platform: linux/amd64
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.stac
@@ -45,6 +49,9 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
+      # PgSTAC extensions
+      - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
+      - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
     depends_on:
       - database
     command:
@@ -53,6 +60,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   titiler-pgstac:
+    container_name: base_titiler_container
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
@@ -102,6 +110,8 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   tipg:
+    container_name: base_tipg_container
+    platform: linux/amd64
     image: ghcr.io/developmentseed/tipg:0.5.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
@@ -131,7 +141,9 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    image: ghcr.io/stac-utils/pgstac:v0.8.1
+    container_name: base_pgstac_database_container
+    platform: linux/amd64
+    image: ghcr.io/stac-utils/pgstac:v0.8.5
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
@@ -144,6 +156,25 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
+
+  jupyterhub:
+    container_name: base_jupyterhub_container
+    platform: linux/amd64
+    image: quay.io/jupyter/all-spark-notebook
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:8888:8888"
+
+    # Adding pgAdmin service
+  pgadmin:
+    container_name: base_pgadmin_container
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "80:80"
+    depends_on:
+      - database
 
 networks:
   default:

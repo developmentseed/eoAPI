@@ -2,6 +2,8 @@ version: '3'
 
 services:
   stac-browser:
+    container_name: custom_gunicorn_stac_browser_container
+    platform: linux/amd64
     profiles:
       - gunicorn
     build:
@@ -13,8 +15,9 @@ services:
       - stac
       - database
       - raster
-  stac:
-    container_name: eoapi.stac
+  
+  stac-fastapi:
+    container_name: custom_gunicorn_stac_api_container
     profiles:
       - gunicorn
     build:
@@ -47,8 +50,8 @@ services:
       # - TITILER_ENDPOINT=raster
       - TITILER_ENDPOINT=http://127.0.0.1:8082
       # PgSTAC extensions
-      # - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
-      # - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
+      - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
+      - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
     depends_on:
       - database
       - raster
@@ -58,7 +61,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   raster:
-    container_name: eoapi.raster
+    container_name: custom_gunicorn_raster_mosaic_builder_container
     profiles:
       - gunicorn
     build:
@@ -114,7 +117,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   vector:
-    container_name: eoapi.vector
+    container_name: custom_gunicorn_vector_container
     profiles:
       - gunicorn
     build:
@@ -147,8 +150,8 @@ services:
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-  stac-uvicorn:
-    container_name: eoapi.stac-uvicorn
+  stac-fastapi-uvicorn:
+    container_name: custom_uvicorn_stac_api_container
     profiles:
       - uvicorn
     build:
@@ -175,8 +178,8 @@ services:
       # - TITILER_ENDPOINT=raster
       - TITILER_ENDPOINT=http://127.0.0.1:8082
       # PgSTAC extensions
-      # - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
-      # - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
+      - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
+      - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
     depends_on:
       - database
       - raster-uvicorn
@@ -186,7 +189,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   raster-uvicorn:
-    container_name: eoapi.raster-uvicorn
+    container_name: custom_uvicorn_raster_mosaic_builder_container
     profiles:
       - uvicorn
     build:
@@ -234,7 +237,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   vector-uvicorn:
-    container_name: eoapi.vector-uvicorn
+    container_name: custom_uvicorn_vector_container
     profiles:
       - uvicorn
     build:
@@ -261,21 +264,21 @@ services:
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-  database:
-    container_name: eoapi.db
-    image: ghcr.io/stac-utils/pgstac:v0.8.1
-    environment:
-      - POSTGRES_USER=username
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=postgis
-      - PGUSER=username
-      - PGPASSWORD=password
-      - PGDATABASE=postgis
-    ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
-    command: postgres -N 500
-    volumes:
-      - ./.pgdata:/var/lib/postgresql/data
+#  database:
+#    container_name: custom_pgstac_database_container
+#    image: ghcr.io/stac-utils/pgstac:v0.8.1
+#    environment:
+#      - POSTGRES_USER=username
+#      - POSTGRES_PASSWORD=password
+#      - POSTGRES_DB=postgis
+#      - PGUSER=username
+#      - PGPASSWORD=password
+#      - PGDATABASE=postgis
+#    ports:
+#      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
+#    command: postgres -N 500
+#    volumes:
+#      - ./.pgdata:/var/lib/postgresql/data
 
 networks:
   default:
