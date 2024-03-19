@@ -9,7 +9,7 @@ import pydantic
 class _ApiSettings(pydantic.BaseSettings):
     """API settings"""
 
-    name: str = "eoAPI-stac"
+    name: str = "USGS 3DEP Data Ecosystem POC"
     cors_origins: str = "*"
     cors_methods: str = "GET,POST,OPTIONS"
     cachecontrol: str = "public, max-age=3600"

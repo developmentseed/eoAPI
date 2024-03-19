@@ -12,7 +12,7 @@ services:
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
     depends_on:
-      - stac
+      - stac-fastapi
       - database
       - raster
   
@@ -264,21 +264,21 @@ services:
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
-#  database:
-#    container_name: custom_pgstac_database_container
-#    image: ghcr.io/stac-utils/pgstac:v0.8.1
-#    environment:
-#      - POSTGRES_USER=username
-#      - POSTGRES_PASSWORD=password
-#      - POSTGRES_DB=postgis
-#      - PGUSER=username
-#      - PGPASSWORD=password
-#      - PGDATABASE=postgis
-#    ports:
-#      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
-#    command: postgres -N 500
-#    volumes:
-#      - ./.pgdata:/var/lib/postgresql/data
+  database:
+    container_name: custom_pgstac_database_container
+    image: ghcr.io/stac-utils/pgstac:v0.8.1
+    environment:
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgis
+      - PGUSER=username
+      - PGPASSWORD=password
+      - PGDATABASE=postgis
+    ports:
+      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
+    command: postgres -N 500
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
 
 networks:
   default:
