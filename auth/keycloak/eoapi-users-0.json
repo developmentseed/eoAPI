@@ -4,6 +4,9 @@
     {
       "id": "59c5407b-6280-48b6-ae19-64fe593089c7",
       "username": "alice",
+      "firstName": "Alice",
+      "lastName": "de Admin",
+      "email": "alice@example.com",
       "emailVerified": true,
       "createdTimestamp": 1712037625377,
       "enabled": true,
@@ -27,6 +30,9 @@
     {
       "id": "ebe7613f-377e-416d-9ef5-c990c5ddbe66",
       "username": "bob",
+      "firstName": "Bob",
+      "lastName": "Dubois",
+      "email": "bob@example.com",
       "emailVerified": true,
       "createdTimestamp": 1712037633309,
       "enabled": true,
