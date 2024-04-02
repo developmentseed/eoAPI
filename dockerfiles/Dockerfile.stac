@@ -5,7 +5,7 @@ FROM ghcr.io/vincentsarago/uvicorn-gunicorn:${PYTHON_VERSION}
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 COPY runtime/eoapi/stac /app/stac
-RUN pip install -e /app/stac
+RUN pip install -e "/app/stac[jwt]"
 
 ENV MODULE_NAME eoapi.stac.app
 ENV VARIABLE_NAME app
