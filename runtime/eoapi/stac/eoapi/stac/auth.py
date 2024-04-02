@@ -1,9 +1,9 @@
-from typing import Annotated, Iterable, Optional
-from dataclasses import dataclass
+from typing import Annotated, Dict, Iterable, Optional
+from dataclasses import dataclass, field
 from functools import cached_property
 
 import jwt
-from fastapi import FastAPI, HTTPException, Security, security, status
+from fastapi import HTTPException, Security, security, status
 
 
 @dataclass
@@ -14,6 +14,7 @@ class KeycloakAuth:
     internal_host: Optional[str] = None
 
     required_audience: Optional[str | Iterable[str]] = None
+    scopes: Dict[str, str] = field(default_factory=lambda: {})
 
     def _build_url(self, host: str):
         return f"{host}/realms/{self.realm}/protocol/openid-connect"
@@ -69,7 +70,7 @@ class KeycloakAuth:
         return security.OAuth2AuthorizationCodeBearer(
             authorizationUrl=f"{self.keycloak_api}/auth",
             tokenUrl=f"{self.keycloak_api}/token",
-            scopes={},
+            scopes=self.scopes,
         )
 
     @cached_property
