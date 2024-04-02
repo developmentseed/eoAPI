@@ -3,7 +3,6 @@ version: "3"
 services:
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
   stac-browser:
-    platform: linux/amd64
     build:
       context: dockerfiles
       dockerfile: Dockerfile.browser
@@ -31,11 +30,11 @@ services:
       - VARIABLE_NAME=app
       # gunicorn
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
+      - WEB_CONCURRENCY=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # - WORKERS_PER_CORE=1
+      - WORKERS_PER_CORE=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
+      - MAX_WORKERS=10
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -108,11 +107,11 @@ services:
       - HOST=0.0.0.0
       - PORT=8083
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
+      - WEB_CONCURRENCY=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # - WORKERS_PER_CORE=1
+      - WORKERS_PER_CORE=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
+      - MAX_WORKERS=10
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -128,7 +127,6 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    platform: linux/amd64
     image: ghcr.io/stac-utils/pgstac:v0.8.1
     environment:
       - POSTGRES_USER=username
@@ -201,19 +199,16 @@ services:
       - 3000:3000
 
   keycloak:
-    image: jboss/keycloak:latest
+    image: quay.io/keycloak/keycloak:latest
     environment:
-      DB_VENDOR: H2
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
       - "8080:8080"
       - "9990:9990"
-    command:
-      - "-Dkeycloak.profile.feature.upload_scripts=enabled"
+    command: start-dev --import-realm
     volumes:
-      # - ./keycloak-realm-config:/tmp/keycloak-realm-config
-      - ./keycloak-init.sh:/opt/jboss/startup-scripts/keycloak-init.sh
+      - ./auth/authentication/eoapi-realm.json:/opt/keycloak/data/import/eoapi-realm.json
 
 networks:
   default:
