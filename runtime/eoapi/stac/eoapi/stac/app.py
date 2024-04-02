@@ -1,11 +1,13 @@
 """FastAPI application using PGStac."""
 
 from contextlib import asynccontextmanager
+from typing import Annotated, Any, Dict
 
+import jwt
 from eoapi.stac.config import ApiSettings, TilesApiSettings
 from eoapi.stac.extension import TiTilerExtension
 from eoapi.stac.extension import extensions_map as PgStacExtensions
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Security, security, status
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
 from stac_fastapi.api.models import create_get_request_model, create_post_request_model
@@ -19,6 +21,8 @@ from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 from starlette_cramjam.middleware import CompressionMiddleware
 
+from .auth import KeycloakAuth
+
 try:
     from importlib.resources import files as resources_files  # type: ignore
 except ImportError:
@@ -31,6 +35,13 @@ templates = Jinja2Templates(directory=str(resources_files(__package__) / "templa
 api_settings = ApiSettings()
 tiles_settings = TilesApiSettings()
 settings = Settings()
+
+keycloak = KeycloakAuth(
+    realm="eoapi",
+    client_id="stac-api",
+    host="http://localhost:8080",
+    internal_host="http://keycloak:8080",
+)
 
 
 @asynccontextmanager
@@ -54,7 +65,15 @@ POSTModel = create_post_request_model(extensions, base_model=PgstacSearch)
 GETModel = create_get_request_model(extensions)
 
 api = StacApi(
-    app=FastAPI(title=api_settings.name, lifespan=lifespan),
+    app=FastAPI(
+        title=api_settings.name,
+        lifespan=lifespan,
+        swagger_ui_init_oauth={
+            "appName": "eoAPI",
+            "clientId": keycloak.client_id,
+            "usePkceWithAuthorizationCodeGrant": True,
+        },
+    ),
     title=api_settings.name,
     description=api_settings.name,
     settings=settings,
@@ -84,10 +103,18 @@ if tiles_settings.titiler_endpoint:
 
 
 @app.get("/index.html", response_class=HTMLResponse)
-async def viewer_page(request: Request):
+async def viewer_page(
+    request: Request, token: Annotated[str, Security(keycloak.scheme)]
+):
     """Search viewer."""
     return templates.TemplateResponse(
         "stac-viewer.html",
         {"request": request, "endpoint": str(request.url).replace("/index.html", "")},
         media_type="text/html",
     )
+
+
+@app.get("/user", tags=["auth"])
+def get_user(user_token: Annotated[Dict[Any, Any], Security(keycloak.user_validator)]):
+    """View auth token."""
+    return user_token
