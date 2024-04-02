@@ -209,7 +209,7 @@ services:
       - "9990:9990"
     command: start-dev --import-realm
     volumes:
-      - ./auth/authentication/eoapi-realm.json:/opt/keycloak/data/import/eoapi-realm.json
+      - ./auth/keycloak:/opt/keycloak/data/import
 
 networks:
   default:

@@ -1,0 +1,30 @@
+{
+  "realm" : "eoapi",
+  "users" : [ {
+    "id" : "59c5407b-6280-48b6-ae19-64fe593089c7",
+    "username" : "alice",
+    "emailVerified" : true,
+    "createdTimestamp" : 1712037625377,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-eoapi" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "ebe7613f-377e-416d-9ef5-c990c5ddbe66",
+    "username" : "bob",
+    "emailVerified" : true,
+    "createdTimestamp" : 1712037633309,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-eoapi" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ]
+}
