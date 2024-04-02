@@ -100,11 +100,28 @@ if tiles_settings.titiler_endpoint:
     extension = TiTilerExtension()
     extension.register(api.app, tiles_settings.titiler_endpoint)
 
+for (method, path), scopes in {
+    ("POST", "/collections"): ["stac:collection:create"],
+    ("PUT", "/collections"): ["stac:collection:update"],
+    ("DELETE", "/collections/{collection_id}"): ["stac:collection:delete"],
+    ("POST", "/collections/{collection_id}/items"): ["stac:item:create"],
+    ("PUT", "/collections/{collection_id}/items/{item_id}"): ["stac:item:update"],
+    ("DELETE", "/collections/{collection_id}/items/{item_id}"): ["stac:item:delete"],
+}.items():
+    api.add_route_dependencies(
+        [
+            {
+                "path": app.router.prefix + path,
+                "method": method,
+                "type": "http",
+            },
+        ],
+        [Security(keycloak.scheme, scopes=scopes)],
+    )
+
 
 @app.get("/index.html", response_class=HTMLResponse)
-async def viewer_page(
-    request: Request, token: Annotated[str, Security(keycloak.scheme)]
-):
+async def viewer_page(request: Request):
     """Search viewer."""
     return templates.TemplateResponse(
         "stac-viewer.html",
