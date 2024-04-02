@@ -3,11 +3,10 @@
 from contextlib import asynccontextmanager
 from typing import Annotated, Any, Dict
 
-import jwt
 from eoapi.stac.config import ApiSettings, TilesApiSettings
 from eoapi.stac.extension import TiTilerExtension
 from eoapi.stac.extension import extensions_map as PgStacExtensions
-from fastapi import FastAPI, HTTPException, Security, security, status
+from fastapi import FastAPI, Security
 from fastapi.responses import ORJSONResponse
 from stac_fastapi.api.app import StacApi
 from stac_fastapi.api.models import create_get_request_model, create_post_request_model
