@@ -46,9 +46,10 @@ services:
       - DB_MAX_CONN_SIZE=10
     depends_on:
       - database
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start-reload.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
+      - ./runtime/eoapi/stac:/app/stac
 
   titiler-pgstac:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
