@@ -1,4 +1,4 @@
-from typing import Annotated, Dict, Iterable, Optional
+from typing import Annotated, Dict, Iterable, List, Optional, TypedDict
 from dataclasses import dataclass, field
 from functools import cached_property
 
@@ -30,7 +30,7 @@ class KeycloakAuth:
         def valid_user_token(
             token_str: Annotated[str, Security(self.scheme)],
             required_scopes: security.SecurityScopes,
-        ):
+        ) -> TokenPayload:
             # Parse & validate token
             try:
                 token = jwt.decode(
@@ -39,10 +39,10 @@ class KeycloakAuth:
                     algorithms=["RS256"],
                     audience=self.required_audience,
                 )
-            except jwt.exceptions.DecodeError as e:
+            except jwt.exceptions.InvalidTokenError as e:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Could not validate credentials",
+                    detail=f"Could not validate credentials: {e}",
                     headers={"WWW-Authenticate": "Bearer"},
                 ) from e
 
@@ -97,3 +97,30 @@ class KeycloakAuth:
         JWTs.
         """
         return jwt.PyJWKClient(f"{self.internal_keycloak_api}/certs")
+
+
+class RealmAccess(TypedDict):
+    roles: List[str]
+
+
+class TokenPayload(TypedDict):
+    exp: int
+    iat: int
+    auth_time: int
+    jti: str
+    iss: str
+    sub: str
+    typ: str
+    azp: str
+    session_state: str
+    acr: str
+    allowed_origins: List[str]
+    realm_access: RealmAccess
+    scope: str
+    sid: str
+    email_verified: bool
+    name: str
+    preferred_username: str
+    given_name: str
+    family_name: str
+    email: str
