@@ -23,6 +23,10 @@ class KeycloakAuth:
     def user_validator(
         self,
     ):
+        """
+        FastAPI Security Dependency to validate auth token.
+        """
+
         def valid_user_token(
             token_str: Annotated[str, Security(self.scheme)],
             required_scopes: security.SecurityScopes,
@@ -59,14 +63,27 @@ class KeycloakAuth:
 
     @property
     def internal_keycloak_api(self):
+        """
+        URL for requests to Keycloak to Keycloak made from within this service.
+
+        e.g. When fetching JWKS keys.
+        """
         return self._build_url(self.internal_host or self.host)
 
     @property
     def keycloak_api(self):
+        """
+        URL for requests to Keycloak made from outside this service.
+
+        e.g. When performing OAuth2 Authorization Code flow from docs UI.
+        """
         return self._build_url(self.host)
 
     @property
     def scheme(self):
+        """
+        FastAPI Security Scheme.
+        """
         return security.OAuth2AuthorizationCodeBearer(
             authorizationUrl=f"{self.keycloak_api}/auth",
             tokenUrl=f"{self.keycloak_api}/token",
@@ -75,4 +92,8 @@ class KeycloakAuth:
 
     @cached_property
     def jwks_client(self):
+        """
+        PyJWKClient instance for fetching JWKS keys from Keycloak. Used when validating
+        JWTs.
+        """
         return jwt.PyJWKClient(f"{self.internal_keycloak_api}/certs")
