@@ -64,7 +64,7 @@ class KeycloakAuth:
     @property
     def internal_keycloak_api(self):
         """
-        URL for requests to Keycloak to Keycloak made from within this service.
+        URL for requests to Keycloak made from within this service.
 
         e.g. When fetching JWKS keys.
         """
