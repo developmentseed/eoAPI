@@ -27,7 +27,7 @@ services:
       # Application
       - HOST=0.0.0.0
       - PORT=8081
-      - MODULE_NAME=eoapi.stac.app
+      - MODULE_NAME=stac_fastapi.pgstac.app
       - VARIABLE_NAME=app
       # gunicorn
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
@@ -144,18 +144,6 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "8080:8080"
-      - "9990:9990"
-    command: start-dev --import-realm
-    volumes:
-      - ./auth/keycloak:/opt/keycloak/data/import
 
 networks:
   default:

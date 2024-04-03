@@ -20,6 +20,8 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.stac
+      args:
+        - INSTALL_EXTRA=[jwt]
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
@@ -49,6 +51,10 @@ services:
       # PgSTAC extensions
       # - EOAPI_STAC_EXTENSIONS=["filter", "query", "sort", "fields", "pagination", "context", "transaction"]
       # - EOAPI_STAC_CORS_METHODS='GET,POST,PUT,OPTIONS'
+      - KEYCLOAK_REALM=eoapi
+      - KEYCLOAK_HOST=http://localhost:8080
+      - KEYCLOAK_CLIENT_ID=stac-api
+      - KEYCLOAK_INTERNAL_HOST=http://keycloak:8080
     depends_on:
       - database
       - raster
@@ -276,6 +282,20 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
+  
+  keycloak:
+    profiles:
+      - keycloak
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+    command: start-dev --import-realm
+    volumes:
+      - ./demo/keycloak:/opt/keycloak/data/import
 
 networks:
   default:
