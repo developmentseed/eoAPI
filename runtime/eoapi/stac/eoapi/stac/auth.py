@@ -1,5 +1,9 @@
-from typing import Annotated, Dict, Iterable, List, Optional, TypedDict
+"""
+Auth module for Keycloak integration.
+"""
+
 from functools import cached_property
+from typing import Annotated, Dict, Iterable, List, Optional, TypedDict
 
 import jwt
 import pydantic
@@ -7,6 +11,10 @@ from fastapi import HTTPException, Security, security, status
 
 
 class KeycloakAuth(pydantic.BaseSettings):
+    """
+    Keycloak Integration.
+    """
+
     realm: str
     host: str
     client_id: str
@@ -16,6 +24,8 @@ class KeycloakAuth(pydantic.BaseSettings):
     scopes: Dict[str, str] = pydantic.Field(default_factory=lambda: {})
 
     class Config:
+        """Pydantic Config"""
+
         env_file = ".env"
         env_prefix = "KEYCLOAK_"
         keep_untouched = (cached_property,)
@@ -104,10 +114,14 @@ class KeycloakAuth(pydantic.BaseSettings):
 
 
 class RealmAccess(TypedDict):
+    """Realm Access."""
+
     roles: List[str]
 
 
 class TokenPayload(TypedDict):
+    """Parsed Keycloak JWT"""
+
     exp: int
     iat: int
     auth_time: int
