@@ -1,20 +1,24 @@
 from typing import Annotated, Dict, Iterable, List, Optional, TypedDict
-from dataclasses import dataclass, field
 from functools import cached_property
 
 import jwt
+import pydantic
 from fastapi import HTTPException, Security, security, status
 
 
-@dataclass
-class KeycloakAuth:
+class KeycloakAuth(pydantic.BaseSettings):
     realm: str
     host: str
     client_id: str
     internal_host: Optional[str] = None
 
     required_audience: Optional[str | Iterable[str]] = None
-    scopes: Dict[str, str] = field(default_factory=lambda: {})
+    scopes: Dict[str, str] = pydantic.Field(default_factory=lambda: {})
+
+    class Config:
+        env_file = ".env"
+        env_prefix = "KEYCLOAK_"
+        keep_untouched = (cached_property,)
 
     def _build_url(self, host: str):
         return f"{host}/realms/{self.realm}/protocol/openid-connect"

@@ -35,12 +35,7 @@ api_settings = ApiSettings()
 tiles_settings = TilesApiSettings()
 settings = Settings()
 
-keycloak = KeycloakAuth(
-    realm="eoapi",
-    client_id="stac-api",
-    host="http://localhost:8080",
-    internal_host="http://keycloak:8080",
-)
+keycloak = KeycloakAuth()
 
 
 @asynccontextmanager
