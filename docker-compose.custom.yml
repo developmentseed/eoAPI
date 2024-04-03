@@ -29,11 +29,7 @@ services:
       - PORT=8081
       - ENVIRONMENT=local
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # - WORKERS_PER_CORE=1
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-10}
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -74,11 +70,7 @@ services:
       - HOST=0.0.0.0
       - PORT=8082
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=1
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      - WORKERS_PER_CORE=1
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      - MAX_WORKERS=10
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-10}
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -127,11 +119,7 @@ services:
       - HOST=0.0.0.0
       - PORT=8083
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=10
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      # - WORKERS_PER_CORE=1
-      # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      # - MAX_WORKERS=10
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-10}
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
