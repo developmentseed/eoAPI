@@ -44,6 +44,10 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
+      - KEYCLOAK_REALM=eoapi
+      - KEYCLOAK_HOST=http://localhost:8080
+      - KEYCLOAK_CLIENT_ID=stac-api
+      - KEYCLOAK_INTERNAL_HOST=http://keycloak:8080
     depends_on:
       - database
     command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start-reload.sh"
