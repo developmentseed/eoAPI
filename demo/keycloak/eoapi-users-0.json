@@ -25,7 +25,7 @@
       "requiredActions": [],
       "realmRoles": ["default-roles-eoapi"],
       "notBefore": 0,
-      "groups": []
+      "groups": ["/Admins"]
     },
     {
       "id": "ebe7613f-377e-416d-9ef5-c990c5ddbe66",

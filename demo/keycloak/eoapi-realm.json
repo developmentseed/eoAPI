@@ -412,30 +412,6 @@
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "scopeMappings": [
     {
-      "clientScope": "offline_access",
-      "roles": [
-        "offline_access"
-      ]
-    },
-    {
-      "clientScope": "stac:collection:create",
-      "roles": [
-        "Data Admin"
-      ]
-    },
-    {
-      "clientScope": "stac:collection:delete",
-      "roles": [
-        "Data Admin"
-      ]
-    },
-    {
-      "clientScope": "stac:collection:update",
-      "roles": [
-        "Data Admin"
-      ]
-    },
-    {
       "clientScope": "stac:item:create",
       "roles": [
         "Data Admin"
@@ -448,7 +424,31 @@
       ]
     },
     {
+      "clientScope": "offline_access",
+      "roles": [
+        "offline_access"
+      ]
+    },
+    {
+      "clientScope": "stac:collection:create",
+      "roles": [
+        "Data Admin"
+      ]
+    },
+    {
       "clientScope": "stac:item:update",
+      "roles": [
+        "Data Admin"
+      ]
+    },
+    {
+      "clientScope": "stac:collection:delete",
+      "roles": [
+        "Data Admin"
+      ]
+    },
+    {
+      "clientScope": "stac:collection:update",
       "roles": [
         "Data Admin"
       ]
@@ -784,15 +784,15 @@
       ],
       "defaultClientScopes": [
         "web-origins",
+        "stac:item:delete",
         "acr",
+        "stac:item:create",
         "profile",
         "roles",
         "stac:collection:create",
         "stac:collection:delete",
-        "stac:collection:update",
-        "stac:item:create",
-        "stac:item:delete",
         "stac:item:update",
+        "stac:collection:update",
         "email"
       ],
       "optionalClientScopes": [
@@ -1039,6 +1039,18 @@
       ]
     },
     {
+      "id": "45a21cc4-dc79-467a-8b62-19b9318d93b5",
+      "name": "stac:item:create",
+      "description": "Ability to create STAC items",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      }
+    },
+    {
       "id": "cd343b34-d750-4397-bd77-82cd23cba2e8",
       "name": "role_list",
       "description": "SAML role list",
@@ -1085,6 +1097,18 @@
           }
         }
       ]
+    },
+    {
+      "id": "4baf7214-a062-4a64-a07c-26f653e04d4a",
+      "name": "stac:item:delete",
+      "description": "Ability to delete STAC items",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      }
     },
     {
       "id": "3c9ae02e-b43c-4e3d-89a7-525323914765",
@@ -1311,6 +1335,30 @@
       ]
     },
     {
+      "id": "127420f1-cc96-4bb0-9bcb-c86a39b92507",
+      "name": "stac:collection:create",
+      "description": "Ability to create STAC collections",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      }
+    },
+    {
+      "id": "21c9767a-9941-43ee-94c9-e99fc9e7b556",
+      "name": "stac:item:update",
+      "description": "Ability to update STAC items",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      }
+    },
+    {
       "id": "44058cfa-4682-46be-9cea-3508535c7ca5",
       "name": "address",
       "description": "OpenID Connect built-in scope: address",
@@ -1343,18 +1391,6 @@
       ]
     },
     {
-      "id": "127420f1-cc96-4bb0-9bcb-c86a39b92507",
-      "name": "stac:collection:create",
-      "description": "Ability to create STAC collections",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "true",
-        "display.on.consent.screen": "true",
-        "gui.order": "",
-        "consent.screen.text": ""
-      }
-    },
-    {
       "id": "b2d5a08e-1db4-4b2a-9fec-133bc0afc8d4",
       "name": "stac:collection:delete",
       "description": "Ability to delete STAC collections",
@@ -1377,42 +1413,6 @@
         "gui.order": "",
         "consent.screen.text": ""
       }
-    },
-    {
-      "id": "45a21cc4-dc79-467a-8b62-19b9318d93b5",
-      "name": "stac:item:create",
-      "description": "Ability to create STAC items",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "true",
-        "display.on.consent.screen": "true",
-        "gui.order": "",
-        "consent.screen.text": ""
-      }
-    },
-    {
-      "id": "4baf7214-a062-4a64-a07c-26f653e04d4a",
-      "name": "stac:item:delete",
-      "description": "Ability to delete STAC items",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "true",
-        "display.on.consent.screen": "true",
-        "gui.order": "",
-        "consent.screen.text": ""
-      }
-    },
-    {
-      "id": "21c9767a-9941-43ee-94c9-e99fc9e7b556",
-      "name": "stac:item:update",
-      "description": "Ability to update STAC items",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "true",
-        "display.on.consent.screen": "true",
-        "gui.order": "",
-        "consent.screen.text": ""
-      }
     }
   ],
   "defaultDefaultClientScopes": [
@@ -1422,12 +1422,12 @@
     "roles",
     "web-origins",
     "acr",
-    "stac:collection:create",
     "stac:collection:delete",
     "stac:collection:update",
     "stac:item:create",
     "stac:item:delete",
-    "stac:item:update"
+    "stac:item:update",
+    "stac:collection:create"
   ],
   "defaultOptionalClientScopes": [
     "offline_access",
@@ -1485,14 +1485,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "oidc-address-mapper",
+            "oidc-usermodel-attribute-mapper",
+            "oidc-sha256-pairwise-sub-mapper",
+            "oidc-usermodel-property-mapper",
+            "saml-user-attribute-mapper",
             "saml-user-property-mapper",
             "oidc-full-name-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
             "saml-role-list-mapper",
-            "saml-user-attribute-mapper",
-            "oidc-usermodel-property-mapper",
-            "oidc-usermodel-attribute-mapper"
+            "oidc-address-mapper"
           ]
         }
       },
@@ -1504,14 +1504,14 @@
         "subComponents": {},
         "config": {
           "allowed-protocol-mapper-types": [
-            "saml-user-property-mapper",
-            "saml-role-list-mapper",
             "oidc-address-mapper",
             "oidc-sha256-pairwise-sub-mapper",
-            "saml-user-attribute-mapper",
             "oidc-usermodel-attribute-mapper",
             "oidc-full-name-mapper",
-            "oidc-usermodel-property-mapper"
+            "saml-user-attribute-mapper",
+            "oidc-usermodel-property-mapper",
+            "saml-role-list-mapper",
+            "saml-user-property-mapper"
           ]
         }
       },
