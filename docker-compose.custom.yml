@@ -53,8 +53,9 @@ services:
       - database
       - raster
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start-reload.sh"
     volumes:
+      - ./runtime/eoapi/stac:/app/stac
       - ./dockerfiles/scripts:/tmp/scripts
 
   raster:
@@ -109,8 +110,9 @@ services:
     depends_on:
       - database
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start-reload.sh"
     volumes:
+      - ./runtime/eoapi/raster:/app/raster
       - ./dockerfiles/scripts:/tmp/scripts
 
   vector:
@@ -141,10 +143,11 @@ services:
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start-reload.sh"
     depends_on:
       - database
     volumes:
+      - ./runtime/eoapi/vector:/app/vector
       - ./dockerfiles/scripts:/tmp/scripts
 
   stac-uvicorn:
@@ -181,8 +184,9 @@ services:
       - database
       - raster-uvicorn
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.stac.app:app --host 0.0.0.0 --port 8081"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.stac.app:app --host 0.0.0.0 --port 8081 --reload"
     volumes:
+      - ./runtime/eoapi/stac:/app/stac
       - ./dockerfiles/scripts:/tmp/scripts
 
   raster-uvicorn:
@@ -229,8 +233,9 @@ services:
     depends_on:
       - database
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.raster.app:app --host 0.0.0.0 --port 8082"
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn eoapi.raster.app:app --host 0.0.0.0 --port 8082 --reload"
     volumes:
+      - ./runtime/eoapi/raster:/app/raster
       - ./dockerfiles/scripts:/tmp/scripts
 
   vector-uvicorn:
@@ -259,6 +264,7 @@ services:
     depends_on:
       - database
     volumes:
+      - ./runtime/eoapi/vector:/app/vector
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:

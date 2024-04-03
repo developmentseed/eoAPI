@@ -15,9 +15,9 @@ ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 RUN python -m pip install pip -U
 
-COPY runtime/eoapi/stac /tmp/stac
-RUN python -m pip install /tmp/stac uvicorn
-RUN rm -rf /tmp/stac
+
+COPY runtime/eoapi/stac /app/stac
+RUN pip install -e /app/stac
 
 ENV HOST 0.0.0.0
 ENV PORT 80

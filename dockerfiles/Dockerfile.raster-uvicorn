@@ -17,9 +17,8 @@ RUN python -m pip install pip -U
 
 RUN python -m pip install psycopg[binary,pool]
 
-COPY runtime/eoapi/raster /tmp/raster
-RUN python -m pip install /tmp/raster uvicorn
-RUN rm -rf /tmp/raster
+COPY runtime/eoapi/raster /app/raster
+RUN pip install -e /app/raster
 
 ENV HOST 0.0.0.0
 ENV PORT 80

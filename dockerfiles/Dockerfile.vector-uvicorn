@@ -15,9 +15,8 @@ ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
 
 RUN python -m pip install pip -U
 
-COPY runtime/eoapi/vector /tmp/vector
-RUN python -m pip install /tmp/vector uvicorn
-RUN rm -rf /tmp/vector
+COPY runtime/eoapi/vector /app/vector
+RUN pip install -e /app/vector
 
 ENV HOST 0.0.0.0
 ENV PORT 80
