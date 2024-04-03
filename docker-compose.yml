@@ -1,6 +1,7 @@
-version: "3"
+version: '3'
 
 services:
+
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
   stac-browser:
     build:
@@ -12,7 +13,7 @@ services:
       - stac-fastapi
       - titiler-pgstac
       - database
-
+      
   stac-fastapi:
     # Note:
     # the official ghcr.io/stac-utils/stac-fastapi-pgstac image uses python 3.8 and uvicorn
@@ -30,11 +31,11 @@ services:
       - VARIABLE_NAME=app
       # gunicorn
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=1
+      - WEB_CONCURRENCY=10
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      - WORKERS_PER_CORE=1
+      # - WORKERS_PER_CORE=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      - MAX_WORKERS=10
+      # - MAX_WORKERS=10
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -44,16 +45,12 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-      - KEYCLOAK_REALM=eoapi
-      - KEYCLOAK_HOST=http://localhost:8080
-      - KEYCLOAK_CLIENT_ID=stac-api
-      - KEYCLOAK_INTERNAL_HOST=http://keycloak:8080
     depends_on:
       - database
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start-reload.sh"
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
-      - ./runtime/eoapi/stac:/app/stac
 
   titiler-pgstac:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
@@ -99,7 +96,8 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - database
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
@@ -112,11 +110,11 @@ services:
       - HOST=0.0.0.0
       - PORT=8083
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#web_concurrency
-      - WEB_CONCURRENCY=1
+      - WEB_CONCURRENCY=10
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#workers_per_core
-      - WORKERS_PER_CORE=1
+      # - WORKERS_PER_CORE=1
       # https://github.com/tiangolo/uvicorn-gunicorn-docker#max_workers
-      - MAX_WORKERS=10
+      # - MAX_WORKERS=10
       # Postgres connection
       - POSTGRES_USER=username
       - POSTGRES_PASS=password
@@ -125,7 +123,8 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
+    command:
+      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && /start.sh"
     depends_on:
       - database
     volumes:
