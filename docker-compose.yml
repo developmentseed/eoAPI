@@ -164,6 +164,8 @@ services:
     image: quay.io/jupyter/all-spark-notebook
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8888:8888"
+    environment:
+      JUPYTER_TOKEN: "password"
 
     # Adding pgAdmin service
   pgadmin:
