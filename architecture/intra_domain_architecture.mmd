@@ -1,0 +1,89 @@
+---
+title: USGS Data Mesh PoC Architecture (2024-03-12)
+---
+graph TD
+
+  subgraph Legend["Legend"]
+    direction LR
+    node_four_pillars_legend("`Four Pillars of Data Mesh:
+      - fa:fa-flag-checkered Domain-Oriented Decentralized Data Ownership
+      - fa:fa-barcode Data as a Product
+      - fa:fa-cloud Self-service Data Infrastructure as a Platform
+      - fa:fa-id-card Federated Computational Governance`")
+    %% node_milestones("`GSA PoC Feature Milestone Phases:
+    %%  1. fa:fa-dice-one February 2024
+    %%  2. fa:fa-dice-two March 2024
+    %% 3. fa:fa-dice-three April 2024`")
+    node_readme("`Hover over/click boxes for links to definitions.`")
+  end
+
+  subgraph Data_Mesh_Intra_Domain_Server["Intra-agency \"Data Commons\" (a node in the 3DEP Data Mesh Ecosystem)"]
+  %%direction TD
+    %%subgraph Description["Description"]
+    %%  node_description_01["<br>A dynamic STAC catalog<br>server for each domain<br>"]
+    %%end
+    subgraph Components["Server Components (Docker composed together)"]
+      direction LR
+      node_component_stac_backend["`**Intra-agency STAC Catalog** fa:fa-flag-checkered
+        - implemented via pgSTAC/PostGIS fa:fa-database`"]
+      node_component_stac_api["`**STAC API** fa:fa-barcode
+        - Real-time, dynamic querying, filtering, and retrieval of data
+        - provides RESTful interface to intra-agency STAC catalog
+        - implemented via Python/FastAPI`"]
+      node_component_stac_browser["`**STAC Browser** fa:fa-barcode
+        - Browser-based data discovery tool
+        - Search for data products both internal and external to local STAC catalog
+        - Kick off new processing workflows with search results`"]
+      node_component_jupyterhub["`**JupyterHub** fa:fa-cloud
+        - Can receive discovered search results as input with blank workspace
+        - Example Jupyter notebooks provided
+        - 3DEP libraries preinstalled (Entwine, PDAL, GDAL)`"]
+        %% - long-term: Databricks, or Pangeo Cloud Federation JupyterHub Kubernetes`"]
+      node_component_stac_backend & node_component_stac_browser ~~~ node_component_stac_api & node_component_jupyterhub
+    end
+    subgraph Deployment
+      node_deployment_iac_01["`**Terraform script** fa:fa-cloud
+      - Allocates cloud compute, storage, security groups.`"]
+      node_deployment_initialize_01["`**Domain Initialization** fa:fa-cloud
+      - Via Dockerfile RUN commands
+      - Initial setup/ingest of static resources
+      - Optionally regester this Data Commons instance with catalog server
+      - Or manually add other external Data Commons for data discovery`"]
+    end
+    %%    - Core API endpoints: Item, Catalog, Collection
+    %%    - API extensions: Query, Sort, Fields,
+    %%      Transaction, Collection-Transaction
+    subgraph API_Endpoint_1_Register["GSA PoC Customization of STAC API: RegisterDataProduct()"]
+      direction TB
+      node_API_transaction_endpoint_baseline["`**Baseline API endpoint definition:**
+      - STAC API Extension Endpoint 'Transaction'
+      - Supports HTTP methods POST, PUT, PATCH, DELETE
+      - Input body: 'STAC Item' GeoJSON Feature augmented with 'Foreign Members'`"]
+      node_API_customization1_id["`**GSA Customization 1:
+      Self-reported ID** fa:fa-id-card
+      OAuth2/IAM/AD/ID.me (Stub for PoC)`"]
+      node_API_customization2_provenance["`**GSA Customization 2:
+      Provenance** fa:fa-barcode
+      - Enforce existence of 'Link' object of relation type='derived_from'
+      - could be upstream data service endpoint URL, filename, REST API call, GUI-based map service, etc`"]
+      node_API_customization3_data_product_info["`**GSA Customization 3:
+      Data Product Info** fa:fa-barcode
+      - Jupyter notebook filename/URL (register new notebook now?)
+      - Source code has to be referenceable
+      - Plain language description
+      - return value type of data product (Stub for PoC)`"]
+      node_API_transaction_endpoint_baseline ~~~ node_API_customization1_id & node_API_customization2_provenance & node_API_customization3_data_product_info
+    end
+    %%Description & Components & Deployment ~~~ API_Endpoint_1_Register
+    Deployment & Components ~~~ API_Endpoint_1_Register
+  end
+  classDef default text-align:left,clear:both
+  %%classDef widebox width:400px
+  click node_component_stac_backend "https://github.com/stac-utils/pgstac" _blank
+  click node_component_stac_api "https://github.com/stac-utils/stac-fastapi-pgstac" _blank
+  click node_component_stac_browser "https://github.com/radiantearth/stac-browser" _blank
+  click node_component_jupyterhub "https://github.com/pangeo-data/pangeo-cloud-federation" _blank
+  click node_API_transaction_endpoint_baseline "https://stac-api-extensions.github.io/" _blank
+  click node_API_customization2_provenance "https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md#link-object" _blank
+
+%% On the catalog of catalogs API endpoint extension to see users/or domains participating in the mesh
