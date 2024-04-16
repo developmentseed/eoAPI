@@ -2,28 +2,32 @@
 
 This project inherits from [developmentseed/eoAPI](https://github.com/developmentseed/eoAPI) and provides some customizations for the demo. See also their [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) Infrastructure-as-Code implementation specific to the AWS platform.
 
-# Microservices provided
+## Microservices provided
 
-## STAC
+### STAC
 Dynamic Spatiotemporal Asset Catalog for geospatial metadata provided by pgSTAC ([docs](https://stac-utils.github.io/pgstac/pgstac/), [github](https://github.com/stac-utils/pgstac))
 
-## STAC API
-REST API endpoint provided by [stac-fastapi-pgstac](https://github.com/stac-utils/stac-fastapi-pgstac) with multiple [STAC API extensions](https://stac-api-extensions.github.io/) enabled including:
-* [Transaction](https://github.com/stac-api-extensions/transaction) supports the creation, editing, and deleting of items through POST, PUT, PATCH, and DELETE requests.
+### STAC API
+REST API endpoint provided by the [stac-fastapi](https://github.com/stac-utils/stac-fastapi) Python library with the following [STAC API extensions](https://stac-api-extensions.github.io/) enabled:
+* [Transaction](https://github.com/stac-api-extensions/transaction) supports the creation, editing, and deleting of STAC Items through POST, PUT, PATCH, and DELETE requests.
+* [Collection Transaction](https://github.com/stac-api-extensions/collection-transaction) does the same for Collections.
 * [Filter](https://github.com/stac-api-extensions/filter) provides an expressive mechanism for searching based on Item attributes.
 * [Query](https://github.com/stac-api-extensions/query) adds a query parameter that allows additional filtering based on the properties of Item objects.
 * [Sort](https://github.com/stac-api-extensions/sort) allows the user to define the fields by which to sort results.
 * [Fields](https://github.com/stac-api-extensions/fields) describes a mechanism to include or exclude certain fields from a response.
+* [Context](https://github.com/stac-api-extensions/context) gives more information about the number of items returned when performing a search versus the number of item that may match the search term but were not returned.
 
-## STAC Browser
-* Front end to discover data products
-* Limited front end changes to base product-UI to facilitate data mesh-style self-service data infrastructure.
+The API negotiates with the pgSTAC backend via the [stac-fastapi-pgstac](https://github.com/stac-utils/stac-fastapi-pgstac) Python library.
 
-## JupyterHub
+### STAC Browser
+* Vue.js front end to discover data products.
+* Demo should include limited front end changes to base UI to facilitate data mesh-style self-service data infrastructure workflow.
+
+### JupyterHub
 * Example notebooks provided to work with 3D elevation data as well as the other services provided.
 
-# Possble TBD features For Phase 2 
-## Authentication
+## Possble TBD features For Phase 2 
+### Authentication
 * If assets are locked behind paywall/firewall, the [Authentication](https://github.com/stac-extensions/authentication) STAC extension can be used (N.B. this is different from the STAC API extension below). This extension adds fields to STAC Items and STAC Catalogs to define authentication or authorization flows used to access Assets and Links behind security.
 * If you want to enable authentication within the STAC API to restrict the ability to write to the catalog to specific individuals/roles within the context of the API, the Development Seed team recommends securing applications by using JWTs as explained in [this technical article](https://alukach.com/posts/fastapi-rs256-jwt/)
 
