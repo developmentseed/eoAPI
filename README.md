@@ -1,20 +1,19 @@
 # GSA CoE Data Mesh Proof of Concept for USGS 3D Elevation Program (3DEP)
 
-This project inherits from (developmentseed/eoAPI)[https://github.com/developmentseed/eoAPI] and provides some customizations for the demo. See also their (https://github.com/developmentseed/eoapi-cdk)[eoapi-cdk] Infrastructure-as-Code implementation specific to the AWS platform.
+This project inherits from [developmentseed/eoAPI](https://github.com/developmentseed/eoAPI) and provides some customizations for the demo. See also their [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) Infrastructure-as-Code implementation specific to the AWS platform.
 
 # Microservices provided
 
 ## STAC
-Dynamic Spatiotemporal Asset Catalog for geospatial metadata provided by pgSTAC ((https://stac-utils.github.io/pgstac/pgstac/)[docs], (https://github.com/stac-utils/pgstac)[github])
+Dynamic Spatiotemporal Asset Catalog for geospatial metadata provided by pgSTAC ([docs](https://stac-utils.github.io/pgstac/pgstac/), [github](https://github.com/stac-utils/pgstac))
 
 ## STAC API
-REST API endpoint provided by (https://github.com/stac-utils/stac-fastapi)[stac-fastapi-pgstac] with multiple STAC API extensions enabled including:
-* (https://github.com/stac-api-extensions/transaction)[Transaction] supports the creation, editing, and deleting of items through POST, PUT, PATCH, and DELETE requests.
-* (https://github.com/stac-api-extensions/filter)[Filter] provides an expressive mechanism for searching based on Item attributes.
-* (https://github.com/stac-api-extensions/query)[Query] adds a query parameter that allows additional filtering based on the properties of Item objects.
-* (https://github.com/stac-api-extensions/sort)[Sort] allows the user to define the fields by which to sort results.
-* (https://github.com/stac-api-extensions/fields)[Fields] describes a mechanism to include or exclude certain fields from a response.
-* (https://github.com/stac-api-extensions/context)[Context] gives more information about the number of items returned when performing a search versus the number of item that may match the search term but were not returned.
+REST API endpoint provided by [stac-fastapi-pgstac](https://github.com/stac-utils/stac-fastapi-pgstac) with multiple [STAC API extensions](https://stac-api-extensions.github.io/) enabled including:
+* [Transaction](https://github.com/stac-api-extensions/transaction) supports the creation, editing, and deleting of items through POST, PUT, PATCH, and DELETE requests.
+* [Filter](https://github.com/stac-api-extensions/filter) provides an expressive mechanism for searching based on Item attributes.
+* [Query](https://github.com/stac-api-extensions/query) adds a query parameter that allows additional filtering based on the properties of Item objects.
+* [Sort](https://github.com/stac-api-extensions/sort) allows the user to define the fields by which to sort results.
+* [Fields](https://github.com/stac-api-extensions/fields) describes a mechanism to include or exclude certain fields from a response.
 
 ## STAC Browser
 * Front end to discover data products
@@ -25,8 +24,8 @@ REST API endpoint provided by (https://github.com/stac-utils/stac-fastapi)[stac-
 
 # Possble TBD features For Phase 2 
 ## Authentication
-* If assets are locked behind paywall/firewall, the (https://github.com/stac-extensions/authentication)[Authentication] STAC extension can be used (N.B. this is different from the STAC API extension below). This extension adds fields to STAC Items and STAC Catalogs to define authentication or authorization flows used to access Assets and Links behind security.
-* If you want to enable authentication within the STAC API to restrict the ability to write to the catalog to specific individuals/roles within the context of the API, the Development Seed team recommends securing applications by using JWTs as explained in (https://alukach.com/posts/fastapi-rs256-jwt/)[this technical article]
+* If assets are locked behind paywall/firewall, the [Authentication](https://github.com/stac-extensions/authentication) STAC extension can be used (N.B. this is different from the STAC API extension below). This extension adds fields to STAC Items and STAC Catalogs to define authentication or authorization flows used to access Assets and Links behind security.
+* If you want to enable authentication within the STAC API to restrict the ability to write to the catalog to specific individuals/roles within the context of the API, the Development Seed team recommends securing applications by using JWTs as explained in [this technical article](https://alukach.com/posts/fastapi-rs256-jwt/)
 
 
 Original eoAPI README below:
