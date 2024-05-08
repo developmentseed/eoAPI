@@ -1,5 +1,3 @@
-version: '3'
-
 services:
 
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
@@ -131,7 +129,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    image: ghcr.io/stac-utils/pgstac:v0.8.1
+    image: ghcr.io/stac-utils/pgstac:v0.8.2
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
