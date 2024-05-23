@@ -101,17 +101,17 @@ python -m pip install uvicorn
 ###############################################################################
 # STAC
 python -m pip install "psycopg[binary,pool]" stac-fastapi-pgstac
-.venv/bin/uvicorn stac_fastapi.pgstac.app:app --port 8081 --reload
+python -m uvicorn stac_fastapi.pgstac.app:app --port 8081 --reload
 
 ###############################################################################
 # RASTER
 python -m pip install "psycopg[binary,pool]" titiler-pgstac
-.venv/bin/uvicorn titiler.pgstac.main:app --port 8082 --reload
+python -m uvicorn titiler.pgstac.main:app --port 8082 --reload
 
 ###############################################################################
 # VECTOR
 python -m pip install tipg
-.venv/bin/uvicorn tipg.main:app --port 8083 --reload
+python -m uvicorn tipg.main:app --port 8083 --reload
 ```
 
 !!! danger
