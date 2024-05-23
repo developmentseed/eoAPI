@@ -3,7 +3,7 @@ The **eoapi-devseed** repository (https://github.com/developmentseed/eoapi-devse
 ---
 ## eoapi.stac
 
-Built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
+Built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi-pgstac) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
 
 The service includes:
 
