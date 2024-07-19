@@ -4,9 +4,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/developmentseed/eoAPI/actions?query=workflow%3ACI" target="_blank">
-      <img src="https://github.com/developmentseed/eoAPI/workflows/CI/badge.svg" alt="Test">
-  </a>
   <a href="https://github.com/developmentseed/eoAPI/blob/main/LICENSE" target="_blank">
       <img src="https://img.shields.io/github/license/developmentseed/titiler.svg" alt="Downloads">
   </a>
@@ -63,15 +60,11 @@ Then you can start exploring your dataset with:
 
 If you've added a vector dataset to the `public` schema in the Postgres database, they will be available through the **Vector** service at [http://localhost:8083](http://localhost:8083).
 
-## Deployment with standard runtimes
-
-This repository has current runtimes that are consistently updated with new functionality.
-
 ### Local deployment
 
 The services can be deployed altogether locally with `docker compose up`.
 
-Alternatively, you may install the libraries and launch the applications manually: 
+Alternatively, you may install the libraries and launch the applications manually:
 
 <details>
 
@@ -91,17 +84,17 @@ python -m pip install uvicorn
 ###############################################################################
 # STAC
 python -m pip install "psycopg[binary,pool]" stac-fastapi-pgstac
-.venv/bin/uvicorn stac_fastapi.pgstac.app:app --port 8081 --reload
+python -m uvicorn stac_fastapi.pgstac.app:app --port 8081 --reload
 
 ###############################################################################
 # RASTER
 python -m pip install "psycopg[binary,pool]" titiler-pgstac
-.venv/bin/uvicorn titiler.pgstac.main:app --port 8082 --reload
+python -m uvicorn titiler.pgstac.main:app --port 8082 --reload
 
 ###############################################################################
 # VECTOR
 python -m pip install tipg
-.venv/bin/uvicorn tipg.main:app --port 8083 --reload
+python -m uvicorn tipg.main:app --port 8083 --reload
 ```
 
 Note: Python libraries might have incompatible dependencies, which you can resolve by using a virtual environment for each one.
@@ -110,47 +103,23 @@ Note: Python libraries might have incompatible dependencies, which you can resol
 
 ### Deployment on the cloud
 
-#### Kubernetes 
+#### Kubernetes
 
 [eoapi-k8s](https://github.com/developmentseed/eoapi-k8s) contains IaC and Helm charts for deploying eoAPI services on AWS and GCP.
 
 #### AWS CDK
 
-[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) defines a set of AWS CDK constructs that can be used to deploy eoAPI services on AWS. This repository itself makes use of these in `infrastructure/aws`. An official example usage of these constructs can be found at [eoapi-template](https://github.com/developmentseed/eoapi-template).
-
+[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) defines a set of AWS CDK constructs that can be used to deploy eoAPI services on AWS. An official example usage of these constructs can be found at [eoapi-template](https://github.com/developmentseed/eoapi-template).
 
 
 ## Deployment with custom runtimes
 
-The eoAPI repository hosts customized versions of each base service which can work in parallel or in combination with each other.
-
-eoAPI custom runtimes can be launched with docker:
-
-```
-docker compose -f docker-compose.custom.yml --profile gunicorn up
-```
-
-Alternatively, you may launch the application locally:
-```bash
-python -m pip install --upgrade virtualenv
-virtualenv .venv
-source .venv/bin/activate
-
-python -m pip install "psycopg[binary,pool]" uvicorn
-python -m pip install runtime/eoapi/{SERVICE}  # SERVICE should be one of `raster, vector, stac.`
-
-export DATABASE_URL=postgresql://username:password@0.0.0.0:5439/postgis  # Connect to the database of your choice
-
-.venv/bin/uvicorn eoapi.{SERVICE}.app:app --port 8000 --reload
-```
-
-Note: services might have incompatible dependencies, which you can resolve by using a virtual environment for each service.
+An example of custom eoAPI runtimes and deployment can be found at [eoapi-devseed](https://github.com/developmentseed/eoapi-devseed).
 
 ## Contribution & Development
 
 We highly value and rely on our community! You can make a difference whether you're an expert or just getting started. Here's how:
 
-- **Contribute**: Check out our [CONTRIBUTING.md](https://github.com/developmentseed/eoAPI/blob/main/CONTRIBUTING.md) guide to understand how you can contribute.
 - **Engage in Discussions**: Share your ideas, ask questions, or provide feedback through [GitHub Discussions](https://github.com/developmentseed/eoAPI/discussions). This is where most of our project conversations take place.
 - **Report Issues**: Found a bug or have a feature request? Raise it on our [issues page](https://github.com/developmentseed/eoAPI/issues).
 
@@ -166,7 +135,3 @@ For full license details, see [LICENSE](https://github.com/developmentseed/eoAPI
 Nurtured by [Development Seed](<http://developmentseed.org>)
 
 See [contributors](https://github.com/developmentseed/eoAPI/graphs/contributors) for a listing of individual contributors.
-
-## Changes
-
-See [CHANGES.md](https://github.com/developmentseed/eoAPI/blob/main/CHANGES.md).

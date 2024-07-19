@@ -1,9 +1,9 @@
-The eoAPI repository (https://github.com/developmentseed/eoAPI) hosts customized versions of each base service. The documentation below demonstrates how each service can be customized. The eoAPI services can work in parallel or in combination with each other.
+The **eoapi-devseed** repository (https://github.com/developmentseed/eoapi-devseed) hosts customized versions of each base service. The documentation below demonstrates how each service can be customized. The eoAPI services can work in parallel or in combination with each other.
 
 ---
 ## eoapi.stac
 
-Built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
+Built on [stac-fastapi.pgstac](https://github.com/stac-utils/stac-fastapi-pgstac) application, adding a **`TiTilerExtension`** and a simple **`Search Viewer`**.
 
 The service includes:
 
@@ -11,7 +11,7 @@ The service includes:
 - Simple STAC Search **viewer** - see [viewer](http://localhost:8081/index.html) if using the `docker-compose` configuration.
 - **Proxy** to the tiler endpoint for STAC Items.
 
-When the `TITILER_ENDPOINT` environment variable is set (pointing to the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoAPI/blob/main/src/eoapi/stac/eoapi/stac/extension.py)):
+When the `TITILER_ENDPOINT` environment variable is set (pointing to the `raster` application), additional endpoints will be added to the stac-fastapi application (see: [stac/extension.py](https://github.com/developmentseed/eoapi-devseed/blob/main/runtimes/eoapi/stac/eoapi/stac/extension.py)):
 
 - `/collections/{collectionId}/items/{itemId}/tilejson.json`: Return the `raster` tilejson for an item
 - `/collections/{collectionId}/items/{itemId}/viewer`: Redirect to the `raster` viewer
@@ -21,12 +21,12 @@ When the `TITILER_ENDPOINT` environment variable is set (pointing to the `raster
 <img alt="Metadata STAC search viewer" src="https://github.com/developmentseed/eoAPI/assets/10407788/b1fd6aa8-aab9-4d58-9ad4-6e1069ed9473"/>
 </p>
 
-Code: [/runtime/eoapi/stac](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/stac)
+Code: [/runtimes/eoapi/stac](https://github.com/developmentseed/eoapi-devseed/tree/main/runtimes/eoapi/stac)
 
 ---
 ## eoapi.raster
 
-The dynamic tiler deployed within `eoAPI` is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large-scale mosaic based on the results of STAC search queries.
+The dynamic tiler deployed within `eoapi-devseed` is built on top of [titiler-pgstac](https://github.com/stac-utils/titiler-pgstac) and [pgstac](https://github.com/stac-utils/pgstac). It enables large-scale mosaic based on the results of STAC search queries.
 
 The service includes all the default endpoints from **titiler-pgstac** application and:
 
@@ -45,7 +45,7 @@ The service includes all the default endpoints from **titiler-pgstac** applicati
 </p>
 
 
-Code: [/runtime/eoapi/raster](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/raster)
+Code: [/runtimes/eoapi/raster](https://github.com/developmentseed/eoapi-devseed/tree/main/runtimes/eoapi/raster)
 
 ---
 ## eoapi.vector
@@ -63,9 +63,9 @@ By default, the API will look for tables in the `public` schema of the database.
 <img alt="eoapi.vector landing page" src="https://github.com/developmentseed/eoAPI/assets/10407788/b2a8a8d4-d3a1-464a-8b1a-166499ee4abd">
 </p>
 
-Code: [/runtime/eoapi/vector](https://github.com/developmentseed/eoAPI/tree/main/runtime/eoapi/vector)
+Code: [/runtimes/eoapi/vector](https://github.com/developmentseed/eoapi-devseed/tree/main/runtimes/eoapi/vector)
 
 --
 # STAC browser
 
-The custom browser configuration can be modified using the config located in [/dockerfiles/browser_config.js](https://github.com/developmentseed/eoAPI/tree/main/dockerfiles/browser_config.js). For more information about available configurations, see the [Radiant Earth repository](https://github.com/radiantearth/stac-browser).
+The custom browser configuration can be modified using the config located in [/dockerfiles/browser_config.js](https://github.com/developmentseed/eoapi-devseed/blob/main/dockerfiles/browser_config.js). For more information about available configurations, see the [Radiant Earth repository](https://github.com/radiantearth/stac-browser).

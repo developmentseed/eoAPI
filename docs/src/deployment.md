@@ -7,7 +7,7 @@ hide:
 ## Via [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk)
 
 
-[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) is a set of AWS CDK constructs that can be used to easily deploy eoAPI services on AWS with the CDK. 
+[eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) is a set of AWS CDK constructs that can be used to easily deploy eoAPI services on AWS with the CDK.
 
 [eoapi-template](https://github.com/developmentseed/eoapi-template) is an AWS CDK app that shows how to configure the [eoapi-cdk](https://github.com/developmentseed/eoapi-cdk) constructs.
 
@@ -20,73 +20,67 @@ The example commands here will deploy a CloudFormation stack called `eoAPI-stagi
 1. Clone the `eoapi` repo and install dependencies
     ```bash
     # Download eoapi repo
-    git clone https://github.com/developmentseed/eoapi.git
+    git clone https://github.com/developmentseed/eoapi-template.git
+    cd eoapi-template
 
     # Create a virtual environment
-    python -m pip install --upgrade virtualenv
-    virtualenv infrastructure/aws/.venv
-    source infrastructure/aws/.venv/bin/activate
+    python -m venv .venv
+    source .venv/bin/activate
 
     # install cdk dependencies
-    python -m pip install -r infrastructure/aws/requirements-cdk.txt
+    python -m pip install -r requirements.txt
     ```
 
 2. Install node dependency - requires node version 14+
     ```bash
-    npm --prefix infrastructure/aws install
+    npm install
     ```
 
 3. Update settings
 
-    Set environment variable or complex code in the `infrastructure/aws/.env` file (e.g., `CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1`).
+    Set environment variable or complex code in the `.env` or `config.yaml` file (e.g., https://github.com/developmentseed/eoapi-template/blob/main/config.yaml.example).
 
-    To modify the size of the burstable database instance, modify `CDK_EOAPI_DB_INSTANCE_SIZE` to one of the values of [`aws_cdk.aws_ec2.InstanceSize`](https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_ec2/InstanceSize.html#instancesize).
-    The default size is `SMALL`.
-
-    **Important**:
-
-      - `CDK_EOAPI_DB_PGSTAC_VERSION` is a required env (see https://github.com/stac-utils/pgstac/tags for the latest version)
-
-      - You can choose which functions to deploy by setting `CDK_EOAPI_FUNCTIONS` env (e.g., `CDK_EOAPI_FUNCTIONS='["stac","raster","vector"]'`)
+    See https://github.com/developmentseed/eoapi-template/blob/main/infrastructure/config.py for more info on the configuration options.
 
 
-4. Install CDK and connect to your AWS account. This step is only necessary once per AWS account. The environment variable `CDK_EOAPI_STAGE` determines the name of the stack
+4. Install CDK and connect to your AWS account. This step is only necessary once per AWS account. The environment variables `PROJECT_ID` and `STAGE` determines the name of the stack
 (e.g., eoAPI-staging or eoAPI-production)
     ```bash
     # Deploy the CDK toolkit stack into an AWS environment.
-    CDK_EOAPI_STAGE=staging \
-    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
-    npm --prefix infrastructure/aws run cdk -- bootstrap
+    PROJECT_ID=eoAPI \
+    STAGE=staging \
+    npx cdk bootstrap
 
     # or to a specific region
     AWS_DEFAULT_REGION=us-west-2 \
     AWS_REGION=us-west-2 \
-    CDK_EOAPI_STAGE=staging \
-    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
-    npm --prefix infrastructure/aws run cdk -- bootstrap
+    PROJECT_ID=eoAPI \
+    STAGE=staging \
+    npx cdk bootstrap
     ```
 
 5. Pre-Generate CFN template
 
     ```bash
-    CDK_EOAPI_STAGE=staging \
-    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
-    npm --prefix infrastructure/aws run cdk -- synth  # Synthesizes and prints the CloudFormation template for this stack
+    PROJECT_ID=eoAPI \
+    STAGE=staging \
+    npx cdk synth --all  # Synthesizes and prints the CloudFormation template for this stack
     ```
 
 6. Deploy
 
     ```bash
-    CDK_EOAPI_STAGE=staging \
-    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
-    npm --prefix infrastructure/aws run cdk -- deploy eoAPI-staging
+    # Note: a VPC stack is needed for the database
+    PROJECT_ID=eoAPI \
+    STAGE=staging \
+    npx cdk deploy vpceoAPI-staging eoAPI-staging
 
     # Deploy in a specific region
     AWS_DEFAULT_REGION=eu-central-1 \
     AWS_REGION=eu-central-1 \
-    CDK_EOAPI_STAGE=staging \
-    CDK_EOAPI_DB_PGSTAC_VERSION=0.7.1 \
-    npm --prefix infrastructure/aws run cdk -- deploy eoapi-staging --profile {my-aws-profile}
+    PROJECT_ID=eoAPI \
+    STAGE=staging \
+    npx cdk deploy vpceoAPI-staging eoAPI-stagingg --profile {my-aws-profile}
     ```
 
 If you get an error saying that the max VPCs have been reached, you have hit the limit for the number of VPCs per unique AWS account and region combination. You can change the AWS region to a region with fewer VPCs and deploy again to fix this.
