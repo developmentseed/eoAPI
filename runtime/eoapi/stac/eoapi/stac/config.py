@@ -22,6 +22,7 @@ class _ApiSettings(pydantic.BaseSettings):
         "fields",
         "pagination",
         "context",
+        "transaction",
     ]
 
     @pydantic.validator("cors_origins")

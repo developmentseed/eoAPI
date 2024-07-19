@@ -40,6 +40,10 @@ test = [
     "pytest-asyncio",
     "httpx",
 ]
+jwt = [
+    "pyjwt",
+    "cryptography"
+]
 
 [build-system]
 requires = ["pdm-pep517"]

@@ -1,0 +1,57 @@
+{
+  "realm": "eoapi",
+  "users": [
+    {
+      "id": "59c5407b-6280-48b6-ae19-64fe593089c7",
+      "username": "alice",
+      "firstName": "Alice",
+      "lastName": "de Admin",
+      "email": "alice@example.com",
+      "emailVerified": true,
+      "createdTimestamp": 1712037625377,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "78736ca9-4091-434f-a6cd-cd42834f6b40",
+          "type": "password",
+          "userLabel": "Super insecure password",
+          "createdDate": 1712038488886,
+          "secretData": "{\"value\":\"l8IN1eQ+y+F/BSJ9joEayhaGlQkL/peHedxs/mUNnjWbR/16wTl7VJHXzTJ00A7X9ufyeh0ytRFuC+wLtIy/Kg==\",\"salt\":\"26MxYn2HeZIQPdiszZz7Cg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-eoapi"],
+      "notBefore": 0,
+      "groups": ["/Admins"]
+    },
+    {
+      "id": "ebe7613f-377e-416d-9ef5-c990c5ddbe66",
+      "username": "bob",
+      "firstName": "Bob",
+      "lastName": "Dubois",
+      "email": "bob@example.com",
+      "emailVerified": true,
+      "createdTimestamp": 1712037633309,
+      "enabled": true,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "d0068d70-f38d-4b16-b431-359ac37fca4e",
+          "type": "password",
+          "userLabel": "Super insecure password",
+          "createdDate": 1712038506484,
+          "secretData": "{\"value\":\"Zq6E843f5+pcCcznbh82JHPgy634GWhYFHfc74mVJc23mlVEmwslkBPT+czD7+fa5InyGWLPza5M1nX6FISYbA==\",\"salt\":\"ERYVR7EUVeqHywNi5wKMTA==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["default-roles-eoapi"],
+      "notBefore": 0,
+      "groups": []
+    }
+  ]
+}
