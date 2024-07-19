@@ -69,13 +69,13 @@ It enables Raster visualization for a single STAC **Item** and large-scale (mult
 
     **Mosaic endpoints**
 
-    - https://raster.eoapi.dev/mosaic/list list pre-registered Virtual Mosaics
+    - https://raster.eoapi.dev/searches/list list pre-registered Virtual Mosaics
 
-    - https://raster.eoapi.dev/mosaic/ebe10c878834f8319311ad47e2472f3b/info get information about the `ebe10c878834f8319311ad47e2472f3b` mosaic
+    - https://raster.eoapi.dev/searches/2f3073257a5b6530aedbb0e4b4f726fa/info get information about the `2f3073257a5b6530aedbb0e4b4f726fa` mosaic
 
-    - https://raster.eoapi.dev/mosaic/ebe10c878834f8319311ad47e2472f3b/map?assets=visual&minzoom=12&maxzoom=19 show the `ebe10c878834f8319311ad47e2472f3b` mosaic and using the `visual` **Asset** on a Map client
+    - https://raster.eoapi.dev/searches/2f3073257a5b6530aedbb0e4b4f726fa/map?assets=visual&minzoom=12&maxzoom=19 show the `2f3073257a5b6530aedbb0e4b4f726fa` mosaic and using the `visual` **Asset** on a Map client
 
-    - https://raster.eoapi.dev/mosaic/ebe10c878834f8319311ad47e2472f3b/tilejson.json?assets=visual&minzoom=12&maxzoom=19 get a TileJSON document for the `ebe10c878834f8319311ad47e2472f3b` mosaic and using the `visual` **Asset**
+    - https://raster.eoapi.dev/searches/2f3073257a5b6530aedbb0e4b4f726fa/tilejson.json?assets=visual&minzoom=12&maxzoom=19 get a TileJSON document for the `2f3073257a5b6530aedbb0e4b4f726fa` mosaic and using the `visual` **Asset**
 
 ---
 
@@ -97,17 +97,17 @@ It enables vector Features/Features Collection exploration and visualization for
 
     - https://vector.eoapi.dev/collections list available **Tables** or **Function Layers**
 
-    - https://vector.eoapi.dev/collections/public.landsat_wrs get information about the `landsat_wrs` Table
+    - https://vector.eoapi.dev/collections/public.countries get information about the `countries` Table
 
-    - https://vector.eoapi.dev/collections/public.landsat_wrs/items list items for the `landsat_wrs` Table
+    - https://vector.eoapi.dev/collections/public.countries/items list items for the `countries` Table
 
     **OGC Tiles**
 
-    - https://vector.eoapi.dev/collections/public.landsat_wrs/tiles list all TileSet available for the `landsat_wrs` Table
+    - https://vector.eoapi.dev/collections/public.countries/tiles list all TileSet available for the `countries` Table
 
-    - https://vector.eoapi.dev/collections/public.landsat_wrs/tiles/WebMercatorQuad get `WebMercatorQuad` TileSet information for the `landsat_wrs` Table
+    - https://vector.eoapi.dev/collections/public.countries/tiles/WebMercatorQuad get `WebMercatorQuad` TileSet information for the `countries` Table
 
-    - https://vector.eoapi.dev/collections/public.landsat_wrs/viewer shows the `landsat_wrs` Table on a Map client using vector tiles
+    - https://vector.eoapi.dev/collections/public.countries/viewer shows the `countries` Table on a Map client using vector tiles
 
     - https://vector.eoapi.dev/tileMatrixSets/WebMercatorQuad `WebMercatorQuad` TileMatrixSet information
 
@@ -124,10 +124,3 @@ The browsing UI deployed in eoAPI is built on [the radiant earth STAC browser](h
 !!! example
 
     - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com landing page
-
-    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com/collections display available **Collection**
-
-    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com/collections/MAXAR_southafrica_flooding22/items display available **Items** for the `MAXAR_southafrica_flooding22` collection
-
-    - http://eoapi-dev-stac-browser.s3-website-us-east-1.amazonaws.com/collections/MAXAR_southafrica_flooding22/items/36_213131033000_1040010076566100 show the `36_213131033000_1040010076566100` **Item** in the `MAXAR_southafrica_flooding22` collection and visualize its "visual" asset. 
----
