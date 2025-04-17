@@ -13,7 +13,7 @@ services:
       - database
 
   stac-fastapi:
-    image: ghcr.io/stac-utils/stac-fastapi-pgstac:4.0.1
+    image: ghcr.io/stac-utils/stac-fastapi-pgstac:5.0.2
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
@@ -37,7 +37,7 @@ services:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
-    image: ghcr.io/stac-utils/titiler-pgstac:1.7.0
+    image: ghcr.io/stac-utils/titiler-pgstac:1.7.2
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
@@ -74,7 +74,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   tipg:
-    image: ghcr.io/developmentseed/tipg:0.9.0
+    image: ghcr.io/developmentseed/tipg:1.0.1
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
@@ -94,7 +94,7 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    image: ghcr.io/stac-utils/pgstac:v0.9.2
+    image: ghcr.io/stac-utils/pgstac:v0.9.6
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
