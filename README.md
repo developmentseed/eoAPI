@@ -15,6 +15,11 @@
 
 **Source Code**: <a href="https://github.com/developmentseed/eoAPI" target="_blank">https://github.com/developmentseed/eoAPI</a>
 
+> [!IMPORTANT] 
+> **We would :heart: to hear from you!**
+> Please [join the discussion](https://github.com/developmentseed/eoAPI/discussions/209) and let us know how you're using eoAPI! This helps us improve the project for you and others.
+> If you prefer to remain anonymous, you can email us at [eoapi@developmentseed.org](mailto:eoapi@developmentseed.org), and we’ll be happy to post a summary on your behalf.
+
 ---
 
 ## **E**arth **O**bservation **API**
