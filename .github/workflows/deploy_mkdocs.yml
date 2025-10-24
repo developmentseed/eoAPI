@@ -11,6 +11,10 @@ on:
       - 'CONTRIBUTING.md'
       - 'docs/**'
       - '.github/workflows/deploy_mkdocs.yml'
+  workflow_dispatch:  # Allow manual triggering
+  schedule:
+    # Run daily at 6 AM UTC to check for updates in eoapi-k8s docs
+    - cron: '0 6 * * *'
 
 jobs:
   build:
@@ -19,6 +23,51 @@ jobs:
     steps:
       - name: Checkout main
         uses: actions/checkout@v3
+
+      - name: Checkout eoapi-k8s docs
+        uses: actions/checkout@v3
+        with:
+          repository: developmentseed/eoapi-k8s
+          path: eoapi-k8s-temp
+          ref: main
+
+      - name: Setup Kubernetes docs directory
+        run: |
+          mkdir -p docs/src/deployment/kubernetes
+
+          if [ -f "eoapi-k8s-temp/docs/docs-config.json" ]; then
+            echo "Using docs-config.json for structured documentation sync"
+
+            find eoapi-k8s-temp/docs -name "*.md" -not -name "README.md" \
+              -exec cp {} docs/src/deployment/kubernetes/ \;
+
+            ASSETS_DIR=$(grep -o '"assets_dir": *"[^"]*"' eoapi-k8s-temp/docs/docs-config.json | cut -d'"' -f4)
+            if [ -n "$ASSETS_DIR" ] && [ -d "eoapi-k8s-temp/docs/$ASSETS_DIR" ]; then
+              cp -r "eoapi-k8s-temp/docs/$ASSETS_DIR" docs/src/deployment/kubernetes/
+            fi
+
+            find eoapi-k8s-temp/docs -name "*.svg" \
+              -exec cp {} docs/src/deployment/kubernetes/ \;
+          else
+            echo "Fallback: copying all documentation files"
+
+            find eoapi-k8s-temp/docs -name "*.md" \
+              -exec cp {} docs/src/deployment/kubernetes/ \;
+            if [ -d "eoapi-k8s-temp/docs/images" ]; then
+              cp -r eoapi-k8s-temp/docs/images docs/src/deployment/kubernetes/
+            fi
+            find eoapi-k8s-temp/docs -name "*.svg" \
+              -exec cp {} docs/src/deployment/kubernetes/ \;
+          fi
+
+          cat >> docs/src/deployment/kubernetes/index.md << EOF
+
+          ---
+
+          *Documentation last synchronized: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
+          EOF
+
+          rm -rf eoapi-k8s-temp
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v4
