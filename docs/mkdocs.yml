@@ -29,7 +29,23 @@ nav:
     - Contributing: contributing.md
   - Advanced User Guide:
     - Customization: customization.md
-  - Deployment: deployment.md
+  - Deployment:
+    - deployment.md
+    - Kubernetes:
+      - Overview: deployment/kubernetes/index.md
+      - Installation:
+        - Quick Start: deployment/kubernetes/quick-start.md
+        - Helm Install: deployment/kubernetes/helm-install.md
+        - Configuration: deployment/kubernetes/configuration.md
+      - Operations:
+        - Manage Data: deployment/kubernetes/manage-data.md
+        - Autoscaling: deployment/kubernetes/autoscaling.md
+        - Unified Ingress: deployment/kubernetes/unified-ingress.md
+        - STAC Auth Proxy: deployment/kubernetes/stac-auth-proxy.md
+        - Release: deployment/kubernetes/release.md
+    - AWS CDK:
+      - Overview: deployment/aws/index.md
+
 
 plugins:
   - search
