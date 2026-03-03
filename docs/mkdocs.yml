@@ -10,7 +10,7 @@ repo_url: "https://github.com/developmentseed/eoAPI"
 extra:
   analytics:
     provider: plausible
-    domain: eoapi.dev
+    domain: developmentseed.org
   social:
     - icon: "fontawesome/brands/github"
       link: "https://github.com/developmentseed"
