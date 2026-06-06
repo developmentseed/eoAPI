@@ -94,6 +94,9 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
+    # The PgSTAC image does not publish an arm64 manifest for this tag, so run
+    # the amd64 image under emulation on Apple Silicon and other arm64 hosts.
+    platform: linux/amd64
     image: ghcr.io/stac-utils/pgstac:v0.9.6
     environment:
       - POSTGRES_USER=username
