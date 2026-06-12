@@ -6,10 +6,10 @@ collection_json_file="CMIP6_daily_${model}_${variable}_collection.json"
 items_json_file="CMIP6_daily_${model}_${variable}_stac_items.ndjson"
 
 if [ -z "$DATABASE_URL" ]; then
-    username=postgres
+    username=username
     password=password
-    host=localhost
-    dbname=postgres
+    host=database
+    dbname=postgis
     port=5432
     DATABASE_URL="postgresql://$username:$password@$host:$port/$dbname"
 fi

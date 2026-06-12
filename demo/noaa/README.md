@@ -34,7 +34,7 @@ $ aws s3 ls noaa-eri-pds/2020_Nashville_Tornado/20200307a_RGB/ \
             "interval": [
                 [
                     "2005-01-01T00:00:00Z",
-                    "null"
+                    null
                 ]
             ]
         }

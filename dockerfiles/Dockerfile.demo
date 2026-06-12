@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /workspace
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      ca-certificates \
+      git \
+      postgresql-client \
+      unzip \
+      wget \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY demo/requirements.txt /tmp/demo-requirements.txt
+RUN pip install -r /tmp/demo-requirements.txt
+
+COPY demo /workspace/demo
+COPY demo/load-demos.sh /usr/local/bin/load-demos
+RUN chmod +x /usr/local/bin/load-demos /workspace/demo/load-demos.sh
+
+EXPOSE 8888
+
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=", "--NotebookApp.password="]

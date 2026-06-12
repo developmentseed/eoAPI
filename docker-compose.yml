@@ -1,3 +1,30 @@
+x-demo-base: &demo-base
+  image: eoapi-demo:latest
+  build:
+    context: .
+    dockerfile: dockerfiles/Dockerfile.demo
+  profiles:
+    - demo
+  environment:
+    - DATABASE_URL=postgresql://username:password@database:5432/postgis
+    - STAC_API_URL=http://stac-fastapi:8080
+    - TITILER_URL=http://titiler-pgstac
+    - TITILER_PUBLIC_URL=http://127.0.0.1:8082
+    - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+    - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+    - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+    - AWS_NO_SIGN_REQUEST=YES
+    - CPL_VSIL_CURL_ALLOWED_EXTENSIONS=.tif,.tiff,.vrt
+  volumes:
+    - ./demo:/workspace/demo:z
+  depends_on:
+    stac-fastapi:
+      condition: service_healthy
+    titiler-pgstac:
+      condition: service_healthy
+    database:
+      condition: service_healthy
+
 services:
 
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
@@ -5,17 +32,41 @@ services:
     build:
       context: dockerfiles
       dockerfile: Dockerfile.browser
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8085 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
+      - name: stac-browser
+        target: 8085
+        published: 8085
+        protocol: tcp
+        mode: host
     depends_on:
-      - stac-fastapi
-      - titiler-pgstac
-      - database
+      stac-fastapi:
+        condition: service_healthy
+      titiler-pgstac:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 
   stac-fastapi:
     image: ghcr.io/stac-utils/stac-fastapi-pgstac:5.0.2
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/_mgmt/ping', timeout=3).read()\""
+      ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
+      - name: stac-fastapi
+        target: 8080
+        published: 8081
+        protocol: tcp
+        mode: host
     environment:
       # Postgres connection
       - POSTGRES_USER=username
@@ -27,19 +78,25 @@ services:
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=1
     depends_on:
-      - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn stac_fastapi.pgstac.app:app --host 0.0.0.0 --port 8081"
-    volumes:
-      - ./dockerfiles/scripts:/tmp/scripts
+      database:
+        condition: service_healthy
 
   titiler-pgstac:
     # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
     # so we force the image to be built with linux/amd64
     platform: linux/amd64
     image: ghcr.io/stac-utils/titiler-pgstac:1.7.2
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
+      - name: titiler-pgstac
+        target: 80
+        published: 8082
+        protocol: tcp
+        mode: host
     environment:
       # Postgres connection
       - POSTGRES_USER=username
@@ -64,19 +121,26 @@ services:
       # TiTiler Config
       - MOSAIC_CONCURRENCY=1
       # AWS S3 endpoint config
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_NO_SIGN_REQUEST=YES
     depends_on:
-      - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn titiler.pgstac.main:app  --host 0.0.0.0 --port 8082"
-    volumes:
-      - ./dockerfiles/scripts:/tmp/scripts
+      database:
+        condition: service_healthy
 
   tipg:
     image: ghcr.io/developmentseed/tipg:1.0.1
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
+      - name: tipg
+        target: 80
+        published: 8083
+        protocol: tcp
+        mode: host
     environment:
       # Postgres connection
       - POSTGRES_USER=username
@@ -86,15 +150,46 @@ services:
       - POSTGRES_PORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn tipg.main:app --host 0.0.0.0 --port 8083"
     depends_on:
-      - database
-    volumes:
-      - ./dockerfiles/scripts:/tmp/scripts
+      database:
+        condition: service_healthy
+
+  demo-runner:
+    <<: *demo-base
+    ports:
+      - name: jupyter
+        target: 8888
+        published: 8888
+        protocol: tcp
+        mode: host
+
+  demo-noaa:
+    <<: *demo-base
+    command: ["load-demos", "noaa"]
+
+  demo-facebook:
+    <<: *demo-base
+    command: ["load-demos", "facebook"]
+
+  demo-cmip6:
+    <<: *demo-base
+    command: ["load-demos", "cmip6"]
+
+  demo-oam:
+    <<: *demo-base
+    command: ["load-demos", "oam"]
+
+  demo-all:
+    <<: *demo-base
+    command: ["load-demos", "all"]
 
   database:
     image: ghcr.io/stac-utils/pgstac:v0.9.6
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U username -d postgis"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
@@ -103,10 +198,17 @@ services:
       - PGPASSWORD=password
       - PGDATABASE=postgis
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:5439:5432"
+      - name: database
+        target: 5432
+        published: 5439
+        protocol: tcp
+        mode: host
     command: postgres -N 500
     volumes:
-      - ./.pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
 
 networks:
   default:
