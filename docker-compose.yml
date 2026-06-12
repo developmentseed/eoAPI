@@ -1,3 +1,30 @@
+x-demo-base: &demo-base
+  image: eoapi-demo:latest
+  build:
+    context: .
+    dockerfile: dockerfiles/Dockerfile.demo
+  profiles:
+    - demo
+  environment:
+    - DATABASE_URL=postgresql://username:password@database:5432/postgis
+    - STAC_API_URL=http://stac-fastapi:8080
+    - TITILER_URL=http://titiler-pgstac
+    - TITILER_PUBLIC_URL=http://127.0.0.1:8082
+    - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+    - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+    - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+    - AWS_NO_SIGN_REQUEST=YES
+    - CPL_VSIL_CURL_ALLOWED_EXTENSIONS=.tif,.tiff,.vrt
+  volumes:
+    - ./demo:/workspace/demo:z
+  depends_on:
+    stac-fastapi:
+      condition: service_healthy
+    titiler-pgstac:
+      condition: service_healthy
+    database:
+      condition: service_healthy
+
 services:
 
   # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
@@ -94,8 +121,9 @@ services:
       # TiTiler Config
       - MOSAIC_CONCURRENCY=1
       # AWS S3 endpoint config
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_NO_SIGN_REQUEST=YES
     depends_on:
       database:
         condition: service_healthy
@@ -125,6 +153,35 @@ services:
     depends_on:
       database:
         condition: service_healthy
+
+  demo-runner:
+    <<: *demo-base
+    ports:
+      - name: jupyter
+        target: 8888
+        published: 8888
+        protocol: tcp
+        mode: host
+
+  demo-noaa:
+    <<: *demo-base
+    command: ["load-demos", "noaa"]
+
+  demo-facebook:
+    <<: *demo-base
+    command: ["load-demos", "facebook"]
+
+  demo-cmip6:
+    <<: *demo-base
+    command: ["load-demos", "cmip6"]
+
+  demo-oam:
+    <<: *demo-base
+    command: ["load-demos", "oam"]
+
+  demo-all:
+    <<: *demo-base
+    command: ["load-demos", "all"]
 
   database:
     image: ghcr.io/stac-utils/pgstac:v0.9.6
