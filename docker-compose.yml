@@ -1,52 +1,50 @@
 services:
-
-  # change to official image when available https://github.com/radiantearth/stac-browser/pull/386
+  # Build from a pinned STAC Browser release so eoAPI can provide a custom buildTileUrlTemplate config.
   stac-browser:
     build:
       context: dockerfiles
       dockerfile: Dockerfile.browser
+      args:
+        STAC_BROWSER_VERSION: ${STAC_BROWSER_VERSION:-v5.0.0-rc.1}
     ports:
-      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8085"
+      - "${MY_DOCKER_IP:-127.0.0.1}:8085:8080"
     depends_on:
       - stac-fastapi
       - titiler-pgstac
       - database
 
   stac-fastapi:
-    image: ghcr.io/stac-utils/stac-fastapi-pgstac:5.0.2
+    image: ghcr.io/stac-utils/stac-fastapi-pgstac:6.3.1
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
       # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST_READER=database
-      - POSTGRES_HOST_WRITER=database
-      - POSTGRES_PORT=5432
+      - PGUSER=username
+      - PGPASSWORD=password
+      - PGDATABASE=postgis
+      - PGHOST=database
+      - PGPORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=1
+      # stac-fastapi-pgstac 6 disables transaction endpoints by default.
+      - ENABLE_TRANSACTIONS_EXTENSIONS=TRUE
     depends_on:
       - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn stac_fastapi.pgstac.app:app --host 0.0.0.0 --port 8081"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn stac_fastapi.pgstac.app:app --host 0.0.0.0 --port 8081"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
   titiler-pgstac:
-    # At the time of writing, rasterio and psycopg wheels are not available for arm64 arch
-    # so we force the image to be built with linux/amd64
-    platform: linux/amd64
-    image: ghcr.io/stac-utils/titiler-pgstac:1.7.2
+    image: ghcr.io/stac-utils/titiler-pgstac:3.0.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
       # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST=database
-      - POSTGRES_PORT=5432
+      - PGUSER=username
+      - PGPASSWORD=password
+      - PGDATABASE=postgis
+      - PGHOST=database
+      - PGPORT=5432
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
       # - DB_MAX_QUERIES=10
@@ -63,41 +61,34 @@ services:
       - VSI_CACHE_SIZE=536870912
       # TiTiler Config
       - MOSAIC_CONCURRENCY=1
+      - TITILER_PGSTAC_API_ENABLE_EXTERNAL_DATASET_ENDPOINTS=TRUE
       # AWS S3 endpoint config
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
       - database
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn titiler.pgstac.main:app  --host 0.0.0.0 --port 8082"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn titiler.pgstac.main:app  --host 0.0.0.0 --port 8082"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
   tipg:
-    image: ghcr.io/developmentseed/tipg:1.0.1
+    image: ghcr.io/developmentseed/tipg:1.4.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
       # Postgres connection
-      - POSTGRES_USER=username
-      - POSTGRES_PASS=password
-      - POSTGRES_DBNAME=postgis
-      - POSTGRES_HOST=database
-      - POSTGRES_PORT=5432
+      - DATABASE_URL=postgresql://username:password@database:5432/postgis
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-    command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn tipg.main:app --host 0.0.0.0 --port 8083"
+    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn tipg.main:app --host 0.0.0.0 --port 8083"
     depends_on:
       - database
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    # The PgSTAC image does not publish an arm64 manifest for this tag, so run
-    # the amd64 image under emulation on Apple Silicon and other arm64 hosts.
     platform: linux/amd64
-    image: ghcr.io/stac-utils/pgstac:v0.9.6
+    image: ghcr.io/stac-utils/pgstac:v0.9.11
     environment:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
