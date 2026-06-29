@@ -1,34 +1,41 @@
 # Copyright Radiant Earth Foundation
 
-FROM node:lts-alpine3.18 AS build-step
+FROM node:lts-alpine AS build-step
 ARG DYNAMIC_CONFIG=true
+ARG STAC_BROWSER_VERSION=v5.0.0-rc.1
+ARG historyMode="history"
+ARG pathPrefix="/"
+ARG SB_CONFIG="./config.eoapi.js"
+ENV SB_historyMode="${historyMode}"
+ENV SB_pathPrefix="${pathPrefix}"
+ENV SB_CONFIG="${SB_CONFIG}"
 
 WORKDIR /app
 
 RUN apk add --no-cache git
-RUN git clone https://github.com/radiantearth/stac-browser.git .
-# remove the default config.js
-RUN rm config.js
+RUN git clone --depth 1 --branch "${STAC_BROWSER_VERSION}" https://github.com/radiantearth/stac-browser.git .
 RUN npm install
-# replace the default config.js with our config file
-COPY ./browser_config.js ./config.js
-RUN \[ "${DYNAMIC_CONFIG}" == "true" \] && sed -i 's/<!-- <script defer="defer" src=".\/config.js"><\/script> -->/<script defer="defer" src=".\/config.js"><\/script>/g' public/index.html
+COPY ./browser_config.js ./config.eoapi.js
+RUN if [ "${DYNAMIC_CONFIG}" = "true" ]; then sed -i 's/<!--RC//;s/RC-->//' index.html; fi
 RUN npm run build
 
+FROM nginxinc/nginx-unprivileged:1-alpine
+ARG pathPrefix="/"
 
-FROM nginx:1-alpine-slim
+USER root
+RUN apk add --no-cache jq pcre-tools
 
-COPY --from=build-step /app/dist /usr/share/nginx/html
 COPY --from=build-step /app/config.schema.json /etc/nginx/conf.d/config.schema.json
+COPY --from=build-step /app/dist /usr/share/nginx/html
+COPY --from=build-step /app/docker/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build-step /app/docker/docker-entrypoint.sh /docker-entrypoint.d/40-stac-browser-entrypoint.sh
 
-# change default port to 8085
-RUN apk add jq pcre-tools && \
-    sed -i 's/\s*listen\s*80;/    listen 8085;/' /etc/nginx/conf.d/default.conf && \
-    sed -i 's/\s*location \/ {/    location \/ {\n        try_files $uri $uri\/ \/index.html;/' /etc/nginx/conf.d/default.conf
+RUN sed -i "s|<pathPrefix>|${pathPrefix}|" /etc/nginx/conf.d/default.conf && \
+    chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod +x /docker-entrypoint.d/40-stac-browser-entrypoint.sh
 
-EXPOSE 8085
+EXPOSE 8080
 
 STOPSIGNAL SIGTERM
 
-# override entrypoint, which calls nginx-entrypoint underneath
-COPY --from=build-step /app/docker/docker-entrypoint.sh ./docker-entrypoint.d/40-stac-browser-entrypoint.sh
+USER nginx
