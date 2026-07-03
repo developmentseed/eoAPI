@@ -121,3 +121,13 @@ infrastructure/aws/browser_config.js
 # imported docs
 docs/src/deployment/kubernetes/
 eoapi-k8s/
+
+# Maxar notebook downloads
+demo/Maxar/collections.json
+demo/Maxar/collections.json.*
+demo/Maxar/items.json
+demo/Maxar/items.json.zip
+
+# OAM notebook generated STAC files
+demo/oam/oam_collection.json
+demo/oam/oam_items.njson

@@ -39,7 +39,7 @@ Note: We also recommend to use simpler item ID than the basename.
             "interval": [
                 [
                     "2016-01-01T00:00:00Z",
-                    "null"
+                    null
                 ]
             ]
         }

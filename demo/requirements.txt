@@ -1,0 +1,15 @@
+awscli
+boto3
+fsspec[s3]
+folium
+httpx
+ipykernel
+jupyterlab
+pypgstac==0.9.6
+psycopg[binary]
+psycopg-pool
+pystac
+requests
+rio-stac
+
+ipyleaflet

@@ -6,7 +6,7 @@ ARG DYNAMIC_CONFIG=true
 WORKDIR /app
 
 RUN apk add --no-cache git
-RUN git clone https://github.com/radiantearth/stac-browser.git .
+RUN git clone --depth 1 --branch v3.3.5 https://github.com/radiantearth/stac-browser.git .
 # remove the default config.js
 RUN rm config.js
 RUN npm install

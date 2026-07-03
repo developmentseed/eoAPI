@@ -1,5 +1,5 @@
 module.exports = {
-    catalogUrl: "http://0.0.0.0:8081",
+    catalogUrl: "http://127.0.0.1:8081",
     catalogTitle: "eoAPI STAC Browser",
     allowExternalAccess: true, // Must be true if catalogUrl is not given
     allowedDomains: [],
@@ -18,7 +18,7 @@ module.exports = {
     apiCatalogPriority: null,
     useTileLayerAsFallback: true,
     displayGeoTiffByDefault: false,
-    buildTileUrlTemplate: ({href, asset}) => "http://0.0.0.0:8082/cog/tiles/{z}/{x}/{y}@2x?url=" + encodeURIComponent(asset.href.startsWith("/vsi") ? asset.href : href),
+    buildTileUrlTemplate: ({href, asset}) => "http://127.0.0.1:8082/cog/tiles/{z}/{x}/{y}@2x?url=" + encodeURIComponent(asset.href.startsWith("/vsi") ? asset.href : href),
     stacProxyUrl: null,
     pathPrefix: "/",
     historyMode: "history",
