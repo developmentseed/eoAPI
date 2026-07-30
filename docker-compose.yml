@@ -65,6 +65,7 @@ services:
       # AWS S3 endpoint config
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # - AWS_NO_SIGN_REQUEST=YES # Helpful for demoing public data.
     depends_on:
       - database
     command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn titiler.pgstac.main:app  --host 0.0.0.0 --port 8082"

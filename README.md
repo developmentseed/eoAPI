@@ -52,6 +52,8 @@ The easiest way to start exploring the different eoAPI services is with *Docker*
 ```
 git clone https://github.com/developmentseed/eoAPI.git
 cd eoAPI
+git checkout feat/update-runtimes # Without this docker compose up fails. See https://github.com/developmentseed/eoAPI/issues/229
+# Export AWS credentials or set AWS_NO_SIGN_REQUEST=YES in docker-compose titiler-pgstac service.
 docker compose up
 ```
 
