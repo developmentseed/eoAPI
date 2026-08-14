@@ -1,0 +1,9 @@
+FROM python:3.13-slim
+
+ARG PGSTAC_VERSION
+
+RUN pip install --no-cache-dir "pypgstac[psycopg]==${PGSTAC_VERSION}"
+
+COPY migrate-pgstac.py /usr/local/bin/migrate-pgstac
+
+ENTRYPOINT ["migrate-pgstac"]

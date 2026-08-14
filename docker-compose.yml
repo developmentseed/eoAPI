@@ -9,9 +9,12 @@ services:
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8085:8080"
     depends_on:
-      - stac-fastapi
-      - titiler-pgstac
-      - database
+      stac-fastapi:
+        condition: service_started
+      titiler-pgstac:
+        condition: service_started
+      pgstac-version-check:
+        condition: service_completed_successfully
 
   stac-fastapi:
     image: ghcr.io/stac-utils/stac-fastapi-pgstac:6.3.1
@@ -29,7 +32,8 @@ services:
       # stac-fastapi-pgstac 6 disables transaction endpoints by default.
       - ENABLE_TRANSACTIONS_EXTENSIONS=TRUE
     depends_on:
-      - database
+      pgstac-version-check:
+        condition: service_completed_successfully
     command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn stac_fastapi.pgstac.app:app --host 0.0.0.0 --port 8081"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
@@ -66,7 +70,8 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     depends_on:
-      - database
+      pgstac-version-check:
+        condition: service_completed_successfully
     command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn titiler.pgstac.main:app  --host 0.0.0.0 --port 8082"
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
@@ -82,13 +87,15 @@ services:
       - DB_MAX_CONN_SIZE=10
     command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn tipg.main:app --host 0.0.0.0 --port 8083"
     depends_on:
-      - database
+      pgstac-version-check:
+        condition: service_completed_successfully
     volumes:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    image: ghcr.io/stac-utils/pgstac:v0.9.11
+    image: ghcr.io/stac-utils/pgstac:v${PGSTAC_VERSION:-0.9.11}
     environment:
+      - PGSTAC_VERSION=${PGSTAC_VERSION:-0.9.11}
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgis
@@ -100,6 +107,41 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
+      - ./dockerfiles/scripts:/tmp/scripts:ro
+
+  pgstac-version-check:
+    image: ghcr.io/stac-utils/pgstac:v${PGSTAC_VERSION:-0.9.11}
+    entrypoint: ["/tmp/scripts/check-pgstac-version.sh"]
+    environment:
+      - PGSTAC_VERSION=${PGSTAC_VERSION:-0.9.11}
+      - PGUSER=username
+      - PGPASSWORD=password
+      - PGDATABASE=postgis
+      - PGHOST=database
+      - PGPORT=5432
+    volumes:
+      - ./dockerfiles/scripts:/tmp/scripts:ro
+    depends_on:
+      database:
+        condition: service_started
+
+  pgstac-migrate:
+    profiles: ["migration"]
+    build:
+      context: dockerfiles
+      dockerfile: Dockerfile.pgstac-migrate
+      args:
+        PGSTAC_VERSION: ${PGSTAC_VERSION:-0.9.11}
+    environment:
+      - PGSTAC_VERSION=${PGSTAC_VERSION:-0.9.11}
+      - PGUSER=username
+      - PGPASSWORD=password
+      - PGDATABASE=postgis
+      - PGHOST=database
+      - PGPORT=5432
+    depends_on:
+      database:
+        condition: service_started
 
 networks:
   default:
