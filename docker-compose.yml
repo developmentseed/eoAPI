@@ -87,7 +87,6 @@ services:
       - ./dockerfiles/scripts:/tmp/scripts
 
   database:
-    platform: linux/amd64
     image: ghcr.io/stac-utils/pgstac:v0.9.11
     environment:
       - POSTGRES_USER=username
