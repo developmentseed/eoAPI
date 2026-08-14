@@ -5,7 +5,7 @@ services:
       context: dockerfiles
       dockerfile: Dockerfile.browser
       args:
-        STAC_BROWSER_VERSION: ${STAC_BROWSER_VERSION:-v5.0.0-rc.1}
+        STAC_BROWSER_VERSION: ${STAC_BROWSER_VERSION:-v5.0.0}
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8085:8080"
     depends_on:
