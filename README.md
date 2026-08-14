@@ -52,8 +52,30 @@ The easiest way to start exploring the different eoAPI services is with *Docker*
 ```
 git clone https://github.com/developmentseed/eoAPI.git
 cd eoAPI
-docker compose up
+docker compose up --build
 ```
+
+`--build` picks up changes to the local STAC Browser Dockerfile.
+
+When upgrading PgSTAC, migrate an existing `.pgdata` before starting the stack:
+
+```
+docker compose run --rm --build pgstac-migrate
+docker compose up --build
+```
+
+A version check blocks the services when its schema version does not match the configured PgSTAC image version and prints the migration command.
+
+Set `PGSTAC_VERSION` before running Compose to select a PgSTAC image and build a matching migration helper. It defaults to `0.9.11`:
+
+```
+export PGSTAC_VERSION=0.9.11
+docker compose run --rm --build pgstac-migrate
+docker compose up --build
+```
+
+> [!NOTE]
+> You cannot downgrade the installed version of pgstac! 
 
 Once the applications are *up*, you'll need to add STAC **Collections** and **Items** to the PgSTAC database. If you don't have these available, you can follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)).
 
