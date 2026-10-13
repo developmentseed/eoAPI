@@ -89,8 +89,9 @@ export PGSTAC_VERSION=0.9.11
 docker compose run --rm --build pgstac-migrate
 docker compose up --build
 ```
-> [!NOTE]
-> You cannot downgrade the installed version of pgstac! 
+
+!!! note
+    You cannot downgrade the installed version of pgstac!
 
 Once the applications are *up*, you'll need to add STAC **Collections** and **Items** to the PgSTAC database. If you don't have, you can use the follow the [MAXAR open data demo](https://github.com/vincentsarago/MAXAR_opendata_to_pgstac) (or get inspired by the other [demos](https://github.com/developmentseed/eoAPI/tree/main/demo)).
 
