@@ -37,7 +37,7 @@ export default {
     const tileHref = assetHref.startsWith("/vsi") ? assetHref : href;
 
     return (
-      "http://0.0.0.0:8082/external/tiles/WebMercatorQuad/{z}/{x}/{y}?url=" +
+      "http://0.0.0.0:8082/external/tiles/WebMercatorQuad/{z}/{x}/{y}?tilesize=512&url=" +
       encodeURIComponent(tileHref)
     );
   },
@@ -62,6 +62,8 @@ export default {
   socialSharing: ["email", "bsky", "mastodon", "x"],
   preprocessSTAC: null,
   authConfig: null,
+  // No authConfig, so the management UI can never show; "off" also skips the OPTIONS permission probe.
+  transactions: "off",
   crs: {},
   footerLinks: null,
 };

@@ -5,7 +5,7 @@ services:
       context: dockerfiles
       dockerfile: Dockerfile.browser
       args:
-        STAC_BROWSER_VERSION: ${STAC_BROWSER_VERSION:-v5.0.0}
+        STAC_BROWSER_VERSION: ${STAC_BROWSER_VERSION:-v5.1.0}
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8085:8080"
     depends_on:
@@ -17,7 +17,7 @@ services:
         condition: service_completed_successfully
 
   stac-fastapi:
-    image: ghcr.io/stac-utils/stac-fastapi-pgstac:6.3.1
+    image: ghcr.io/stac-utils/stac-fastapi-pgstac:7.1.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8081:8081"
     environment:
@@ -34,12 +34,10 @@ services:
     depends_on:
       pgstac-version-check:
         condition: service_completed_successfully
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn stac_fastapi.pgstac.app:app --host 0.0.0.0 --port 8081"
-    volumes:
-      - ./dockerfiles/scripts:/tmp/scripts
+    command: uvicorn stac_fastapi.pgstac.app:create_app --factory --host 0.0.0.0 --port 8081
 
   titiler-pgstac:
-    image: ghcr.io/stac-utils/titiler-pgstac:3.0.0
+    image: ghcr.io/stac-utils/titiler-pgstac:3.2.0
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8082:8082"
     environment:
@@ -72,12 +70,10 @@ services:
     depends_on:
       pgstac-version-check:
         condition: service_completed_successfully
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn titiler.pgstac.main:app  --host 0.0.0.0 --port 8082"
-    volumes:
-      - ./dockerfiles/scripts:/tmp/scripts
+    command: uvicorn titiler.pgstac.main:app --host 0.0.0.0 --port 8082
 
   tipg:
-    image: ghcr.io/developmentseed/tipg:1.4.0
+    image: ghcr.io/developmentseed/tipg:1.6.1
     ports:
       - "${MY_DOCKER_IP:-127.0.0.1}:8083:8083"
     environment:
@@ -85,12 +81,10 @@ services:
       - DATABASE_URL=postgresql://username:password@database:5432/postgis
       - DB_MIN_CONN_SIZE=1
       - DB_MAX_CONN_SIZE=10
-    command: bash -c "bash /tmp/scripts/wait-for-it.sh -t 120 -h database -p 5432 && uvicorn tipg.main:app --host 0.0.0.0 --port 8083"
+    command: uvicorn tipg.main:app --host 0.0.0.0 --port 8083
     depends_on:
       pgstac-version-check:
         condition: service_completed_successfully
-    volumes:
-      - ./dockerfiles/scripts:/tmp/scripts
 
   database:
     image: ghcr.io/stac-utils/pgstac:v${PGSTAC_VERSION:-0.9.11}
@@ -107,7 +101,6 @@ services:
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
-      - ./dockerfiles/scripts:/tmp/scripts:ro
 
   pgstac-version-check:
     image: ghcr.io/stac-utils/pgstac:v${PGSTAC_VERSION:-0.9.11}
