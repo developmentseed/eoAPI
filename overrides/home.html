@@ -1,0 +1,312 @@
+<!-- Custom HTML site displayed as the Home chapter -->
+
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<link rel="stylesheet" href="/overrides/assets/stylesheets/home.css">
+
+<main>
+    <!-- Hero section -->
+    <section class="tx-container">
+        <div class="md-grid md-typeset">
+            <div class="tx-hero md-content">
+                <div class="tx-hero__content">
+                    <p class="supheading">eoAPI</p>
+                    <h1>Earth Observation Data at Scale</h1>
+                    <h1>Deployed in minutes</h1>
+                    <p class="lead">eoAPI makes massive earth observation (EO) data archives discoverable and
+                        interoperable—the fastest and easiest way to configure, customize, and deploy a full Earth
+                        Observation stack.</p>
+                    <div class="button-wrapper">
+                        <a href="{{ page.next_page.url | url }}" title="Get Started"
+                            class="md-button md-button--primary">
+                            Get Started
+                            <span class="twemoji">
+                                {% include ".icons/material/arrow-right.svg" %}
+                            </span>
+                        </a>
+                        <a href="{{ config.repo_url }}" title="EoAPI Github Repo" class="md-button">
+                            View on GitHub
+                            <span class="twemoji">
+                                {% include ".icons/simple/github.svg" %}
+                            </span>
+                        </a>
+
+                    </div>
+                    <p class="media-attribution"><a title="Learn about the author"
+                            href="https://www.flickr.com/photos/nasamarshall/5091372229"> <span class="twemoji">
+                                {% include ".icons/material/information-outline.svg" %}
+                            </span><strong>Photo
+                                ©NASA</strong></a>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is eoAPI section -->
+    <section class="md-content" id="what-is-eoapi-section">
+        <div class="md-content md-grid">
+            <div class="md-content__inner width-160 ">
+                <header class="md-typeset">
+                    <h5 id="what-is-eoapi" class="supheading">What is eoAPI?</h5>
+                    <h2>State-of-the-art services to enable <mark>data discovery</mark>, <mark>search</mark>,
+                        <mark>visualization</mark>, and <mark>access</mark>.
+                        <a href="#what-is-eoapi" class="headerlink" title="Permanent link"> ¶ </a>
+                    </h2>
+                </header>
+                <p class="md-typeset lead">eoAPI presents an open-source and reusable framework for harnessing earth
+                    observation data. eoAPI takes the work out of constructing a cloud-native EO infrastructure through
+                    a set of sensible defaults that fit most EO and geospatial infrastructure needs. Built with
+                    modularity as a core principle, eoAPI can easily be customized to your needs.</p>
+            </div>
+            <div class="md-content__inner">
+                <ul class="feature-grid" style="--cols: 3;">
+                    <li class="feature-tout">
+                        <article class="md-typeset">
+                            <span class="twemoji">
+                                {% include ".icons/material/database-marker-outline.svg" %}
+                            </span>
+                            <h3>STAC Powered</h3>
+                            <p>A suite of STAC-focused technologies that consistently perform well as a backend</p>
+                        </article>
+                    </li>
+                    <li class="feature-tout">
+                        <article class="md-typeset">
+                            <span class="twemoji">
+                                {% include ".icons/material/folder-home.svg" %}
+                            </span>
+                            <h3>Sensible Defaults</h3>
+                            <p>Seamless deployment, configuration, and customization while preserving flexibility.
+                            </p>
+                        </article>
+                    </li>
+                    <li class="feature-tout">
+                        <article class="md-typeset">
+                            <span class="twemoji">
+                                {% include ".icons/material/cloud-braces.svg" %}
+                            </span>
+                            <h3>Cloud agnostic</h3>
+                            <p>Quickly deploy, configure, and scale EO services, anywhere.</p>
+                        </article>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services section -->
+    <section class="md-content secondary-section" id="services">
+        <div class="md-grid">
+            <div class="md-content__inner">
+                <header class="md-typeset">
+                    <h5 id="end-to-end-eoAPI" class="supheading">End-To-End Earth Observation Infrastructure</h5>
+                </header>
+                <ul class="feature-grid" style="grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));">
+                    <li>
+                        <article class="feature-item">
+                            <img src="../img/pgstac_logo.png" alt="pgstac logo" loading="lazy">
+                            <div class="feature-item__description md-typeset">
+                                <h3>
+                                    Catalog Your Data
+                                </h3>
+                                <h5>
+                                    pgSTAC - Postgres STAC Extension
+                                </h5>
+                                <p>pg-STAC is an optimized Postgres schema to index and search large-scale STAC
+                                    collections.
+                                <p>
+                                    <a href="https://github.com/stac-utils/pgstac">stac-utils/pgstac</a>
+                            </div>
+                        </article>
+                    </li>
+                    <article class="feature-item">
+                        <img src="../img/stacfastapi_logo.png" alt="stac-fastapi logo" loading="lazy" />
+                        <div class="feature-item__description md-typeset">
+                            <h3>
+                                Make it Searchable
+                            </h3>
+                            <h5>
+                                stac-fastapi - REST API Service
+                            </h5>
+                            <p>stac-fastapi is an Open Geospatial Consortium (OGC) Features API compliant FastAPI
+                                application for STAC metadata search.
+                            <p>
+                                <a href="https://github.com/stac-utils/stac-fastapi">stac-utils/stac-fastapi</a>
+
+                        </div>
+                    </article>
+                    <article class="feature-item">
+                        <img src="../img/titilerpgstac_logo.png" alt="titiler-pgstac logo" loading="lazy" />
+                        <div class="feature-item__description md-typeset">
+                            <h3>
+                                Visualize Raster Data
+                            </h3>
+                            <h5>
+                                titiler-pgstac - Raster Tiling Service
+                            </h5>
+                            <p>titiler-pgSTAC is a TiTiler extension that connects to pgSTAC to support large-scale
+                                dynamic mosaic tiling for visualizing STAC collections and items.
+                            </p>
+                            <a href="https://github.com/stac-utils/titiler-pgstac">stac-utils/titiler-pgstac</a>
+
+                        </div>
+                    </article>
+                    <article class="feature-item">
+                        <img src="../img/tipg_logo.png" alt="tipg logo" loading="lazy" />
+                        <div class="feature-item__description md-typeset">
+                            <h3>
+                                Visualize Vector Data
+                            </h3>
+                            <h5>
+                                tipg - Vector Tiling Service
+                            </h5>
+                            <p>tipg is an Open Geospatial Consortium (OGC) Features and Tiles API for vector datasets.
+                            </p>
+                            <a href="https://github.com/developmentseed/tipg">developmentseed/tipg</a>
+                        </div>
+                    </article>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- eoAPI benefits section -->
+    <section class="md-content" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner">
+                <header class="md-typeset">
+                    <h5 class="supheading">harness eoapi benefits</h5>
+                </header>
+                <div class="figure-collection" id="eoapi-benefits">
+                    <figure>
+                        <img src="../img/downloaddeploy.png" alt="Download eoAPI and deploy anywhere" loading="lazy">
+                        <figcaption class="md-typeset">
+                            <h2>Download and Deploy</h2>
+                            <p>Get started by downloading all the eoAPI resources you need. With our easy-to-follow
+                                guides and documentation, you'll have eoAPI up and running in minutes.</p>
+                        </figcaption>
+                    </figure>
+                    <figure>
+                        <img src="../img/ingestdata.png" alt="Ingest your data" loading="lazy" />
+                        <figcaption class="md-typeset">
+                            <h2>Ingest Data & Metadata</h2>
+                            <p>Whether working with raster or vector data, eoAPI's flexible design allows you to
+                                ingest STAC Collections quickly.
+                            </p>
+                        </figcaption>
+                    </figure>
+                    <figure>
+                        <img src="../img/sharevisualize.png" alt="Share imagery" loading="lazy">
+                        <figcaption class="md-typeset">
+                            <h2>Share, Visualize, and Analyze</h2>
+                            <p>Now that your data is ingested, eoAPI provides the tools to share,
+                                visualize, and analyze it. From simple sharing options to advanced analytics
+                                capabilities, eoAPI is designed to help you make the most out of your geospatial data.
+                            </p>
+
+                        </figcaption>
+                    </figure>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why eoAPI section -->
+    <section class="md-content secondary-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner centered width-160">
+                <header class="md-typeset">
+                    <h5 id="why-eoapi" class="supheading text-centered">Why eoAPI</h5>
+                    <h1><mark>We believe</mark> that the <mark>community</mark> of people who would benefit from STAC is
+                        larger than the current
+                        core
+                        community and early adopters of STAC.</h1>
+                </header>
+                <p class="md-typeset">The potential of Earth Observation data is immense in helping us understand our
+                    ever-changing planet. To fulfill this potential, we must provide EO data that can be easily
+                    integrated into modern applications and decision-making tools. It&apos;s crucial that it&apos;s easy to
+                    discover, interoperable, ingestible, and optimized for applications. This is a significant challenge
+                    for many organizations, and our mission at Development Seed is to address this challenge.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="md-content dark-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner">
+                <header class="md-typeset text-centered">
+                    <h5 id="eoapi-in-action" class="supheading">eoAPI in action</h5>
+                </header>
+                <div class="figure-collection" id="eoAPI-examples">
+                    <figure>
+                        <figcaption class="md-typeset">
+                            <h2>NASA IMPACT&apos;s VEDA Project</h2>
+                            <p>NASA IMPACT is leading the way for how NASA (and space agencies worldwide) can increase
+                                the
+                                societal impact of their data through cloud-optimized data distribution. They&apos;ve
+                                invested
+                                significant resources in advancing modern public EO data standards, tools, and
+                                platforms.
+                                You
+                                can see eoAPI services in action throughout the <a href="https://earthdata.nasa.gov/dashboard" rel="noopener" target="_blank">VEDA platform</a>.</p>
+                        </figcaption>
+                        <img src="../img/eoapi_veda.png" alt="NASA VEDA platform screenshot" loading="lazy">
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- will add back once we have logos approved
+    <section class="md-content secondary-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner">
+                <header class="md-typeset text-centered">
+                    <h5 id="trusted-by" class="supheading">Trusted By</h5>
+                </header>
+                <div class="feature-grid logo-grid" style="--cols: 2;">
+                    <figure>
+                        <img src="../img/nasa_logo.svg" alt="NASA logo" loading="lazy" height="88px">
+                    </figure>
+                    <figure>
+                        <img src="../img/aws_logo.svg" alt="AWS Logo" loading="lazy" height="64px">
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+    -->
+    <section class="md-content gradient-section" data-md-color-scheme="default">
+        <div class="md-grid" data-md-component="content">
+            <div class="md-content__inner centered text-centered">
+                <div class="feature-grid" style="--cols: 2;">
+                    <div class="md-typeset">
+                        <h5 class="supheading">Bespoke Solutions</h5>
+                        <p>Want to discuss a customized solution for your needs?
+                        </p>
+                        <a href="https://developmentseed.org/contact" target="_blank" rel="noopener">Contact us</a>
+                    </div>
+                    <div class="md-typeset">
+                        <h5 class="supheading">Driven by Community</h5>
+                        <p>eoAPI is a community-driven initiative built on collaboration. We welcome your contributions,
+                            feedback, and suggestions. Join the discussion or open a pull request <a
+                                href="https://github.com/developmentseed/eoAPI" target="_blank" rel="noopener">in the
+                                eoAPI
+                                repository</a>
+                        </p>
+                    </div>
+                </div>
+                <a href="https://developmentseed.org" target="_blank" rel="noopener"
+                    style="display: block; margin-top: 2rem;" title="DevelopmentSeed.org"><img
+                        src="../img/devseed_logo.svg" height="64px" alt="Development Seed Logo" loading="lazy" /></a>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
